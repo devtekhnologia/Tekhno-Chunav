@@ -1,0 +1,33 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Extracted Text</title>
+</head>
+<body>
+    <h1>Extracted Text</h1>
+    {% if extracted_text %}
+        <pre>{{ extracted_text }}</pre>
+    {% else %}
+        <p>No text extracted from the PDF.</p>
+    {% endif %}
+    <a href="{% url 'upload_file' %}">Upload Another PDF</a>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Extracted Text</title>
+</head>
+<body>
+    <h1>Extracted Text</h1>
+    {% if extracted_text %}
+        <pre>{{ extracted_text }}</pre>
+    {% else %}
+        <p>No text extracted from the PDF.</p>
+    {% endif %}
+    <a href="{% url 'upload_file' %}">Upload Another PDF</a>
+</body>
+</html>
