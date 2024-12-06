@@ -1,0 +1,71 @@
+{
+  "expo": {
+    "name": "Tekhno Washim",
+    "slug": "Tekhno_Washim",
+    "version": "1.6.5",
+    "orientation": "portrait",
+    "icon": "./assets/mobileicon.png",
+    "userInterfaceStyle": "light",
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "isAndroidBackgroundLocationEnabled": true
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
+        }
+      ],
+      "expo-font",
+      "expo-asset",
+      "expo-speech-recognition"
+    ],
+    "splash": {
+      "image": "",
+      "resizeMode": "contain",
+      "backgroundColor": "#080808"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "ios": {
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "This app needs access to your photo library to save the PDF."
+      },
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/mobileicon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "WRITE_EXTERNAL_STORAGE",
+        "READ_EXTERNAL_STORAGE",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_BACKGROUND_LOCATION",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.FOREGROUND_SERVICE_LOCATION"
+      ],
+      "package": "com.test_Election"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "apiUrl": "http://192.168.1.24:8000",
+      "eas": {
+        "projectId": "3887df35-3995-495e-9565-202aa5e0544a"
+      }
+    }
+  }
+}
