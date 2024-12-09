@@ -135,7 +135,7 @@ const Booths = () => {
                     <TextInput
                         value={searchedValue}
                         onChangeText={text => setSearchValue(text)}
-                        placeholder={language === 'en' ? "Searchbooth by name or ID" : 'नाव किंवा आयडीद्वारे बूथ शोधा'}
+                        placeholder={language === 'en' ? "Search booth by name or ID" : 'नाव किंवा आयडीद्वारे बूथ शोधा'}
                         style={styles.searchInput}
                     />
                 </View>

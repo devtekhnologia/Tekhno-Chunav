@@ -13,8 +13,8 @@ const { height, width } = Dimensions.get('screen');
 const TownUserLogin = () => {
     const { setUserName, login } = useContext(TownUserContext);
     const { language } = useContext(LanguageContext);
-    const [username, setUsername] = useState("8007144842");
-    const [password, setPassword] = useState("WASHIM@34");
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
     const [isTextSecure, setTextSecure] = useState(true);
     const [isLoading, setLoading] = useState(false);
     const [nameError, setNameError] = useState('');

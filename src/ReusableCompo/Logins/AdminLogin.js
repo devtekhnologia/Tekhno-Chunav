@@ -13,8 +13,8 @@ const { height, width } = Dimensions.get('screen');
 const AdminLogin = () => {
     const { login } = useContext(AuthenticationContext);
     const { language } = useContext(LanguageContext);
-    const [username, setUsername] = useState("politician");
-    const [password, setPassword] = useState("politician123");
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
     const [isTextSecure, setTextSecure] = useState(true);
     const [isLoading, setLoading] = useState(false);
     const [nameError, setNameError] = useState('');

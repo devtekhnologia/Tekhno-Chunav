@@ -661,8 +661,8 @@ export default function TownVoters({ route }) {
                         borderRightWidth: 1, borderColor: '#D9D9D9',
                         width: 60, alignItems: 'center',
                     }}>
-                       {/* <Text>{item.voter_id}</Text> */}
-                       <Text>{fixedIndex}</Text>
+                        {/* <Text>{item.voter_id}</Text> */}
+                        <Text>{fixedIndex}</Text>
                     </View>
                     <Text >{language === 'en' ? toTitleCase(item.voter_name) : item.voter_name_mar}</Text>
                 </View>

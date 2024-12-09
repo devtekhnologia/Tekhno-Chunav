@@ -136,6 +136,7 @@ const ProfileStack = () => {
 
 
 const WardBottomTabNav = () => (
+
     <Tab.Navigator
         initialRouteName='Dashboard'
         activeColor="#3C4CAC"

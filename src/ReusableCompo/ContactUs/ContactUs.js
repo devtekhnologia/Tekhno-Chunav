@@ -5,18 +5,14 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Octicons from '@expo/vector-icons/Octicons';
 import React from 'react';
-import SendWhatsAppMessage from './SendWhatsAppMessage';
 
 const { height, width } = Dimensions.get('screen');
 const topMargin = height * 0.1;
 
-
-
 const ContactUs = () => {
 
     const sendWhatsAppMessage = (phoneNumber) => {
-        let message = `Hello, Tekhno Chunav Support! 🤖
-I need assistance with something. Could you please help me?`;
+        let message = `Hello, Tekhno Chunav Support! 🤖\nI need assistance with something. Could you please help me?`;
 
         // URL Scheme for WhatsApp
         let url = `whatsapp://send?text=${encodeURIComponent(message)}&phone=${phoneNumber}`;
@@ -34,9 +30,18 @@ I need assistance with something. Could you please help me?`;
                     return Linking.openURL(url);
                 }
             })
-            .catch((err) => Alert.alert("An error occurred", err));
+            .catch((err) => {
+                Alert.alert('An error occurred', err.message || err);
+            });
     };
 
+    const contactToMail = (email) => {
+        Linking.openURL(`mailto:${email}`)
+            .catch((err) => {
+                console.error('An error occurred while trying to open the email client.', err);
+                Alert.alert('An error occurred', 'Unable to open your email client.');
+            });
+    };
 
     return (
         <SafeAreaView style={styles.container}>
@@ -51,14 +56,14 @@ I need assistance with something. Could you please help me?`;
                     <Text style={styles.bigText}>GET IN TOUCH!</Text>
                     <Text style={styles.text}>Always within your reach</Text>
                     <Image source={require('../../../assets/getInTouch.png')}
-                        style={{ width: width * 0.55, height: height * 0.3, }}
+                        style={{ width: width * 0.55, height: height * 0.3 }}
                     />
                 </View>
 
-                <View style={styles.bottomView} >
+                <View style={styles.bottomView}>
                     <View style={{ marginVertical: 10 }}>
                         <Text style={styles.sectionTitle}>Contact No.</Text>
-                        <Pressable style={styles.infoContainer} onPress={() => { sendWhatsAppMessage('7666710289') }}>
+                        <Pressable style={styles.infoContainer} onPress={() => sendWhatsAppMessage('7666710289')}>
                             <Ionicons name="call" size={18} color="black" />
                             <Text>7666710289</Text>
                         </Pressable>
@@ -66,19 +71,29 @@ I need assistance with something. Could you please help me?`;
 
                     <View style={{ marginVertical: 10 }}>
                         <Text style={styles.sectionTitle}>Email</Text>
-                        <View style={styles.infoContainer}>
+                        <Pressable style={styles.infoContainer} onPress={() => contactToMail('tekhno.marketing@gmail.com')}>
                             <Octicons name="mail" size={18} color="black" style={{ marginTop: 2 }} />
                             <Text>tekhno.marketing@gmail.com</Text>
-                        </View>
+                        </Pressable>
                     </View>
 
                     <View style={{ marginVertical: 10 }}>
                         <Text style={styles.sectionTitle}>Website</Text>
-                        <TouchableOpacity style={styles.infoContainer}
-                            onPress={() => Linking.openURL('https://tekhchunavs.blogspot.com')}
-                        >
+                        <TouchableOpacity style={styles.infoContainer} onPress={() => Linking.openURL('https://tekhchunavs.blogspot.com')}>
                             <AntDesign name="earth" size={18} color="black" style={{ marginTop: 2 }} />
                             <Text>https://tekhchunavs.blogspot.com</Text>
+                        </TouchableOpacity>
+                    </View>
+
+                    <View style={styles.iconsRow}>
+                        <TouchableOpacity onPress={() => sendWhatsAppMessage('7666710289')} style={styles.iconContainer}>
+                            <Ionicons name="logo-whatsapp" size={30} color="#25D366" />
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => contactToMail('tekhno.marketing@gmail.com')} style={styles.iconContainer}>
+                            <Octicons name="mail" size={30} color="#0078D4" />
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => Linking.openURL('https://tekhchunavs.blogspot.com')} style={styles.iconContainer}>
+                            <AntDesign name="earth" size={30} color="#34B7F1" />
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -132,5 +147,18 @@ const styles = StyleSheet.create({
         borderColor: '#9095A1',
         columnGap: 10,
         padding: 5,
+    },
+    iconsRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-evenly',
+        marginTop: 50,
+        marginBottom: 20,
+    },
+    iconContainer: {
+        alignItems: 'center',
+        padding: 5,
+        backgroundColor: '#f0f0f0',
+        borderRadius: 50,
+        elevation: 3,
     },
 });

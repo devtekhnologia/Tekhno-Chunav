@@ -183,7 +183,7 @@ const Dashboard = () => {
             showsVerticalScrollIndicator={true}
         >
             <View style={styles.headerContainer}>
-                <Text style={styles.title}>{language === 'en' ? 'Washim Constituency' : 'वाशिम विधानसभा'}</Text>
+                <Text style={styles.title}>{language === 'en' ? 'Greater Kailash Constituency' : 'ग्रेटर कैलास विधानसभा'}</Text>
                 <Pressable onPress={() => { navigation.navigate('Total Voters') }} style={{
                     height: height * 0.1, borderRadius: 10,
                     paddingVertical: '2%',

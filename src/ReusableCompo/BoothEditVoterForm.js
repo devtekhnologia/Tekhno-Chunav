@@ -356,8 +356,8 @@ const BoothEditVoterForm = ({ isVisible, onClose, selectedVoter, onEditVoter }) 
 
     return (
         <Modal visible={isVisible} transparent={true} animationType="slide">
-    <Pressable style={styles.modalBackground} onPress={onClose}>
-        <Pressable style={styles.modalContainer} onPress={Keyboard.dismiss}>
+            <Pressable style={styles.modalBackground} onPress={onClose}>
+                <Pressable style={styles.modalContainer} onPress={Keyboard.dismiss}>
                     <View style={styles.header}>
                         <Text style={{ fontSize: 22, color: 'black', fontWeight: 'bold' }}>Edit Voter Details</Text>
                         <View style={{
@@ -496,11 +496,11 @@ const BoothEditVoterForm = ({ isVisible, onClose, selectedVoter, onEditVoter }) 
                 </Pressable >
             </Pressable >
 
-    <ColorLegendModal
-        isVisible={modalVisible}
-        closeModal={handleCloseModal}
-        onSelect={handleSelectedVoterType}
-    />
+            <ColorLegendModal
+                isVisible={modalVisible}
+                closeModal={handleCloseModal}
+                onSelect={handleSelectedVoterType}
+            />
         </Modal >
     );
 };

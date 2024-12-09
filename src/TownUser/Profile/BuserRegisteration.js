@@ -200,6 +200,8 @@ export default BuserRegistration = ({ navigation }) => {
                             placeholderStyle={{ color: 'grey' }}
                             style={[styles.dropdown]}
                             containerStyle={styles.dropdownContainer}
+                            dropDownContainerStyle={styles.dropdownContainer}
+                            listItemContainerStyle={styles.listItemContainer}
                             selectedItemContainerStyle={styles.selectedItem}
                             zIndex={9999}
                             showArrow={true}
@@ -303,7 +305,6 @@ const styles = StyleSheet.create({
         // paddingVertical: 10,
     },
     dropdownContainer: {
-        marginBottom: 10,
         width: width * 0.8,
     },
     dropdown: {
@@ -314,5 +315,9 @@ const styles = StyleSheet.create({
     },
     selectedItem: {
         backgroundColor: 'white',
+    },
+    listItemContainer: {
+        paddingVertical: 10,
+        height: 'auto'
     },
 });

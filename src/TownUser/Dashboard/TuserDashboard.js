@@ -112,7 +112,7 @@ const TownDashboard = () => {
             <View style={styles.container}>
                 <View style={styles.infoContainer}>
                     <Text style={styles.constituencyText}>
-                        {language === 'en' ? 'Washim Constituency' : 'वाशिम मतदारसंघ'}
+                        {language === 'en' ? 'Greater Kailash Constituency' : 'ग्रेटर कैलास मतदारसंघ'}
                     </Text>
                     <Text style={styles.userIdText}>
                         {language === 'en' ? 'User Id: ' : 'वापरकर्ता आयडी: '} : {userId}
@@ -147,7 +147,7 @@ const TownDashboard = () => {
             <View style={styles.container}>
                 <View style={styles.headerContainer}>
                     <Text style={styles.title}>
-                        {language === 'en' ? 'Washim Constituency' : 'वशिम मतदारसंघ'}
+                        {language === 'en' ? 'Greater Kailash Constituency' : 'वशिम मतदारसंघ'}
                     </Text>
                     <View style={styles.gradientContainer}>
                         <Pressable onPress={() => handlePress('Voters List')}>

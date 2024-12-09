@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
     },
     listContainer: {
-        flex: 1,
+        flex: 0.99,
     },
     voterItem: {
         flex: 1,

@@ -14,8 +14,8 @@ const BoothUserLogin = () => {
     const navigation = useNavigation()
     const { language } = useContext(LanguageContext);
     const { loginBuser } = useContext(BoothUserContext)
-    const [username, setUsername] = useState("9552950219")
-    const [password, setPassword] = useState("WASHIM@34")
+    const [username, setUsername] = useState("")
+    const [password, setPassword] = useState("")
     const [isTextSecure, setTextSecure] = useState(true)
     const [isLoading, setLoading] = useState(false)
     const [nameError, setNameError] = useState('');

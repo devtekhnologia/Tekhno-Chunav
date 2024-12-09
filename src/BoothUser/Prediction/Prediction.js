@@ -1,23 +1,22 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, StyleSheet, Pressable, Alert, Dimensions, TouchableOpacity, ActivityIndicator, ScrollView, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, Pressable, Alert, Dimensions, TouchableOpacity, ActivityIndicator, RefreshControl, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import Icon from 'react-native-vector-icons/FontAwesome5';
 import Entypo from '@expo/vector-icons/Entypo';
 import { MaterialIcons, FontAwesome, AntDesign, FontAwesome6 } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { StatusBar } from 'expo-status-bar';
 import axios from 'axios';
 import { BoothUserContext } from '../../ContextApi/BuserContext';
 import { LanguageContext } from '../../ContextApi/LanguageContext';
 
 const { height, width } = Dimensions.get('window');
 
-
 export default function Prediction() {
-
     const { language } = useContext(LanguageContext);
     const navigation = useNavigation();
-    const [voterCounts, setVoterCounts] = useState({ total: 0, ours: 0, against: 0, doubted: 0, pending: 0 });
+    const [voterCounts, setVoterCounts] = useState({ total: 0, ours: 0, against: 0, doubted: 0, pending: 0, pink: 0, purple: 0, pro: 0 });
     const [loading, setLoading] = useState(true);
-    const [refreshing, setRefreshing] = useState(false);
     const [error, setError] = useState(null);
     const { buserId } = useContext(BoothUserContext);
 
@@ -27,21 +26,31 @@ export default function Prediction() {
         try {
             setLoading(true);
             const response = await axios.get(`http://192.168.1.24:8000/api/get_voters_by_user_wise/${buserId}/`);
+
             const voters = response.data.voters || [];
             const totalVoters = voters.length;
             const ours = voters.filter(voter => voter.voter_favour_id === 1).length;
             const against = voters.filter(voter => voter.voter_favour_id === 2).length;
+            const pink = voters.filter(voter => voter.voter_favour_id === 6 || voter.voter_favour_id === 5).length;
+            const purple = voters.filter(voter => voter.voter_favour_id === 7).length;
             const doubted = voters.filter(voter => voter.voter_favour_id === 3).length;
             const pro = voters.filter(voter => voter.voter_favour_id === 4).length;
-            const pending = totalVoters - (ours + against + doubted + pro);
+            const pending = totalVoters - (ours + against + doubted + pro + pink + purple);
 
-            setVoterCounts({ total: totalVoters, ours, against, doubted, pending, pro });
-            setError(null);
+            setVoterCounts({
+                total: totalVoters,
+                ours: ours,
+                against: against,
+                doubted: doubted,
+                pending: pending,
+                pink: pink,
+                purple: purple,
+                pro: pro,
+            });
+            setLoading(false);
         } catch (error) {
             setError('Failed to fetch data');
-        } finally {
             setLoading(false);
-            setRefreshing(false); // Stop the refreshing indicator
         }
     };
 
@@ -51,9 +60,8 @@ export default function Prediction() {
         }
     }, [buserId]);
 
-    const onRefresh = () => {
-        setRefreshing(true);
-        fetchVoterData();
+    const handleGoBack = () => {
+        navigation.goBack();
     };
 
     const handleNavigation = (relationId, ScreenName) => {
@@ -61,16 +69,20 @@ export default function Prediction() {
             relationId: relationId,
             ScreenName: ScreenName
         })
-    }
+    };
 
+    // Add a state for handling pull-to-refresh
+    const [refreshing, setRefreshing] = useState(false);
 
-
+    // Function to handle pull-to-refresh
+    const onRefresh = () => {
+        setRefreshing(true);
+        fetchVoterData().finally(() => setRefreshing(false));  // Reload data
+    };
 
     const VoterBox = ({ boxColor, voterType, voterCount, icon, relationId, ScreenName }) => (
-        <TouchableOpacity
-            style={styles.voterBox}
-            onPress={() => navigation.navigate('Relational Voters', { relationId, ScreenName })}
-        >
+        <TouchableOpacity style={styles.voterBox}
+            onPress={() => handleNavigation(relationId, ScreenName)}>
             <View style={[styles.iconContainer, { backgroundColor: boxColor }]}>
                 {icon}
             </View>
@@ -81,7 +93,7 @@ export default function Prediction() {
         </TouchableOpacity>
     );
 
-    if (loading && !refreshing) {
+    if (loading) {
         return (
             <View style={styles.container}>
                 <ActivityIndicator size="large" color="#0000ff" />
@@ -92,28 +104,27 @@ export default function Prediction() {
 
     const predictionPercentage = ((voterCounts.ours + voterCounts.pro / voterCounts.total) * 100).toFixed(2);
 
-
-
     return (
         <ScrollView
-            style={{ flex: 1, backgroundColor: 'white' }}
-            refreshControl={
-                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-            }
+            contentContainerStyle={{ flexGrow: 1 }}
+            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         >
-            <View style={{ paddingVertical: 10 }}>
+            <View style={{ flex: 1, backgroundColor: 'white', paddingVertical: 10 }}>
                 {error ? (
                     <Text style={styles.errorText}>{error}</Text>
                 ) : (
                     <View style={styles.voterComponentsContainer}>
-                        <VoterBox
-                            boxColor={'#DEDEDE'}
-                            voterType={language === 'en' ? 'Total Voters' : 'एकूण मतदार'}
-                            voterCount={voterCounts.total.toString()}
-                            relationId={'0'}
-                            ScreenName={'Total Voters'}
-                            icon={<AntDesign name="team" size={height * 0.035} color="grey" />}
-                        />
+                        <TouchableOpacity style={styles.voterBox}
+                            onPress={() => navigation.navigate('Total Voters')}>
+                            <View style={[styles.iconContainer, { backgroundColor: '#DEDEDE' }]}>
+                                {<AntDesign name="team" size={height * 0.035} color="grey" />}
+                            </View>
+                            <View style={styles.textContainer}>
+                                <Text style={styles.voterType}>{language === 'en' ? 'Total Voters' : 'एकूण मतदार'}</Text>
+                                <Text style={styles.voterCount}>{voterCounts.total.toString()}</Text>
+                            </View>
+                        </TouchableOpacity>
+
                         <VoterBox
                             boxColor={'#D9F4E9'}
                             voterType={language === 'en' ? 'Favourable Voters' : 'समर्थक मतदार'}
@@ -154,6 +165,8 @@ export default function Prediction() {
                             ScreenName={language === 'en' ? 'Pending Voters' : 'बाकी मतदार'}
                             icon={<MaterialIcons name="pending-actions" size={height * 0.035} color="#c26dbc" />}
                         />
+
+
                     </View>
                 )}
 

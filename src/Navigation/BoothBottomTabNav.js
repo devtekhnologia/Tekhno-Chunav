@@ -1,4 +1,4 @@
-import { Dimensions, Pressable, StyleSheet, Text } from 'react-native';
+import { Dimensions, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text } from 'react-native';
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
@@ -337,57 +337,63 @@ const ProfileStack = () => {
 
 
 const BoothBottomTabNav = () => (
-    <Tab.Navigator
-        initialRouteName='Dashboard'
-        activeColor="#3C4CAC"
-        barStyle={styles.tabBar}
-        shifting={false}
+    <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-        <Tab.Screen name='Booth Dashboard Tab' component={DashboardStack}
-            options={{
-                tabBarLabel: "Dashboard",
-                tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="home" IconComponent={AntDesign} />,
-            }}
-        />
+        <Tab.Navigator
+            initialRouteName='Dashboard'
+            activeColor="#3C4CAC"
+            barStyle={styles.tabBar}
+            shifting={false}
+        >
+            <Tab.Screen name='Booth Dashboard Tab' component={DashboardStack}
+                options={{
+                    tabBarLabel: "Dashboard",
+                    tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="home" IconComponent={AntDesign} />,
+                }}
+            />
 
-        <Tab.Screen name='Voters Tab' component={VotersStack}
-            options={{
-                tabBarLabel: 'Voters',
-                tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="list-alt" IconComponent={FontAwesome} />,
-            }}
+            <Tab.Screen name='Voters Tab' component={VotersStack}
+                options={{
+                    tabBarLabel: 'Voters',
+                    tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="list-alt" IconComponent={FontAwesome} />,
+                }}
 
-        />
+            />
 
-        <Tab.Screen name='Cast-Wise Tab' component={CastStack}
-            options={{
-                tabBarLabel: "Cast-Wise",
-                tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="sort" IconComponent={MaterialIcons} />,
-            }}
-        />
+            <Tab.Screen name='Cast-Wise Tab' component={CastStack}
+                options={{
+                    tabBarLabel: "Cast-Wise",
+                    tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="sort" IconComponent={MaterialIcons} />,
+                }}
+            />
 
-        <Tab.Screen name='Prediction Tab' component={PredictionStack}
-            options={{
-                tabBarLabel: "Prediction",
-                tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="poll" IconComponent={MaterialIcons} />,
-            }}
-        />
+            <Tab.Screen name='Prediction Tab' component={PredictionStack}
+                options={{
+                    tabBarLabel: "Prediction",
+                    tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="poll" IconComponent={MaterialIcons} />,
+                }}
+            />
 
 
-        <Tab.Screen name='Town Profile Tab' component={ProfileStack}
-            options={{
-                tabBarLabel: "Profile",
-                tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="person" IconComponent={MaterialIcons} />,
-            }}
-        />
-    </Tab.Navigator>
+            <Tab.Screen name='Town Profile Tab' component={ProfileStack}
+                options={{
+                    tabBarLabel: "Profile",
+                    tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="person" IconComponent={MaterialIcons} />,
+                }}
+            />
+        </Tab.Navigator>
+    </KeyboardAvoidingView>
 );
 
 const styles = StyleSheet.create({
     tabBar: {
         backgroundColor: 'white',
-        height: height * 0.075,
+        height: height * 0.1,
         borderTopWidth: 1,
         borderTopColor: '#e0e0e0',
+        // marginBottom: 10
     },
     tabItem: {
         alignItems: 'center',

@@ -156,7 +156,7 @@ export default function WardBoothVoters({ route, navigation }) {
         <TextInput
           value={search}
           onChangeText={setSearch}
-          placeholder={language === 'en' ? "Searchbooth by name or ID" : 'नाव किंवा आयडीद्वारे बूथ शोधा'}
+          placeholder={language === 'en' ? "Search booth by name or ID" : 'नाव किंवा आयडीद्वारे बूथ शोधा'}
           style={styles.searchInput}
         />
       </View>

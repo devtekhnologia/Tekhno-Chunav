@@ -1,4 +1,4 @@
-import { Dimensions, Modal, StyleSheet, Text, TextInput, View, TouchableOpacity, Pressable, Keyboard, Alert } from 'react-native';
+import { Dimensions, Modal, StyleSheet, Text, TextInput, View, TouchableOpacity, Pressable, Keyboard, Alert, ScrollView } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import DropDownPicker from 'react-native-dropdown-picker';
@@ -305,153 +305,155 @@ const EditVoterForm = ({ isVisible, onClose, selectedVoter, onEditVoter }) => {
         <Modal visible={isVisible} transparent={true} animationType="slide">
             <Pressable style={styles.modalBackground} onPress={onClose}>
                 <Pressable style={styles.modalContainer} onPress={Keyboard.dismiss}>
-                    <View style={styles.header}>
-                        <Text style={{ fontSize: 22, color: 'black', fontWeight: 'bold' }}>{language === 'en' ? "Edit Voter Details" : "मतदार माहिती भरा"}</Text>
-                        <View style={{
-                            flexDirection: 'row',
-                            columnGap: width * 0.05
+                    <ScrollView showsVerticalScrollIndicator={false}>
+                        <View style={styles.header}>
+                            <Text style={{ fontSize: 22, color: 'black', fontWeight: 'bold' }}>{language === 'en' ? "Edit Voter Details" : "मतदार माहिती भरा"}</Text>
+                            <View style={{
+                                flexDirection: 'row',
+                                columnGap: width * 0.05
 
-                        }}>
-                            <TouchableOpacity onPress={() => handlePdfIconClick(selectedVoter.voter_id)}>
-                                <FontAwesome name="file-pdf-o" size={22} color="#db2b1f" style={styles.pdfIcon} />
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => { setModalVisible(true) }}>
-                                <Ionicons name="radio-button-on" size={24} color={color} />
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-
-
-                    <TextInput
-                        value={name}
-                        onChangeText={setName}
-                        placeholder='Enter voter name here...'
-                        style={styles.input}
-                    />
-
-                    <TextInput
-                        value={name_mar}
-                        onChangeText={setName_mar}
-                        placeholder={'येथे मतदार नाव प्रविष्ट करा...'}
-                        style={styles.input}
-                    />
-
-
-                    <TextInput
-                        value={parentName}
-                        onChangeText={setParentName}
-                        placeholder={language === 'en' ? 'Enter parent name here...' : 'येथे पालक / पती नाव प्रविष्ट करा...'}
-                        style={styles.input}
-                    />
-                    <TextInput
-                        value={contact}
-                        onChangeText={setContact}
-                        placeholder={language === 'en' ? 'Enter contact number here...' : 'येथे संपर्क क्रमांक प्रविष्ट करा...'}
-                        keyboardType='phone-pad'
-                        style={styles.input}
-                    />
-
-                    <DropDownPicker
-                        open={openCaste}
-                        value={caste}
-                        items={casteOptions}
-                        setOpen={setOpenCaste}
-                        setValue={setCaste}
-                        placeholder={language === 'en' ? 'Select Caste' : 'जात निवडा'}
-                        style={[styles.dropdown, { zIndex: 9999 }]}
-                    />
-
-                    <View style={styles.row}>
-                        <View style={styles.column}>
-                            <DropDownPicker
-                                open={openCurrentStatus}
-                                value={currentStatus}
-                                items={statusOptions}
-                                setOpen={setOpenCurrentStatus}
-                                setValue={setCurrentStatus}
-                                placeholder={language === 'en' ? 'Current Status' : 'वर्तमान स्थिति'}
-                                dropDownContainerStyle={{ zIndex: 999 }}
-                                style={[styles.dropdown, { zIndex: 999 }]}
-                            />
-                            <DropDownPicker
-                                open={openMaritalStatus}
-                                value={maritalStatus}
-                                items={maritalOptions}
-                                setOpen={setOpenMaritalStatus}
-                                setValue={setMaritalStatus}
-                                placeholder={language === 'en' ? 'Marital Status' : 'विवाहित स्थिति'}
-                                dropDownContainerStyle={{ zIndex: 899 }}
-                                style={[styles.dropdown, { zIndex: 899 }]}
-                            />
+                            }}>
+                                <TouchableOpacity onPress={() => handlePdfIconClick(selectedVoter.voter_id)}>
+                                    <FontAwesome name="file-pdf-o" size={22} color="#db2b1f" style={styles.pdfIcon} />
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => { setModalVisible(true) }}>
+                                    <Ionicons name="radio-button-on" size={24} color={color} />
+                                </TouchableOpacity>
+                            </View>
                         </View>
 
-                        <View style={styles.column}>
-                            <TextInput
-                                value={age ? age.toString() : ''}
-                                onChangeText={(text) => setAge(text ? Number(text) : null)}
-                                placeholder={language === 'en' ? 'Enter age here...' : 'येथे वय प्रविष्ट करा'}
-                                keyboardType='numeric'
-                                style={styles.input}
-                            />
 
-                            <DropDownPicker
-                                open={openGender}
-                                value={gender}
-                                items={genderOptions}
-                                setOpen={setOpenGender}
-                                setValue={setGender}
-                                placeholder={language === 'en' ? 'Select Gender' : 'लिंग निवडा'}
-                                dropDownContainerStyle={{ zIndex: 99 }}
-                                style={[styles.dropdown, { zIndex: 99 }]}
-                            />
+                        <TextInput
+                            value={name}
+                            onChangeText={setName}
+                            placeholder='Enter voter name here...'
+                            style={styles.input}
+                        />
+
+                        <TextInput
+                            value={name_mar}
+                            onChangeText={setName_mar}
+                            placeholder={'येथे मतदार नाव प्रविष्ट करा...'}
+                            style={styles.input}
+                        />
+
+
+                        <TextInput
+                            value={parentName}
+                            onChangeText={setParentName}
+                            placeholder={language === 'en' ? 'Enter parent name here...' : 'येथे पालक / पती नाव प्रविष्ट करा...'}
+                            style={styles.input}
+                        />
+                        <TextInput
+                            value={contact}
+                            onChangeText={setContact}
+                            placeholder={language === 'en' ? 'Enter contact number here...' : 'येथे संपर्क क्रमांक प्रविष्ट करा...'}
+                            keyboardType='phone-pad'
+                            style={styles.input}
+                        />
+
+                        <DropDownPicker
+                            open={openCaste}
+                            value={caste}
+                            items={casteOptions}
+                            setOpen={setOpenCaste}
+                            setValue={setCaste}
+                            placeholder={language === 'en' ? 'Select Caste' : 'जात निवडा'}
+                            style={[styles.dropdown, { zIndex: 9999 }]}
+                        />
+
+                        <View style={styles.row}>
+                            <View style={styles.column}>
+                                <DropDownPicker
+                                    open={openCurrentStatus}
+                                    value={currentStatus}
+                                    items={statusOptions}
+                                    setOpen={setOpenCurrentStatus}
+                                    setValue={setCurrentStatus}
+                                    placeholder={language === 'en' ? 'Current Status' : 'वर्तमान स्थिति'}
+                                    dropDownContainerStyle={{ zIndex: 999 }}
+                                    style={[styles.dropdown, { zIndex: 999 }]}
+                                />
+                                <DropDownPicker
+                                    open={openMaritalStatus}
+                                    value={maritalStatus}
+                                    items={maritalOptions}
+                                    setOpen={setOpenMaritalStatus}
+                                    setValue={setMaritalStatus}
+                                    placeholder={language === 'en' ? 'Marital Status' : 'विवाहित स्थिति'}
+                                    dropDownContainerStyle={{ zIndex: 899 }}
+                                    style={[styles.dropdown, { zIndex: 899 }]}
+                                />
+                            </View>
+
+                            <View style={styles.column}>
+                                <TextInput
+                                    value={age ? age.toString() : ''}
+                                    onChangeText={(text) => setAge(text ? Number(text) : null)}
+                                    placeholder={language === 'en' ? 'Enter age here...' : 'येथे वय प्रविष्ट करा'}
+                                    keyboardType='numeric'
+                                    style={styles.input}
+                                />
+
+                                <DropDownPicker
+                                    open={openGender}
+                                    value={gender}
+                                    items={genderOptions}
+                                    setOpen={setOpenGender}
+                                    setValue={setGender}
+                                    placeholder={language === 'en' ? 'Select Gender' : 'लिंग निवडा'}
+                                    dropDownContainerStyle={{ zIndex: 99 }}
+                                    style={[styles.dropdown, { zIndex: 99 }]}
+                                />
+                            </View>
                         </View>
-                    </View>
 
-                    <View style={styles.hexButtonContainer}>
-                        {[
-                            { label: 'In', id: 1 },
-                            { label: 'Near', id: 2 },
-                            { label: 'Out', id: 3 },
-                        ].map(({ label, id }) => (
-                            <TouchableOpacity
-                                key={id}
-                                style={[
-                                    styles.hexButton,
-                                    selectedButtonId === id && styles.selectedHexButton,
-                                ]}
-                                onPress={() => handleHexButtonClick(id)}
-                            >
-                                <Text style={styles.hexButtonText}>{label}</Text>
-                            </TouchableOpacity>
-                        ))}
-                    </View>
-
-
-                    <TextInput
-                        style={[
-                            styles.locationInput,
-                            selectedButtonId === 2 || selectedButtonId === 3
-                                ? styles.activeInput
-                                : styles.inactiveInput
-                        ]}
-                        placeholder="Enter current location"
-                        value={location}
-                        onChangeText={setLocation}
-                        editable={selectedButtonId === 2 || selectedButtonId === 3}
-                    />
-
-                    <View>
-                        <View style={styles.detailRow}>
-                            <Text style={styles.label}>{language === 'en' ? 'Town Name' : 'गाव/शहराचे नाव'}:</Text>
-                            <Text style={styles.value}>{townName}</Text>
+                        <View style={styles.hexButtonContainer}>
+                            {[
+                                { label: 'In', id: 1 },
+                                { label: 'Near', id: 2 },
+                                { label: 'Out', id: 3 },
+                            ].map(({ label, id }) => (
+                                <TouchableOpacity
+                                    key={id}
+                                    style={[
+                                        styles.hexButton,
+                                        selectedButtonId === id && styles.selectedHexButton,
+                                    ]}
+                                    onPress={() => handleHexButtonClick(id)}
+                                >
+                                    <Text style={styles.hexButtonText}>{label}</Text>
+                                </TouchableOpacity>
+                            ))}
                         </View>
 
-                        <View style={styles.detailRow}>
-                            <Text style={styles.label}>{language === 'en' ? 'Booth Name' : 'बूथ नाव'}:</Text>
-                            <Text style={styles.value}>{boothName}</Text>
-                        </View>
-                    </View>
 
+                        <TextInput
+                            style={[
+                                styles.locationInput,
+                                selectedButtonId === 2 || selectedButtonId === 3
+                                    ? styles.activeInput
+                                    : styles.inactiveInput
+                            ]}
+                            placeholder="Enter current location"
+                            value={location}
+                            onChangeText={setLocation}
+                            editable={selectedButtonId === 2 || selectedButtonId === 3}
+                        />
+
+                        <View>
+                            <View style={styles.detailRow}>
+                                <Text style={styles.label}>{language === 'en' ? 'Town Name' : 'गाव/शहराचे नाव'}:</Text>
+                                <Text style={styles.value}>{townName}</Text>
+                            </View>
+
+                            <View style={styles.detailRow}>
+                                <Text style={styles.label}>{language === 'en' ? 'Booth Name' : 'बूथ नाव'}:</Text>
+                                <Text style={styles.value}>{boothName}</Text>
+                            </View>
+                        </View>
+
+                    </ScrollView>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
                         <Pressable onPress={handleCloseEditForm} style={styles.cancelButton}>
                             <Text style={{ color: '#E54394', textAlign: 'center', paddingVertical: 10, fontSize: 17, fontWeight: '600' }}>Cancel</Text>
@@ -484,6 +486,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     modalContainer: {
+        height: height * 0.9,
         backgroundColor: 'white',
         width: width * 0.9,
         borderRadius: 10,
@@ -518,6 +521,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-around',
         marginBottom: 15,
+        marginVertical: 10
     },
     hexButton: {
         width: 50,
@@ -541,7 +545,8 @@ const styles = StyleSheet.create({
         borderColor: '#E2E2E2',
         borderWidth: 1,
         borderRadius: 10,
-        paddingVertical: 10,
+        paddingVertical: 5,
+        marginVertical: 10,
         paddingHorizontal: 10,
         fontSize: 18,
         color: '#000',

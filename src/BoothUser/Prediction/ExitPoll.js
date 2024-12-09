@@ -172,7 +172,7 @@ const styles = StyleSheet.create({
         // backgroundColor: 'red'
     },
     statisticsTitle: {
-        fontSize: height * 0.03,
+        fontSize: height * 0.0255,
         fontWeight: 'bold',
         textAlign: 'center'
     },

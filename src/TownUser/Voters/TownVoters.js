@@ -145,7 +145,7 @@ const TownVoters = () => {
     <View style={styles.container}>
       <TextInput
         style={styles.searchBar}
-        placeholder={language === 'en' ? 'Searchby voter’s name or ID' : 'मतदाराचे नाव किंवा आयडी द्वारे शोधा'}
+        placeholder={language === 'en' ? 'Search by voter’s name or ID' : 'मतदाराचे नाव किंवा आयडी द्वारे शोधा'}
         value={searchText}
         onChangeText={handleSearch}
       />
