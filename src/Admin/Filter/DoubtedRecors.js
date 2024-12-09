@@ -55,7 +55,7 @@ const DoubtedRecors = () => {
                 <TextInput
                     value={searchedValue}
                     onChangeText={text => { setSearchValue(text) }}
-                    placeholder={language === 'en' ? 'Search by voter’s name or ID' : 'मतदाराचे नाव किंवा ओळखपत्राने शोधा'}
+                    placeholder={language === 'en' ? 'Search by voter’s name' : 'मतदाराचे नाव किंवा ओळखपत्राने शोधा'}
                     style={{ flex: 1, padding: 5, }}
                 />
             </View>
@@ -63,7 +63,7 @@ const DoubtedRecors = () => {
             <View>
                 <FlatList
                     data={voterNameList}
-                    showsVerticalScrollIndicator={false}
+                    showsVerticalScrollIndicator={true}
                     keyExtractor={item => item.id}
                     renderItem={({ item }) => (
                         <Pressable style={styles.voterItem}>

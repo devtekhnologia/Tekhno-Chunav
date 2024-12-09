@@ -82,7 +82,7 @@ const Favours = () => {
                     <FlatList
                         data={filteredVoters}
                         keyExtractor={(item) => item.voter_id.toString()}
-                        showsVerticalScrollIndicator={false}
+                        showsVerticalScrollIndicator={true}
                         renderItem={({ item, index }) => (
                             <View style={styles.voterItem}>
                                 <View style={styles.voterDetails}>

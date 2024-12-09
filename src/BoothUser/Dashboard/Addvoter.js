@@ -60,8 +60,11 @@ export default function AddVoter({ navigation }) {
       });
 
       if (response.status === 201) {
-        const { voter_id } = response.data;
-        Alert.alert('Success', `New voter added successfully. Voter ID: ${voter_id}`);
+        Alert.alert('Success', `New voter added successfully.`);
+        setBoothDropdownOpen(false);
+        setBooths([]);
+        setNewVotercontact('');
+        setNewVotername('');
       } else {
         Alert.alert('Error', 'Failed to add new voter. Please try again.');
       }

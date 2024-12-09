@@ -46,7 +46,7 @@ export default function Voted({ route }) {
 
 
     useEffect(() => {
-        const searchTerms = searchedValue.toLowerCase().trim().split(/\s+/); 
+        const searchTerms = searchedValue.toLowerCase().trim().split(/\s+/);
 
         const filtered = voters.filter(voter => {
             const voterName = voter.voter_name ? voter.voter_name.toLowerCase() : '';
@@ -119,7 +119,7 @@ export default function Voted({ route }) {
                     <TextInput
                         value={searchedValue}
                         onChangeText={text => setSearchValue(text)}
-                        placeholder={language === 'en' ? "Search by voter’s name or ID" : "मतदाराचे नाव किंवा आयडी द्वारे शोधा"}
+                        placeholder={language === 'en' ? "Search by voter’s name" : "मतदाराचे नाव किंवा आयडी द्वारे शोधा"}
                         style={styles.searchInput}
                     />
                 </View>
@@ -128,7 +128,7 @@ export default function Voted({ route }) {
                     <FlatList
                         data={filteredVoters}
                         keyExtractor={item => item.voter_id.toString()}
-                        showsVerticalScrollIndicator={false}
+                        showsVerticalScrollIndicator={true}
                         renderItem={({ item, index }) => (
                             <Pressable style={[styles.voterItem, styles.selectedVoterItem,
                             { backgroundColor: getBackgroundColor(item.voter_favour_id) }]}

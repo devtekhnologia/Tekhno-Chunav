@@ -169,7 +169,7 @@ export default function Ward() {
                 <FlatList
                     data={searchedWards}
                     keyExtractor={(item) => item.prabhag_id.toString()}
-                    showsVerticalScrollIndicator={false}
+                    showsVerticalScrollIndicator={true}
                     renderItem={({ item }) => (
                         <TouchableOpacity style={styles.wardItem} onPress={() => {
                             getBoothsByWard(item.prabhag_id);

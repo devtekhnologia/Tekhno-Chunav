@@ -73,10 +73,10 @@ const CastWiseVoters = () => {
         fetchCasteData();
     }, []);
 
-    const renderVoterItem = ({ item }) => (
+    const renderVoterItem = ({ item, index }) => (
         <View style={[styles.voterItem, { backgroundColor: item.color || '#FFFFFF' }]}>
             <TouchableOpacity style={styles.closeCircle} onPress={() => fetchVoterDetails(item.voter_id)}>
-                <Text style={styles.voterText}>{item.voter_id} - {toTitleCase(item.voter_name)}</Text>
+                <Text style={styles.voterText}>{index + 1} - {toTitleCase(item.voter_name)}</Text>
             </TouchableOpacity>
         </View>
     );

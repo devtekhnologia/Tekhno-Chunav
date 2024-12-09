@@ -148,7 +148,7 @@ export default function Family({ navigation }) {
                 <TextInput
                     value={searchedValue}
                     onChangeText={text => setSearchValue(text)}
-                    placeholder={language === 'en' ? "Search by voter’s name or ID" : 'मतदाराचे नाव किंवा ओळखपत्राने शोधा'}
+                    placeholder={language === 'en' ? "Search by voter’s name" : 'मतदाराचे नाव किंवा ओळखपत्राने शोधा'}
                     style={styles.searchInput}
                 />
             </View>
@@ -165,7 +165,7 @@ export default function Family({ navigation }) {
                 <FlatList
                     data={searchedVoters}
                     keyExtractor={item => item.voter_id.toString()}
-                    showsVerticalScrollIndicator={false}
+                    showsVerticalScrollIndicator={true}
                     ListHeaderComponent={loading && <LoadingListComponent />}
                     ListEmptyComponent={!loading && <EmptyListComponent />}
                     renderItem={({ item }) => (

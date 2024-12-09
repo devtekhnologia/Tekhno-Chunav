@@ -27,7 +27,7 @@ const VoterListSection = ({ voters, filteredVoters, searchQuery, handleSearch })
       {/* Search Bar */}
       <TextInput
         style={styles.searchBar}
-        placeholder={language === 'en' ? 'search by voter’s name or ID' : 'मतदाराचे नाव किंवा आयडी द्वारे शोधा'}
+        placeholder={language === 'en' ? 'Search by voter’s name' : 'मतदाराचे नाव किंवा आयडी द्वारे शोधा'}
         value={searchQuery}
         onChangeText={handleSearch}
       />

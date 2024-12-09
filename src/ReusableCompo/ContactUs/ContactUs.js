@@ -15,7 +15,8 @@ const topMargin = height * 0.1;
 const ContactUs = () => {
 
     const sendWhatsAppMessage = (phoneNumber) => {
-        let message = "Hello, this is a test message from my React Native app.";
+        let message = `Hello, Tekhno Chunav Support! 🤖
+I need assistance with something. Could you please help me?`;
 
         // URL Scheme for WhatsApp
         let url = `whatsapp://send?text=${encodeURIComponent(message)}&phone=${phoneNumber}`;

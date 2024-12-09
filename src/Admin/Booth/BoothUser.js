@@ -62,9 +62,9 @@ const BoothUsers = () => {
                     'Content-Type': 'application/json',
                 },
             });
-    
+
             if (response.status === 200 || response.status === 204) {
-                await fetchData(); 
+                await fetchData();
                 Alert.alert('Success', 'User has been deleted successfully.');
             } else {
                 Alert.alert('Error', 'Failed to delete the user.');
@@ -79,7 +79,6 @@ const BoothUsers = () => {
             }
         }
     };
-    
 
     const handleLongPressDelete = (userId) => {
         Alert.alert(
@@ -154,7 +153,7 @@ const BoothUsers = () => {
                     <TextInput
                         value={searchedValue}
                         onChangeText={text => setSearchValue(text)}
-                        placeholder={language === 'en' ? 'search by voter’s name or ID' : 'मतदाराचे नाव किंवा आयडी द्वारे शोधा'}
+                        placeholder={language === 'en' ? 'Search by voter’s name' : 'मतदाराचे नाव किंवा आयडी द्वारे शोधा'}
                         style={styles.searchInput}
                     />
                 </View>
@@ -168,7 +167,7 @@ const BoothUsers = () => {
                             />}
                         data={searchedTown}
                         keyExtractor={item => item.user_id.toString()}
-                        showsVerticalScrollIndicator={false}
+                        showsVerticalScrollIndicator={true}
                         renderItem={({ item, index }) => (
                             <Pressable
                                 style={styles.voterItem}

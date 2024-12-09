@@ -26,22 +26,28 @@ const BoothUserLogin = () => {
         let isValid = true;
         if (!username) {
             setNameError('Username is required.');
+            setLoading(false)
             isValid = false;
         } else if (username.length < 2) {
             setNameError('Username must be at least 2 characters.');
+            setLoading(false)
             isValid = false;
         } else {
             setNameError('');
+            setLoading(false)
         }
 
         if (!password) {
             setPasswordError('Password is required.');
+            setLoading(false)
             isValid = false;
         } else if (password.length < 5) {
             setPasswordError('Password must be at least 5 characters long.');
+            setLoading(false)
             isValid = false;
         } else {
             setPasswordError('');
+            setLoading(false)
         }
 
         return isValid;
@@ -115,6 +121,7 @@ const BoothUserLogin = () => {
                                     paddingVertical: 10, borderRadius: 8, marginVertical: 5,
                                     paddingHorizontal: 20,
                                 }} />
+                            {nameError && <Text style={{ color: 'red' }}>* {nameError}</Text>}
                         </View>
 
 
@@ -145,6 +152,9 @@ const BoothUserLogin = () => {
                                     }
                                 </Pressable>
                             </View>
+                            {passwordError &&
+                                <Text style={{ color: 'red' }}>* {passwordError}</Text>
+                            }
                         </View>
                     </View>
 

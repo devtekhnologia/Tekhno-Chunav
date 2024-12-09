@@ -119,7 +119,7 @@ export default function Prediction() {
                             voterType={language === 'en' ? 'Favourable Voters' : 'समर्थक मतदार'}
                             voterCount={voterCounts.ours.toString()}
                             relationId={'1'}
-                            ScreenName={'Favourable Voters'}
+                            ScreenName={language === 'en' ? 'Favours Voters' : 'समर्थक मतदार'}
                             icon={<AntDesign name="heart" size={height * 0.035} color="green" />}
                         />
                         <VoterBox
@@ -127,15 +127,15 @@ export default function Prediction() {
                             voterType={language === 'en' ? 'Opposition Voters' : 'विरोधी मतदार'}
                             voterCount={voterCounts.against.toString()}
                             relationId={'2'}
-                            ScreenName={'Opposition Voters'}
-                            icon={<Entypo  name="cross" size={height * 0.035} color="red" />}
+                            ScreenName={language === 'en' ? 'Opposition Voters' : 'विरोधी मतदार'}
+                            icon={<Entypo name="cross" size={height * 0.035} color="red" />}
                         />
                         <VoterBox
                             boxColor={'#fcf5cf'}
                             voterType={language === 'en' ? 'Doubted Voters' : 'संशयित मतदार'}
                             voterCount={voterCounts.doubted.toString()}
                             relationId={'3'}
-                            ScreenName={'Doubted Voters'}
+                            ScreenName={language === 'en' ? 'Doubted Voters' : 'संशयित मतदार'}
                             icon={<AntDesign name="exclamationcircle" size={height * 0.035} color="orange" />}
                         />
                         <VoterBox
@@ -143,7 +143,7 @@ export default function Prediction() {
                             voterType={language === 'en' ? 'Pro+ Voters' : 'प्रो+ मतदार'}
                             voterCount={voterCounts.pro.toString()}
                             relationId={'4'}
-                            ScreenName={'Pro+ Voters'}
+                            ScreenName={language === 'en' ? 'Pro+ Voters' : 'प्रो+ मतदार'}
                             icon={<FontAwesome6 name="sack-dollar" size={height * 0.035} color="blue" />}
                         />
                         <VoterBox
@@ -151,15 +151,16 @@ export default function Prediction() {
                             voterType={language === 'en' ? 'Pending Voters' : 'बाकी मतदार'}
                             voterCount={voterCounts.pending.toString()}
                             relationId={'0'}
-                            ScreenName={'Pending Voters'}
+                            ScreenName={language === 'en' ? 'Pending Voters' : 'बाकी मतदार'}
                             icon={<MaterialIcons name="pending-actions" size={height * 0.035} color="#c26dbc" />}
                         />
                     </View>
                 )}
 
-                <TouchableOpacity
-                    onPress={() => navigation.navigate('Exit Poll')}
-                    style={{ paddingHorizontal: 20, marginTop: height * 0.035 }}
+                <TouchableOpacity onPress={() => navigation.navigate('Exit Poll')}
+                    style={{
+                        paddingHorizontal: 20, marginTop: height * 0.035
+                    }}
                 >
                     <LinearGradient
                         colors={['#3C4CAC', '#F04393']}

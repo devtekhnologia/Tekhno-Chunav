@@ -104,7 +104,7 @@ const BoothVoters = ({ route }) => {
         setFilteredVoters(updatedFilteredVoters);
     };
 
-    const renderItem = ({ item }) => {
+    const renderItem = ({ item, index }) => {
         let backgroundColor = 'white';
 
         switch (item.voter_favour_id) {
@@ -137,7 +137,7 @@ const BoothVoters = ({ route }) => {
         return (
             <TouchableOpacity style={[styles.voterItem, { backgroundColor }]} onPress={() => handleVoterEditForm(item.voter_id)}>
                 <View style={styles.idSection}>
-                    <Text style={styles.itemText}>{item.voter_id}</Text>
+                    <Text style={styles.itemText}>{index + 1}</Text>
                 </View>
                 <View style={styles.nameSection}>
                     <Text style={styles.itemText}>{language === 'en' ? toTitleCase(item.voter_name) : item.voter_name_mar}</Text>
@@ -154,7 +154,7 @@ const BoothVoters = ({ route }) => {
                 <TextInput
                     value={searchedValue}
                     onChangeText={text => setSearchValue(text)}
-                    placeholder={language === 'en' ? 'search by voter’s name or ID' : 'मतदाराचे नाव किंवा आयडी द्वारे शोधा'}
+                    placeholder={language === 'en' ? 'Search by voter’s name or Id' : 'मतदाराचे नाव किंवा आयडी द्वारे शोधा'}
                     style={styles.searchInput}
                 />
             </View>
@@ -162,7 +162,7 @@ const BoothVoters = ({ route }) => {
             < FlatList
                 data={filteredVoters}
                 keyExtractor={item => item.voter_id.toString()}
-                showsVerticalScrollIndicator={false}
+                showsVerticalScrollIndicator={true}
                 refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
                 }
                 renderItem={renderItem}

@@ -289,7 +289,7 @@
 //                     <TextInput
 //                         value={searchedValue}
 //                         onChangeText={text => setSearchValue(text)}
-//                         placeholder={language === 'en' ? "Search by voter’s name or ID" : "मतदाराचे नाव किंवा आयडी द्वारे शोधा"}
+//                         placeholder={language === 'en' ? "Search by voter’s name" : "मतदाराचे नाव किंवा आयडी द्वारे शोधा"}
 //                         style={styles.searchInput}
 //                     />
 //                 </View>
@@ -331,7 +331,7 @@
 //                     <FlatList
 //                         data={filteredVoters}
 //                         keyExtractor={item => item.voter_id.toString()}
-//                         showsVerticalScrollIndicator={false}
+//                         showsVerticalScrollIndicator={true}
 //                         renderItem={renderItem}
 //                         refreshControl={
 //                             <RefreshControl
@@ -758,7 +758,7 @@ export default function TownVoters({ route }) {
                     <TextInput
                         value={searchedValue}
                         onChangeText={text => setSearchValue(text)}
-                        placeholder={language === 'en' ? 'Search by voter’s name or ID' : 'मतदाराचे नाव किंवा ओळखपत्राने शोधा'}
+                        placeholder={language === 'en' ? 'Search by voter’s name' : 'मतदाराचे नाव किंवा ओळखपत्राने शोधा'}
                         style={styles.searchInput}
                     />
                 </View>
@@ -800,7 +800,7 @@ export default function TownVoters({ route }) {
                     <FlatList
                         data={filteredVoters}
                         keyExtractor={item => item.voter_id.toString()}
-                        showsVerticalScrollIndicator={false}
+                        showsVerticalScrollIndicator={true}
                         renderItem={renderItem}
                         refreshControl={
                             <RefreshControl
@@ -819,17 +819,17 @@ export default function TownVoters({ route }) {
                         onEditVoter={handleSelectedVoterDetails}
                     />
 
-                        {isCasteModalVisible && (
-                            <CastModal
-                                isVisible={isCasteModalVisible}
-                                onClose={() => setCasteModalVisible(false)}
-                                selectedVoters={selectedVoters}
-                                onAssignCaste={(casteId) => {
-                                    setCasteModalVisible(false); 
-                                    console.log(`Assigned caste ID ${casteId} to voters`, selectedVoters);
-                                }}
-                            />
-                        )}
+                    {isCasteModalVisible && (
+                        <CastModal
+                            isVisible={isCasteModalVisible}
+                            onClose={() => setCasteModalVisible(false)}
+                            selectedVoters={selectedVoters}
+                            onAssignCaste={(casteId) => {
+                                setCasteModalVisible(false);
+                                console.log(`Assigned caste ID ${casteId} to voters`, selectedVoters);
+                            }}
+                        />
+                    )}
                 </View>
             </View>
         </HeaderFooterLayout>

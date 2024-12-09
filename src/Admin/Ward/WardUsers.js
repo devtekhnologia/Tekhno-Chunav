@@ -123,7 +123,7 @@ const PrabhagUsers = () => {
                     <TextInput
                         value={searchedValue}
                         onChangeText={text => setSearchValue(text)}
-                        placeholder={language === 'en' ? 'search by voter’s name or ID' : 'मतदाराचे नाव किंवा आयडी द्वारे शोधा'}
+                        placeholder={language === 'en' ? 'Search by voter’s name' : 'मतदाराचे नाव किंवा आयडी द्वारे शोधा'}
                         style={styles.searchInput}
                     />
                 </View>
@@ -140,7 +140,7 @@ const PrabhagUsers = () => {
                         <FlatList
                             data={searchedTown}
                             keyExtractor={item => item.prabhag_user_id.toString()}
-                            showsVerticalScrollIndicator={false}
+                            showsVerticalScrollIndicator={true}
                             renderItem={({ item }) => (
                                 <Pressable
                                     style={styles.voterItem}

@@ -99,7 +99,7 @@ const AgewiseVoters = () => {
                     <FlatList
                         data={filteredVoters}
                         keyExtractor={item => item.voter_id.toString()}
-                        showsVerticalScrollIndicator={false}
+                        showsVerticalScrollIndicator={true}
                         scrollEnabled={!openAge}
                         renderItem={({ item }) => (
                             <Pressable style={styles.voterItem} onPress={() => { handleVoterPress(item.voter_id) }}>

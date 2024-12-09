@@ -120,7 +120,6 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         borderTopRightRadius: 15,
         borderTopLeftRadius: 15,
-        // marginBottom: 20,
     },
     content: {
         flexGrow: 1,
@@ -147,8 +146,6 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 100,
-
     },
     image: {
         width: 300,

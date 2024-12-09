@@ -1,4 +1,4 @@
-import {Dimensions,FlatList,Pressable,StyleSheet,Text,TextInput,View,Alert,Animated} from 'react-native';
+import { Dimensions, FlatList, Pressable, StyleSheet, Text, TextInput, View, Alert, Animated } from 'react-native';
 import React, { useEffect, useState, useRef, useContext } from 'react';
 import { Ionicons, FontAwesome6 } from '@expo/vector-icons';
 import axios from 'axios';
@@ -135,14 +135,14 @@ const Booths = () => {
                     <TextInput
                         value={searchedValue}
                         onChangeText={text => setSearchValue(text)}
-                        placeholder={language === 'en' ? "search booth by name or ID" : 'नाव किंवा आयडीद्वारे बूथ शोधा'}
+                        placeholder={language === 'en' ? "Searchbooth by name or ID" : 'नाव किंवा आयडीद्वारे बूथ शोधा'}
                         style={styles.searchInput}
                     />
                 </View>
                 <FlatList
                     data={searchedBooth}
                     keyExtractor={item => item.booth_id.toString()}
-                    showsVerticalScrollIndicator={false}
+                    showsVerticalScrollIndicator={true}
                     renderItem={({ item }) => (
                         <Pressable
                             style={styles.voterItem}

@@ -44,24 +44,24 @@ export default function Nvoted({ route }) {
 
 
     useEffect(() => {
-        const searchTerms = searchedValue.toLowerCase().trim().split(/\s+/); 
+        const searchTerms = searchedValue.toLowerCase().trim().split(/\s+/);
 
         const filtered = voters.filter(voter => {
             const voterName = voter.voter_name ? voter.voter_name.toLowerCase() : '';
             const voterNameMar = voter.voter_name_mar ? voter.voter_name_mar.toLowerCase() : '';
             const voterId = voter.voter_id ? voter.voter_id.toString() : '';
 
-            const voterNameParts = voterName.split(/\s+/); 
+            const voterNameParts = voterName.split(/\s+/);
             const voterNameMarParts = voterNameMar.split(/\s+/);
 
             return searchTerms.every(term =>
-                voterId.includes(term) || 
+                voterId.includes(term) ||
                 voterName.includes(term) ||
                 voterNameMar.includes(term) ||
                 voterNameParts.some(part => part.includes(term)) ||
-                voterNameMarParts.some(part => part.includes(term)) || 
-                voterName.startsWith(searchTerms.join(' ')) || 
-                voterNameMar.startsWith(searchTerms.join(' ')) 
+                voterNameMarParts.some(part => part.includes(term)) ||
+                voterName.startsWith(searchTerms.join(' ')) ||
+                voterNameMar.startsWith(searchTerms.join(' '))
             );
         });
 
@@ -110,7 +110,7 @@ export default function Nvoted({ route }) {
                 <TextInput
                     value={searchedValue}
                     onChangeText={text => setSearchValue(text)}
-                    placeholder={language === 'en' ? 'search by voter’s name or ID' : 'मतदाराचे नाव किंवा आयडी द्वारे शोधा'}
+                    placeholder={language === 'en' ? 'Search by voter’s name' : 'मतदाराचे नाव किंवा आयडी द्वारे शोधा'}
                     style={styles.searchInput}
                 />
             </View>
@@ -119,7 +119,7 @@ export default function Nvoted({ route }) {
                 <FlatList
                     data={filteredVoters}
                     keyExtractor={item => item.voter_id.toString()}
-                    showsVerticalScrollIndicator={false}
+                    showsVerticalScrollIndicator={true}
                     renderItem={({ item, index }) => (
                         <Pressable style={[styles.voterItem, styles.selectedVoterItem,
                         { backgroundColor: getBackgroundColor(item.voter_favour_id) }]}

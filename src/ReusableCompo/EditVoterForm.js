@@ -111,9 +111,9 @@ const EditVoterForm = ({ isVisible, onClose, selectedVoter, onEditVoter }) => {
                 voter_ids: Array.isArray(voterIds) ? voterIds : [voterIds], // Ensure voterIds is an array
                 voter_favour_id: checkboxID,
             };
-    
+
             const response = await axios.put('http://192.168.1.24:8000/api/favour/', payload);
-    
+
             if (response.status === 200) {
                 setFilteredVoters(prevFilteredVoters =>
                     prevFilteredVoters.map(voter =>
@@ -122,13 +122,13 @@ const EditVoterForm = ({ isVisible, onClose, selectedVoter, onEditVoter }) => {
                             : voter
                     )
                 );
-                Alert.alert('Success', 'Checkbox state updated successfully!');
+                Alert.alert('Success', 'Voter category updated successfully!');
             } else {
-                throw new Error('Failed to update checkbox state. Please try again.');
+                throw new Error('Failed to update Voter category. Please try again.');
             }
         } catch (error) {
-            console.error('Error updating checkbox state:', error.message);
-            Alert.alert('Error', 'Failed to update checkbox state. Please try again.');
+            console.error('Error updating Voter category:', error.message);
+            Alert.alert('Error', 'Failed to update Voter category. Please try again.');
         }
     };
 

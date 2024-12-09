@@ -134,7 +134,7 @@ const Towns = () => {
                 <FlatList
                     data={searchedTown}
                     keyExtractor={(item, index) => index.toString()}
-                    showsVerticalScrollIndicator={false}
+                    showsVerticalScrollIndicator={true}
                     renderItem={({ item, index }) => (
                         <Pressable
                             style={styles.voterItem}

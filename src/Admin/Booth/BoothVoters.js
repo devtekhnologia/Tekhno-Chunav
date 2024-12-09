@@ -156,7 +156,7 @@ export default function BoothVoters({ route }) {
         return "sort-alpha-up-alt";
     };
 
-    const renderItem = ({ item, index}) => {
+    const renderItem = ({ item, index }) => {
         const fixedIndex = index + 1;
         let backgroundColor = 'white';
 
@@ -300,7 +300,7 @@ export default function BoothVoters({ route }) {
                     <TextInput
                         value={searchedValue}
                         onChangeText={text => setSearchValue(text)}
-                        placeholder={language === 'en' ? 'Search by voter’s name or ID' : 'मतदाराचे नाव किंवा ओळखपत्राने शोधा'}
+                        placeholder={language === 'en' ? 'Search by voter’s name' : 'मतदाराचे नाव किंवा ओळखपत्राने शोधा'}
                         style={styles.searchInput}
                     />
                 </View>
@@ -342,7 +342,7 @@ export default function BoothVoters({ route }) {
                     <FlatList
                         data={filteredVoters}
                         keyExtractor={item => item.voter_id.toString()}
-                        showsVerticalScrollIndicator={false}
+                        showsVerticalScrollIndicator={true}
                         renderItem={renderItem}
                         refreshControl={
                             <RefreshControl
@@ -361,17 +361,17 @@ export default function BoothVoters({ route }) {
                         onEditVoter={handleSelectedVoterDetails}
                     />
 
-                        {isCasteModalVisible && (
-                            <CastModal
-                                isVisible={isCasteModalVisible}
-                                onClose={() => setCasteModalVisible(false)}
-                                selectedVoters={selectedVoters}
-                                onAssignCaste={(casteId) => {
-                                    setCasteModalVisible(false); 
-                                    console.log(`Assigned caste ID ${casteId} to voters`, selectedVoters);
-                                }}
-                            />
-                        )}
+                    {isCasteModalVisible && (
+                        <CastModal
+                            isVisible={isCasteModalVisible}
+                            onClose={() => setCasteModalVisible(false)}
+                            selectedVoters={selectedVoters}
+                            onAssignCaste={(casteId) => {
+                                setCasteModalVisible(false);
+                                console.log(`Assigned caste ID ${casteId} to voters`, selectedVoters);
+                            }}
+                        />
+                    )}
                 </View>
             </View>
         </HeaderFooterLayout>

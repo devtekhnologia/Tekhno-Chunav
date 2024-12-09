@@ -29,12 +29,33 @@ const TotalVoted = () => {
     return boothId.includes(searchValueLower) || boothName.includes(searchValueLower);
   });
 
-  const VoterItem = memo(({ item, onPress }) => (
-    <Pressable style={styles.voterItem} onPress={onPress}>
-      <Text style={styles.voterIdText}>{item.voter_id}</Text>
-      <Text>{language === 'en' ? toTitleCase(item.voter_name) : item.voter_name_mar}</Text>
-    </Pressable>
-  ));
+  const renderItem = ({ item, onPress, index }) => {
+    let backgroundColor = 'white';
+
+    if (item.voter_favour_id === 1) {
+      backgroundColor = '#d3f5d3';
+    } else if (item.voter_favour_id === 2) {
+      backgroundColor = '#f5d3d3';
+    } else if (item.voter_favour_id === 3) {
+      backgroundColor = '#f5f2d3';
+    } else if (item.voter_favour_id === 4) {
+      backgroundColor = '#c9daff';
+    } else if (item.voter_favour_id === 5) {
+      backgroundColor = 'skyblue';
+    } else if (item.voter_favour_id === 6) {
+      backgroundColor = '#fcacec';
+    } else if (item.voter_favour_id === 7) {
+      backgroundColor = '#dcacfa';
+    }
+
+    return (
+      <Pressable style={[styles.voterItem, { backgroundColor }]}
+        onPress={() => fetchVoterDetails(item.voter_id)}>
+        <Text style={styles.voterIdText}>{index + 1}</Text>
+        <Text>{language === 'en' ? toTitleCase(item.voter_name) : item.voter_name_mar}</Text>
+      </Pressable >
+    )
+  }
 
   const fetchData = async () => {
     setLoading(true);
@@ -83,7 +104,7 @@ const TotalVoted = () => {
         <TextInput
           value={searchedValue}
           onChangeText={setSearchValue}
-          placeholder={language === 'en' ? 'search by voter’s name or ID' : 'मतदाराचे नाव किंवा आयडी द्वारे शोधा'}
+          placeholder={language === 'en' ? 'Search by voter’s name or Id' : 'मतदाराचे नाव किंवा आयडी द्वारे शोधा'}
           style={styles.searchInput}
         />
       </View>
@@ -92,13 +113,8 @@ const TotalVoted = () => {
         <FlatList
           data={searchedVoter}
           keyExtractor={item => item.voter_id.toString()}
-          showsVerticalScrollIndicator={false}
-          renderItem={({ item }) => (
-            <VoterItem
-              item={item}
-              onPress={() => fetchVoterDetails(item.voter_id)}
-            />
-          )}
+          showsVerticalScrollIndicator={true}
+          renderItem={renderItem}
           ListHeaderComponent={loading && <LoadingListComponent />}
           ListEmptyComponent={!loading && <EmptyListComponent />}
         />

@@ -22,6 +22,7 @@ const TownVoters = () => {
   const [selectedVoter, setSelectedVoter] = useState(null);
   const [isFormVisible, setFormVisible] = useState(false)
   const [refreshing, setRefreshing] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const fetchVoterDetails = (voter_id) => {
     axios.get(`http://192.168.1.24:8000/api/voters/${voter_id}`)
@@ -39,7 +40,8 @@ const TownVoters = () => {
     setRefreshing(true);
     setSearchText(text);
     const filtered = voters.filter(voter =>
-      voter.voter_id.toString().includes(text) || voter.voter_name.toLowerCase().includes(text.toLowerCase())
+      voter.voter_id.toString().includes(text)
+      || voter.voter_name.toLowerCase().includes(text.toLowerCase())
       || voter.voter_name_mar.toLowerCase().includes(text.toLowerCase())
     );
     setFilteredVoters(filtered);
@@ -79,17 +81,17 @@ const TownVoters = () => {
   };
 
   const fetchUpdatedVoters = async () => {
-    setRefreshing(true);
+    setLoading(true);
     axios.get(`http://192.168.1.24:8000/api/get_voter_list_by_town_user/${userId}/`)
       .then(response => {
         const votersData = response.data;
         setVoters(votersData);
         setFilteredVoters(votersData);
-        setRefreshing(false);
+        setLoading(false);
       })
       .catch(error => {
         Alert.alert('Error fetching voters data:', error.toString ? error.toString() : 'Unknown error');
-        setRefreshing(false);
+        setLoading(false);
       });
   }
 
@@ -104,7 +106,7 @@ const TownVoters = () => {
     setRefreshing(false);
   };
 
-  const renderItem = ({ item }) => {
+  const renderItem = ({ item, index }) => {
     let backgroundColor = 'white';
 
     if (item.voter_favour_id === 1) {
@@ -127,7 +129,7 @@ const TownVoters = () => {
       <View style={[styles.itemContainer, { backgroundColor }]}>
         <TouchableOpacity style={styles.voterRecord} onPress={() => { handleVoterEditForm(item.voter_id) }}>
           <View style={styles.idSection}>
-            <Text style={styles.itemText}>{item.voter_id}</Text>
+            <Text style={styles.itemText}>{index + 1}</Text>
           </View>
           <View style={styles.nameSection}>
             <Text style={styles.itemText}>{language === 'en' ? toTitleCase(item.voter_name) : item.voter_name_mar}</Text>
@@ -143,7 +145,7 @@ const TownVoters = () => {
     <View style={styles.container}>
       <TextInput
         style={styles.searchBar}
-        placeholder={language === 'en' ? 'search by voter’s name or ID' : 'मतदाराचे नाव किंवा आयडी द्वारे शोधा'}
+        placeholder={language === 'en' ? 'Searchby voter’s name or ID' : 'मतदाराचे नाव किंवा आयडी द्वारे शोधा'}
         value={searchText}
         onChangeText={handleSearch}
       />
@@ -160,8 +162,8 @@ const TownVoters = () => {
             onRefresh={handleRefresh}
           />
         }
-        ListHeaderComponent={refreshing && <LoadingListComponent />}
-        ListEmptyComponent={!refreshing && <EmptyListComponent />}
+        ListHeaderComponent={loading && <LoadingListComponent />}
+        ListEmptyComponent={!loading && <EmptyListComponent />}
       />
 
       <EditVoterForm
