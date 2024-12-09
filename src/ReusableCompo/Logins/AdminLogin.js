@@ -53,8 +53,8 @@ const AdminLogin = () => {
         const state = await NetInfo.fetch();
         if (!state.isConnected) {
             Alert.alert(
-                'Network Error',
-                'Turn on your data',
+                'Network Problem',
+                'Turn on your Mobile Data or Wifi',
                 [{ text: 'OK' }],
                 { cancelable: false }
             );

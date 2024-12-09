@@ -32,7 +32,8 @@ const EditVoterForm = ({ isVisible, onClose, selectedVoter, onEditVoter }) => {
     const [openCurrentStatus, setOpenCurrentStatus] = useState(false);
     const [openMaritalStatus, setOpenMaritalStatus] = useState(false);
     const [openGender, setOpenGender] = useState(false);
-
+    const [selectedButtonId, setSelectedButtonId] = useState(null);
+    const [location, setLocation] = useState('');
     const [color, setColor] = useState('black');
     const [modalVisible, setModalVisible] = useState(false);
 
@@ -110,9 +111,9 @@ const EditVoterForm = ({ isVisible, onClose, selectedVoter, onEditVoter }) => {
                 voter_ids: Array.isArray(voterIds) ? voterIds : [voterIds], // Ensure voterIds is an array
                 voter_favour_id: checkboxID,
             };
-    
+
             const response = await axios.put('http://192.168.1.24:8000/api/favour/', payload);
-    
+
             if (response.status === 200) {
                 setFilteredVoters(prevFilteredVoters =>
                     prevFilteredVoters.map(voter =>
@@ -157,6 +158,8 @@ const EditVoterForm = ({ isVisible, onClose, selectedVoter, onEditVoter }) => {
             setGender(selectedVoter.voter_gender || null);
             setAge(selectedVoter.voter_age ? Number(selectedVoter.voter_age) : null);
             setVoterFavourType(selectedVoter.voter_favour_id || null);
+            setSelectedButtonId(selectedVoter.voter_in_city_id || null);
+            setLocation(selectedVoter.voter_current_location || null)
             setTownName(language === 'en' ? selectedVoter.town_name : selectedVoter.town_name_mar || null)
             setBoothName(language === 'en' ? selectedVoter.booth_name : selectedVoter.booth_name_mar || null)
             setVoterFavourType(selectedVoter.voter_favour_id)
@@ -172,6 +175,8 @@ const EditVoterForm = ({ isVisible, onClose, selectedVoter, onEditVoter }) => {
             setGender(null);
             setAge(null);
             setVoterFavourType(null);
+            setSelectedButtonId(null);
+            setLocation(null)
         }
 
         fetchCasteData();
@@ -244,6 +249,8 @@ const EditVoterForm = ({ isVisible, onClose, selectedVoter, onEditVoter }) => {
         if (currentStatus !== '') updatedFields.voter_live_status_id = currentStatus;
         if (maritalStatus !== '') updatedFields.voter_marital_status_id = maritalStatus;
         if (voterFavourType !== '') updatedFields.voter_favour_id = voterFavourType;
+        if (selectedButtonId !== '') updatedFields.voter_in_city_id = selectedButtonId;
+        if (location !== '') updatedFields.voter_current_location = location;
 
         // If a field is empty, set it to null
         if (name === '') updatedFields.voter_name = null;
@@ -255,6 +262,8 @@ const EditVoterForm = ({ isVisible, onClose, selectedVoter, onEditVoter }) => {
         if (currentStatus === '') updatedFields.voter_live_status_id = null;
         if (maritalStatus === '') updatedFields.voter_marital_status_id = null;
         if (voterFavourType === '') updatedFields.voter_favour_id = null;
+        if (selectedButtonId === '') updatedFields.voter_in_city_id = null;
+        if (location === '') updatedFields.voter_current_location = null;
 
 
         try {
@@ -286,6 +295,10 @@ const EditVoterForm = ({ isVisible, onClose, selectedVoter, onEditVoter }) => {
         // setUpdate(false)
     };
 
+
+    const handleHexButtonClick = (id) => {
+        setSelectedButtonId(id);
+    };
 
 
     return (
@@ -394,6 +407,38 @@ const EditVoterForm = ({ isVisible, onClose, selectedVoter, onEditVoter }) => {
                         </View>
                     </View>
 
+                    <View style={styles.hexButtonContainer}>
+                        {[
+                            { label: 'In', id: 1 },
+                            { label: 'Near', id: 2 },
+                            { label: 'Out', id: 3 },
+                        ].map(({ label, id }) => (
+                            <TouchableOpacity
+                                key={id}
+                                style={[
+                                    styles.hexButton,
+                                    selectedButtonId === id && styles.selectedHexButton,
+                                ]}
+                                onPress={() => handleHexButtonClick(id)}
+                            >
+                                <Text style={styles.hexButtonText}>{label}</Text>
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+
+
+                    <TextInput
+                        style={[
+                            styles.locationInput,
+                            selectedButtonId === 2 || selectedButtonId === 3
+                                ? styles.activeInput
+                                : styles.inactiveInput
+                        ]}
+                        placeholder="Enter current location"
+                        value={location}
+                        onChangeText={setLocation}
+                        editable={selectedButtonId === 2 || selectedButtonId === 3}
+                    />
 
                     <View>
                         <View style={styles.detailRow}>
@@ -468,6 +513,48 @@ const styles = StyleSheet.create({
     },
     column: {
         flex: 1,
+    },
+    hexButtonContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        marginBottom: 15,
+    },
+    hexButton: {
+        width: 50,
+        height: 50,
+        backgroundColor: '#9c9a9a',
+        alignItems: 'center',
+        justifyContent: 'center',
+        transform: [{ rotate: '45deg' }],
+        borderRadius: 5,
+    },
+    selectedHexButton: {
+        backgroundColor: '#080707',
+    },
+    hexButtonText: {
+        color: '#fff',
+        fontSize: 18,
+        transform: [{ rotate: '-45deg' }],
+    },
+    locationInput: {
+        backgroundColor: '#fff',
+        borderColor: '#E2E2E2',
+        borderWidth: 1,
+        borderRadius: 10,
+        paddingVertical: 10,
+        paddingHorizontal: 10,
+        fontSize: 18,
+        color: '#000',
+        width: '100%',
+        marginBottom: 10,
+    },
+    activeInput: {
+        borderWidth: 1.5,
+        borderColor: 'black',
+    },
+    inactiveInput: {
+        borderColor: '#ddd',
+        backgroundColor: '#f5f5f5',
     },
     cancelButton: {
         borderWidth: 1.5,

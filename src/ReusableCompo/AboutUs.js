@@ -120,13 +120,11 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         borderTopRightRadius: 15,
         borderTopLeftRadius: 15,
-
     },
     content: {
         flexGrow: 1,
         paddingHorizontal: 20,
         paddingVertical: 20,
-
     },
     subTitle: {
         fontSize: 22,

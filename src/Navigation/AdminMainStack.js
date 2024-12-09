@@ -35,6 +35,7 @@ import WardUsers from '../Admin/Ward/WardUsers'
 import WardUserRegistration from '../Admin/Filter/WardUserRegistration'
 import TownBooths from '../Admin/Filter/TownBooths'
 import Favours from '../Admin/Filter/Favours'
+import Surname from '../Admin/Filter/Surname'
 
 
 
@@ -280,6 +281,18 @@ const AdminMainStack = () => {
                 options={{
                     headerShown: true, headerTitleAlign: 'center', headerShadowVisible: false,
                     headerTitle: language === 'en' ? 'Favours' : 'अनुकूलतेने',
+                    headerLeft: () => (
+                        <TouchableOpacity onPress={() => navigation.goBack()}  >
+                            <MaterialCommunityIcons name="keyboard-backspace" size={30} color="black" />
+                        </TouchableOpacity>
+                    ),
+                }}
+            />
+
+            <Stack.Screen name='Surname' component={Surname}
+                options={{
+                    headerShown: true, headerTitleAlign: 'center', headerShadowVisible: false,
+                    headerTitle: language === 'en' ? 'Surname' : 'आडनाव',
                     headerLeft: () => (
                         <TouchableOpacity onPress={() => navigation.goBack()}  >
                             <MaterialCommunityIcons name="keyboard-backspace" size={30} color="black" />

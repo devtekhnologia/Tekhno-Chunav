@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
     },
 
 
-    // Searchbar
+    // search bar
     searchContainer: {
         flexDirection: 'row',
         alignItems: 'center',

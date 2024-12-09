@@ -11,6 +11,7 @@ import { LanguageContext } from '../../ContextApi/LanguageContext';
 const { height, width } = Dimensions.get('window');
 
 export default function ExitPoll() {
+    const navigation = useNavigation();
     const { language } = useContext(LanguageContext);
     const { buserId } = useContext(BoothUserContext);
     const [votersCounter, setVoterCounter] = useState({
@@ -63,7 +64,6 @@ export default function ExitPoll() {
             Alert.alert("Failed to fetch data", errorMessage);
         }
     };
-
 
 
 

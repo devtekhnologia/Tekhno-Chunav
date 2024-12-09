@@ -103,9 +103,9 @@ export default function ReligionCasteList() {
     }
   }, [boothValue, casteValue]);
 
-  const renderVoterItem = ({ item }) => (
+  const renderVoterItem = ({ item, index }) => (
     <View style={styles.voterItem}>
-      <Text style={styles.voterText}>{item.voter_id} - {language === 'en' ? item.voter_name : item.voter_id}</Text>
+      <Text style={styles.voterText}>{index + 1} - {language === 'en' ? item.voter_name : item.voter_name_mar}</Text>
       <Text style={styles.voterContact}>{language === 'en' ? 'Contact' : 'संपर्क'}: {item.voter_contact_number}</Text>
     </View>
   );

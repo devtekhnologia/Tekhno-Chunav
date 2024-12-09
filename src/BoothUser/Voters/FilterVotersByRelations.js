@@ -18,7 +18,7 @@ const FilterVoterByRelations = ({ route }) => {
 
     const { buserId } = useContext(BoothUserContext);
     console.log(buserId);
-    
+
     const { language } = useContext(LanguageContext);
     const [voters, setVoters] = useState([]);
     const [filteredVoters, setFilteredVoters] = useState([]);

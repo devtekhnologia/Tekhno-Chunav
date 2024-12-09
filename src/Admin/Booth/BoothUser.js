@@ -80,7 +80,6 @@ const BoothUsers = () => {
         }
     };
 
-
     const handleLongPressDelete = (userId) => {
         Alert.alert(
             'Delete User',

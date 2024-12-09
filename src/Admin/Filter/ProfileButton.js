@@ -38,6 +38,13 @@ const ProfileButton = () => {
                         <TouchableWithoutFeedback>
                             <ScrollView style={styles.modalContent}>
                             <TouchableOpacity
+                                    onPress={() => { navigation.navigate('Surname'); handleCloseModal(); }}
+                                    style={styles.modalButton}
+                                >
+                                    <Text style={styles.modalText}>{language === 'en' ? 'Surname' : 'आडनाव'}</Text>
+                                </TouchableOpacity>
+
+                            <TouchableOpacity
                                     onPress={() => { navigation.navigate('Favours'); handleCloseModal(); }}
                                     style={styles.modalButton}
                                 >

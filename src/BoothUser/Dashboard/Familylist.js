@@ -163,7 +163,7 @@ export default function Familylist({ navigation }) {
     voter.voter_id.toString().includes(searchQuery) || voter.voter_name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const renderItem = ({ item }) => (
+  const renderItem = ({ item, index }) => (
     <TouchableOpacity
       style={styles.card}
       onPress={() => handlePress(item.family_group_id)}
@@ -172,7 +172,7 @@ export default function Familylist({ navigation }) {
       <View style={styles.leftSection}>
         <View style={styles.row}>
           <Text style={styles.idText}>
-            {language === 'en' ? 'ID' : 'क्र.'} : {item.family_group_id}</Text>
+            {language === 'en' ? 'ID' : 'क्र.'} : {index + 1}</Text>
           <Text style={styles.memberCountText}>
             {language === 'en' ? 'Members' : 'सदस्य'} : {item.member_count}</Text>
         </View>
@@ -181,9 +181,9 @@ export default function Familylist({ navigation }) {
         <Text style={styles.contactText}>
           {language === 'en' ? 'Contact' : 'संपर्क'} : {item.family_group_contact_no}</Text>
       </View>
-      <Animated.View style={{ transform: [{ rotate: rotateArrow(item.family_group_id) }] }}>
+      {/* <Animated.View style={{ transform: [{ rotate: rotateArrow(item.family_group_id) }] }}> */}
         <MaterialIcons name="arrow-forward-ios" size={24} color="#000" style={styles.arrowIcon} />
-      </Animated.View>
+      {/* </Animated.View> */}
     </TouchableOpacity>
   );
 

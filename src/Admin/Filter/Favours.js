@@ -26,7 +26,6 @@ const Favours = () => {
     const [voters, setVoters] = useState([]);
     const [loading, setLoading] = useState(false);
 
-    // Fetch data based on selected menu item
     const fetchVoterData = async (menuId) => {
         setLoading(true);
         try {
@@ -41,14 +40,12 @@ const Favours = () => {
         }
     };
 
-    // Effect to fetch data when selectedMenu changes
     useEffect(() => {
         if (selectedMenu) {
             fetchVoterData(selectedMenu);
         }
     }, [selectedMenu]);
 
-    // Filter voter data based on Searchinput
     const filteredVoters = voters.filter(voter =>
         (voter.voter_id && voter.voter_id.toString().includes(searchValue)) ||
         (voter.voter_name && voter.voter_name.toLowerCase().includes(searchValue.toLowerCase())) ||
@@ -129,7 +126,7 @@ const styles = StyleSheet.create({
         color: 'grey',
     },
     dropdown: {
-        zIndex: 1000,  // Fix potential rendering issues
+        zIndex: 1000,
     },
     listContainer: {
         flex: 1,

@@ -53,17 +53,17 @@ export default function Voted({ route }) {
             const voterNameMar = voter.voter_name_mar ? voter.voter_name_mar.toLowerCase() : '';
             const voterId = voter.voter_id ? voter.voter_id.toString() : '';
 
-            const voterNameParts = voterName.split(/\s+/);
+            const voterNameParts = voterName.split(/\s+/); 
             const voterNameMarParts = voterNameMar.split(/\s+/);
 
             return searchTerms.every(term =>
-                voterId.includes(term) ||
+                voterId.includes(term) || 
                 voterName.includes(term) ||
                 voterNameMar.includes(term) ||
                 voterNameParts.some(part => part.includes(term)) ||
-                voterNameMarParts.some(part => part.includes(term)) ||
-                voterName.startsWith(searchTerms.join(' ')) ||
-                voterNameMar.startsWith(searchTerms.join(' '))
+                voterNameMarParts.some(part => part.includes(term)) || 
+                voterName.startsWith(searchTerms.join(' ')) || 
+                voterNameMar.startsWith(searchTerms.join(' ')) 
             );
         });
 

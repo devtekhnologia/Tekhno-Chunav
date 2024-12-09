@@ -99,13 +99,13 @@ export default function GenderWise() {
                     <FlatList
                         data={filteredVoters}
                         keyExtractor={item => item.voter_id.toString()}
-                        showsVerticalScrollIndicator={true}
+                        showsVerticalScrollIndicator={false}
                         scrollEnabled={!openGender}
-                        renderItem={({ item }) => (
+                        renderItem={({ item, index }) => (
                             <Pressable style={styles.voterItem} onPress={() => { handleVoterPress(item.voter_id) }}>
                                 <View style={styles.voterDetails}>
                                     <View style={styles.voterIdContainer}>
-                                        <Text>{item.voter_id}</Text>
+                                        <Text>{index + 1}</Text>
                                     </View>
                                     <Text>{language === 'en' ? toTitleCase(item.voter_name) : item.voter_name_mar}</Text>
                                 </View>

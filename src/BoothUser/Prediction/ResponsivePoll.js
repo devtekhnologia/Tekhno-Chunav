@@ -60,19 +60,19 @@ export default function ResponsivePoll() {
             <View style={styles.barChart}>
                 <View style={styles.barItem}>
                     <Animated.View style={[styles.bar, { height: totalVoterHeight }]} />
-                    <Text style={styles.barLabel}>{voterCounts.Total > 0 ? `${((voterCounts.Total / voterCounts.Total).toFixed(2) * 100)}%` : " 0%"}</Text>
+                    <Text style={styles.barLabel}>{voterCounts.Total > 0 ? `${((voterCounts.Total / voterCounts.Total).toFixed(5) * 100)}%` : " 0%"}</Text>
                 </View>
                 <View style={styles.barItem}>
                     <Animated.View style={[styles.bar, { height: favorableHeight }]} />
-                    <Text style={styles.barLabel}>{voterCounts.Favorable > 0 ? `${((voterCounts.Favorable / voterCounts.Total).toFixed(2) * 100)}%` : "0 %"}</Text>
+                    <Text style={styles.barLabel}>{voterCounts.Favorable > 0 ? `${((voterCounts.Favorable / voterCounts.Total).toFixed(5) * 100)}%` : "0 %"}</Text>
                 </View>
                 <View style={styles.barItem}>
                     <Animated.View style={[styles.bar, { height: nonFavorableHeight }]} />
-                    <Text style={styles.barLabel}>{voterCounts.Non_Favorable > 0 ? `${((voterCounts.Non_Favorable / voterCounts.Total).toFixed(2) * 100)}%` : "0 %"}</Text>
+                    <Text style={styles.barLabel}>{voterCounts.Non_Favorable > 0 ? `${((voterCounts.Non_Favorable / voterCounts.Total).toFixed(5) * 100)}%` : "0 %"}</Text>
                 </View>
                 <View style={styles.barItem}>
                     <Animated.View style={[styles.bar, { height: doubtedHeight }]} />
-                    <Text style={styles.barLabel}>{voterCounts.Doubted > 0 ? `${((voterCounts.Doubted / voterCounts.Total).toFixed(2) * 100)}%` : "0 %"}</Text>
+                    <Text style={styles.barLabel}>{voterCounts.Doubted > 0 ? `${((voterCounts.Doubted / voterCounts.Total).toFixed(5) * 100)}%` : "0 %"}</Text>
                 </View>
             </View>
             <View style={styles.barLabels}>

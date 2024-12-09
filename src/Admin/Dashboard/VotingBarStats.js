@@ -5,7 +5,6 @@ import { LanguageContext } from '../../ContextApi/LanguageContext';
 
 const { width, height } = Dimensions.get('screen');
 
-
 const VotingBarStats = ({ TotalVoters = 0, Favorable = 0, Non_Favorable = 0, Doubted = 0, Non_Voted = 0 }) => {
     const perPercent = TotalVoters > 0 ? TotalVoters / 100 : 1;
     const { language } = useContext(LanguageContext);

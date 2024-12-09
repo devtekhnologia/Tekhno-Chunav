@@ -141,7 +141,6 @@ const Dashboard = () => {
                 7: 'Purple',
                 0: 'Pending'
             };
-
             // Create an object to hold counts for each category
             const updatedFavorCounts = {
                 Favorable: 0,
@@ -153,7 +152,6 @@ const Dashboard = () => {
                 Purple: 0,
                 Pending: 0
             };
-
             result1.data.forEach(item => {
                 const key = favorCountsMap[item.voter_favour_id];
                 if (key) {
@@ -173,7 +171,6 @@ const Dashboard = () => {
             Alert.alert("Failed to fetch data", error.toString ? error.toString() : 'Unknown error');
         }
     };
-
 
     return (
         <ScrollView style={styles.container}
