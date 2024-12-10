@@ -1,0 +1,49 @@
+<!-- <!DOCTYPE html>
+<html>
+<head>
+    <title>Upload File</title>
+</head>
+<body>
+    <h2>Upload Excel File</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="file" accept=".xlsx">
+        <button type="submit">Upload</button>
+    </form>
+</body>
+</html> -->
+
+
+
+
+<!-- <!DOCTYPE html>
+<html>
+<head>
+    <title>Upload File</title>
+</head>
+<body>
+    <h2>Upload Excel File</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="file" accept=".xlsx">
+        <button type="submit">Upload</button>
+    </form>
+</body>
+</html> -->
+
+<!-- upload_file.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload Excel Files</title>
+</head>
+<body>
+    <h1>Upload Excel Files</h1>
+    <form action="{% url 'upload_file' %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="files" multiple>
+        <button type="submit">Upload</button>
+    </form>
+</body>
+</html>
+
