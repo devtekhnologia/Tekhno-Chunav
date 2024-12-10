@@ -2930,6 +2930,9 @@ def send_whatsapp_message_to_number(to, voter_name, booth_name, town_name, templ
 
 from django.conf import settings
 from rest_framework.decorators import api_view
+from twilio.base.exceptions import TwilioException
+from twilio.rest import Client
+
 
 @api_view(['POST'])
 def send_voter_data(request):
@@ -2990,6 +2993,22 @@ def fetch_voter_data(voter_id):
             'town_name' : row[4]
         }
     return None
+
+
+def send_sms_message(to, body):
+    try:
+        client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+
+        client.messages.create(
+            body=body,
+            from_=settings.TWILIO_PHONE_NUMBER,
+            to=to
+        )
+        return True
+    except TwilioException as e:
+        print(f"Error sending SMS to {to}: {e}")
+        return False
+
 
 
 # voter data pdf

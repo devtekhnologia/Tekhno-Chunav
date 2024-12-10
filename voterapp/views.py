@@ -93,6 +93,8 @@ from rest_framework.decorators import api_view
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from twilio.base.exceptions import TwilioException
+from twilio.rest import Client
 from voterapp.models import Booth, Town, Voterlist
 import io
 import json
@@ -2510,6 +2512,23 @@ def fetch_voter_data(voter_id):
             'town_name' : row[4]
         }
     return None
+
+
+def send_sms_message(to, body):
+    try:
+        client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+
+        client.messages.create(
+            body=body,
+            from_=settings.TWILIO_PHONE_NUMBER,
+            to=to
+        )
+        return True
+    except TwilioException as e:
+        print(f"Error sending SMS to {to}: {e}")
+        return False
+
+
 
 # voter data pdf
 
