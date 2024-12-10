@@ -91,7 +91,7 @@ const BoothDashbord = ({ navigation, toggleSidebar }) => {
       <View style={styles.container}>
         <View style={styles.infoContainer}>
           <Text style={styles.constituencyText}>
-            {language === 'en' ? 'Washim Constituency' : 'वाशिम मतदारसंघ'}
+            {language === 'en' ? 'Greater Kailash Constituency' : 'ग्रेटर कैलास मतदारसंघ'}
           </Text>
           <Text style={styles.userIdText}>
             {language === 'en' ? 'User Id: ' : 'वापरकर्ता आयडी: '} : {buserId}

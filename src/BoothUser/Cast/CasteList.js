@@ -48,7 +48,7 @@ export default function CasteList({ navigation }) {
         params: { buserId, castId }
       });
       if (response.status === 200) {
-        // console.log(response.data);
+        console.log(response.data);
         setVoters(response.data);
       } else {
         Alert.alert('Error', 'Failed to load voters. Please try again later.');
@@ -91,74 +91,65 @@ export default function CasteList({ navigation }) {
     setColorLegendModalVisible(false);
   };
 
-  const updateVoterColor = async (selectedVoterId, selectedColor) => {
-    if (!selectedVoterId) {
-        Alert.alert('Error', 'No voter selected.');
-        return;
-    }
+  const handleColorSelection = async (selectedColor) => {
+    if (!selectedVoterId) return;
+
     let voterFavourId;
     let backgroundColor;
 
+    // Determine voter favour ID and background color based on selection
     switch (selectedColor) {
-        case '#FF3030': 
-            voterFavourId = 2;
-            backgroundColor = '#FFE4E4'; 
-            break;
-        case '#FBBE17': 
-            voterFavourId = 3;
-            backgroundColor = '#FFF5D7'; 
-            break;
-        case '#188357': 
-            voterFavourId = 1;
-            backgroundColor = '#E4F8E4'; 
-            break;
-        default:
-            Alert.alert('Error', 'Invalid color selection.');
-            return;
+      case '#FF3030': // Non-Favourable
+        voterFavourId = 2;
+        backgroundColor = '#FFE4E4'; // Faint red
+        break;
+      case '#FBBE17': // Doubted
+        voterFavourId = 3;
+        backgroundColor = '#FFF5D7'; // Faint yellow
+        break;
+      case '#188357': // Favourable
+        voterFavourId = 1;
+        backgroundColor = '#E4F8E4'; // Faint green
+        break;
+      default:
+        Alert.alert('Error', 'Invalid color selection.');
+        return;
     }
-
-    // Prepare payload for API request
-    const payload = {
-        voter_id: selectedVoterId,
-        voter_favour_id: voterFavourId,
-    };
 
     try {
-        const response = await axios.put('http://192.168.1.24:8000/api/favour/', payload);
+      const response = await axios.put(`http://192.168.1.24:8000/api/favour/${selectedVoterId}/`, {
+        voter_id: selectedVoterId,
+        voter_favour_id: voterFavourId,
+      });
 
-        if (response.status === 200) {
-            setVoters((prevVoters) =>
-                prevVoters.map((voter) =>
-                    voter.voter_id === selectedVoterId
-                        ? { ...voter, color: backgroundColor }
-                        : voter
-                )
-            );
-            Alert.alert('Success', 'Color updated successfully.');
-        } else {
-            throw new Error('Failed to update color. Please try again later.');
-        }
+      if (response.status === 200) {
+        setVoters((prevVoters) =>
+          prevVoters.map((voter) =>
+            voter.voter_id === selectedVoterId ? { ...voter, color: backgroundColor } : voter
+          )
+        );
+        Alert.alert('Success', 'Color updated successfully.');
+      } else {
+        Alert.alert('Error', 'Failed to update color. Please try again later.');
+      }
     } catch (error) {
-        console.error('Error updating voter color:', error);
+      if (error.response) {
+        const { status, data } = error.response;
 
-        if (error.response) {
-            const { status, data } = error.response;
-
-            if (status >= 400 && status < 500) {
-                Alert.alert('Error', data.message || 'Client error occurred. Please check your input.');
-            } else if (status >= 500) {
-                Alert.alert('Error', 'Server error occurred. Please try again later.');
-            }
-        } else if (error.request) {
-            Alert.alert('Error', 'Network error. Please check your connection and try again.');
-        } else {
-            Alert.alert('Error', `An unexpected error occurred: ${error.message}`);
+        if (status >= 400 && status < 500) {
+          Alert.alert('Error', data.message || 'Client error occurred. Please check your input.');
+        } else if (status >= 500) {
+          Alert.alert('Error', 'Server error occurred. Please try again later.');
         }
+      } else if (error.request) {
+        Alert.alert('Error', 'Network error. Please check your connection and try again.');
+      } else {
+        Alert.alert('Error', 'An unexpected error occurred. Please try again later.');
+      }
     }
-};
 
-
-
+    closeColorLegendModal();
+  };
 
 
   const renderVoterItem = ({ item }) => (
@@ -220,7 +211,7 @@ export default function CasteList({ navigation }) {
               { color: '#FF3030', label: 'Non-Favourable' },
               { color: '#FBBE17', label: 'Doubted' },
             ].map((item, index) => (
-              <TouchableOpacity key={index} style={styles.legendItem} onPress={() => updateVoterColor(item.color)}>
+              <TouchableOpacity key={index} style={styles.legendItem} onPress={() => handleColorSelection(item.color)}>
                 <View style={[styles.colorCircle, { backgroundColor: item.color }]} />
                 <Text style={styles.label}>{item.label}</Text>
               </TouchableOpacity>

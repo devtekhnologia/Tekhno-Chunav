@@ -91,7 +91,7 @@ export default function WboothUsers() {
         <TextInput
           value={searchedValue}
           onChangeText={text => setSearchedValue(text)}
-          placeholder={language === 'en' ? "Search by voter’s name or ID" : 'मतदाराचे नाव किंवा आयडी द्वारे शोधा'}
+          placeholder={language === 'en' ? "Search by voter’s name" : 'मतदाराचे नाव किंवा आयडी द्वारे शोधा'}
           style={styles.searchInput}
         />
       </View>
@@ -99,7 +99,7 @@ export default function WboothUsers() {
       <FlatList
         data={searchedUsers}
         keyExtractor={(item) => item.user_id.toString()}
-        showsVerticalScrollIndicator={false}
+        showsVerticalScrollIndicator={true}
         renderItem={({ item }) => (
           <Pressable
             style={styles.userItem}

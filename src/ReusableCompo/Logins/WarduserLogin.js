@@ -13,8 +13,8 @@ const API_URL = Constants.manifest?.extra?.apiUrl || 'http://192.168.1.24:8000';
 export default function WarduserLogin({ navigation }) {
   const { language } = useContext(LanguageContext);
   const { login } = useContext(WardUserContext);
-  const [contactNumber, setContactNumber] = useState('9921112044');
-  const [password, setPassword] = useState('WASHIM@34');
+  const [contactNumber, setContactNumber] = useState('');
+  const [password, setPassword] = useState('');
   const [contactNumberError, setContactNumberError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);

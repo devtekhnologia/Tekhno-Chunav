@@ -132,7 +132,7 @@ const WardVoters = ({ route }) => {
                     <TextInput
                         value={searchedValue}
                         onChangeText={setSearchValue}
-                        placeholder={language === 'en' ? 'Search by voter’s name or ID' : 'मतदाराचे नाव किंवा ओळखपत्राने शोधा'}
+                        placeholder={language === 'en' ? 'Search by voter’s name' : 'मतदाराचे नाव किंवा ओळखपत्राने शोधा'}
                         style={styles.searchInput}
                     />
                 </View>

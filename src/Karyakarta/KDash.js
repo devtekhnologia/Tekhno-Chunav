@@ -31,7 +31,7 @@ export default function KDash() {
     await fetchVotedCount();
     await fetchNonVotedCount();
   };
-  
+
   const fetchVotersCount = async () => {
     try {
       const response = await axios.get(`http://192.168.1.24:8000/api/voters_by_group_user/${KuserId}/`);

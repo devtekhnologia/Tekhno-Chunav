@@ -10,8 +10,8 @@ import { KaryakartaContext } from '../../ContextApi/KaryakartaContext';
 export default function KLogin() {
     const navigation = useNavigation();
     const { setUserId } = useContext(KaryakartaContext);
-    const [username, setUsername] = useState(""); 
-    const [password, setPassword] = useState(""); 
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
     const [isTextSecure, setTextSecure] = useState(true);
     const [isLoading, setLoading] = useState(false);
     const [passwordError, setPasswordError] = useState('');

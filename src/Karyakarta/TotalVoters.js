@@ -246,7 +246,7 @@ export default function TotalVoters({ route, navigation }) {
         <TextInput
           value={search}
           onChangeText={setSearch}
-          placeholder={language === 'en' ? 'Search by voter’s name or ID' : 'मतदाराचे नाव किंवा ओळखपत्राने शोधा'}
+          placeholder={language === 'en' ? 'Search by voter’s name' : 'मतदाराचे नाव किंवा ओळखपत्राने शोधा'}
           style={styles.searchInput}
         />
       </View>
@@ -254,7 +254,7 @@ export default function TotalVoters({ route, navigation }) {
       <FlatList
         data={filteredVoters}
         keyExtractor={item => item.voter_id.toString()}
-        showsVerticalScrollIndicator={false}
+        showsVerticalScrollIndicator={true}
         contentContainerStyle={styles.listContent}
         renderItem={renderItem}
         ListHeaderComponent={loading && <LoadingListComponent />}

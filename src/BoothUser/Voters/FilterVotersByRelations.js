@@ -14,7 +14,11 @@ import EmptyListComponent from '../../ReusableCompo/EmptyListComponent';
 
 const FilterVoterByRelations = ({ route }) => {
     const { relationId, ScreenName } = route.params;
+    console.log(relationId, ScreenName);
+
     const { buserId } = useContext(BoothUserContext);
+    console.log(buserId);
+
     const { language } = useContext(LanguageContext);
     const [voters, setVoters] = useState([]);
     const [filteredVoters, setFilteredVoters] = useState([]);
@@ -150,7 +154,7 @@ const FilterVoterByRelations = ({ route }) => {
                         <FlatList
                             data={filteredVoters}
                             keyExtractor={item => item.voter_id.toString()}
-                            showsVerticalScrollIndicator={false}
+                            showsVerticalScrollIndicator={true}
                             renderItem={renderVoterItem}
                             ListHeaderComponent={loading && <LoadingListComponent />}
                             ListEmptyComponent={!loading && <EmptyListComponent />}
@@ -189,7 +193,7 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
     },
     listContainer: {
-        flex: 1,
+        flex: 0.99,
     },
     voterItem: {
         flex: 1,

@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
 
   text: {
     color: 'white',
-    fontSize: height * 0.03,
+    fontSize: height * 0.0255,
     textAlign: 'center',
     fontWeight: 'bold',
   },

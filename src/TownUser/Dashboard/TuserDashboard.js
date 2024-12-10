@@ -38,7 +38,9 @@ const TownDashboard = () => {
             Alert.alert(`Error fetching data from :`, error.toString ? error.toString() : 'Unknown error');
             setError(error.response ? error.response.data.message : 'Error fetching data');
         }
-    };
+    }
+
+
 
     const loadData = () => {
         if (userId) {
@@ -110,7 +112,7 @@ const TownDashboard = () => {
             <View style={styles.container}>
                 <View style={styles.infoContainer}>
                     <Text style={styles.constituencyText}>
-                        {language === 'en' ? 'Washim Constituency' : 'वाशिम मतदारसंघ'}
+                        {language === 'en' ? 'Greater Kailash Constituency' : 'ग्रेटर कैलास मतदारसंघ'}
                     </Text>
                     <Text style={styles.userIdText}>
                         {language === 'en' ? 'User Id: ' : 'वापरकर्ता आयडी: '} : {userId}
@@ -133,20 +135,19 @@ const TownDashboard = () => {
     }
 
     return (
-        <ScrollView
-            refreshControl={
-                <RefreshControl
-                    refreshing={refreshing}
-                    onRefresh={handleRefresh}
-                />
-            }
+        <ScrollView refreshControl={
+            <RefreshControl
+                refreshing={refreshing}
+                onRefresh={handleRefresh}
+            />
+        }
             scrollEnabled={false}
             showsVerticalScrollIndicator={false}
         >
             <View style={styles.container}>
                 <View style={styles.headerContainer}>
                     <Text style={styles.title}>
-                        {language === 'en' ? 'Washim Constituency' : 'वशिम मतदारसंघ'}
+                        {language === 'en' ? 'Greater Kailash Constituency' : 'वशिम मतदारसंघ'}
                     </Text>
                     <View style={styles.gradientContainer}>
                         <Pressable onPress={() => handlePress('Voters List')}>
@@ -205,15 +206,21 @@ const styles = StyleSheet.create({
     container: {
         height: height * 0.93,
         backgroundColor: 'white',
-        paddingVertical: 10,
+        // paddingVertical: 10,
         paddingHorizontal: 15,
     },
     headerContainer: {
         width: "100%",
+        // height: height * 0.12,
         justifyContent: 'center',
     },
+    infoContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
     constituencyText: {
-        fontSize: 24,
+        fontSize: height * 0.02,
         fontWeight: 'bold',
         color: '#3C4CAC',
     },
@@ -221,7 +228,8 @@ const styles = StyleSheet.create({
         fontSize: height * 0.02,
         fontWeight: '500',
         textAlign: 'center',
-        marginVertical: 5,
+        color: '#3C4CAC',
+        // marginVertical: 5,
     },
     gradientContainer: {
         height: height * 0.1,
@@ -243,14 +251,14 @@ const styles = StyleSheet.create({
     },
     statsContainer: {
         height: height * 0.20,
-        marginVertical: "3%",
+        marginVertical: "2%",
     },
     statsRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        height: height * 0.08,
-        marginVertical: "1.8%",
-        columnGap: width * 0.035
+        height: height * 0.1,
+        paddingVertical: "2%",
+        columnGap: width * 0.04,
     },
     statsBox: {
         flex: 1,
@@ -280,6 +288,7 @@ const styles = StyleSheet.create({
         fontWeight: '700',
     },
     votingStatsContainer: {
+        marginVertical: '2%',
         flexDirection: 'row',
         justifyContent: 'space-between',
         height: height * 0.38,

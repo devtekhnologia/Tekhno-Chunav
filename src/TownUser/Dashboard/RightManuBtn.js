@@ -84,7 +84,7 @@ const RightMenuBtn = () => {
                                 <View style={{ width: 40, alignItems: 'center' }}>
                                     <MaterialCommunityIcons name="account-filter-outline" size={30} color="black" />
                                 </View>
-                                <Text style={styles.modalText}>{language === 'en' ? 'Castwise Voters' : 'जातीनिहाय मतदार'}</Text>
+                                <Text style={styles.modalText}>{language === 'en' ? 'Cast-wise Voters' : 'जातीनिहाय मतदार'}</Text>
                             </TouchableOpacity>
                         </Animated.View>
                     </View>
@@ -122,6 +122,7 @@ const styles = StyleSheet.create({
     },
     modalText: {
         fontSize: 18,
+        flex: 1
     },
 });
 

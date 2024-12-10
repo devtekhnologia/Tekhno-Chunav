@@ -19,7 +19,7 @@ export default function ProgressCircleWithMargin({ progressValue, circleProgessC
                     unfilledColor={unfilledColor}
                     strokeCap={'butt'}
                 />
-                <Text style={[styles.text, { color: circleProgessColor }]}>{progressValue.toFixed(2)}%</Text>
+                <Text style={[styles.text, { color: circleProgessColor }]}>{progressValue.toFixed(3)}%</Text>
             </View>
         </View>
     );
@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
         // backgroundColor: 'grey',
     },
     text: {
-        fontSize: height * 0.03,
+        fontSize: height * 0.0255,
         fontWeight: 'bold',
         position: 'absolute',
     },

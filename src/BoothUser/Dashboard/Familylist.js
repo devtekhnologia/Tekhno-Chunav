@@ -182,7 +182,7 @@ export default function Familylist({ navigation }) {
           {language === 'en' ? 'Contact' : 'संपर्क'} : {item.family_group_contact_no}</Text>
       </View>
       {/* <Animated.View style={{ transform: [{ rotate: rotateArrow(item.family_group_id) }] }}> */}
-        <MaterialIcons name="arrow-forward-ios" size={24} color="#000" style={styles.arrowIcon} />
+      <MaterialIcons name="arrow-forward-ios" size={24} color="#000" style={styles.arrowIcon} />
       {/* </Animated.View> */}
     </TouchableOpacity>
   );

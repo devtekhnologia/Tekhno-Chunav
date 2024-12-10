@@ -96,9 +96,9 @@ const BoothEditVoterForm = ({ isVisible, onClose, selectedVoter, onEditVoter }) 
                 voter_ids: Array.isArray(voterIds) ? voterIds : [voterIds], // Ensure voterIds is an array
                 voter_favour_id: checkboxID,
             };
-    
+
             const response = await axios.put('http://192.168.1.24:8000/api/favour/', payload);
-    
+
             if (response.status === 200) {
                 setFilteredVoters(prevFilteredVoters =>
                     prevFilteredVoters.map(voter =>
@@ -116,8 +116,8 @@ const BoothEditVoterForm = ({ isVisible, onClose, selectedVoter, onEditVoter }) 
             Alert.alert('Error', 'Failed to update checkbox state. Please try again.');
         }
     };
-    
-    
+
+
 
     const fetchCasteData = async () => {
         try {
@@ -356,8 +356,8 @@ const BoothEditVoterForm = ({ isVisible, onClose, selectedVoter, onEditVoter }) 
 
     return (
         <Modal visible={isVisible} transparent={true} animationType="slide">
-            <TouchableOpacity style={styles.modalBackground} onPress={onClose}>
-                <TouchableOpacity style={styles.modalContainer} onPress={Keyboard.dismiss}>
+            <Pressable style={styles.modalBackground} onPress={onClose}>
+                <Pressable style={styles.modalContainer} onPress={Keyboard.dismiss}>
                     <View style={styles.header}>
                         <Text style={{ fontSize: 22, color: 'black', fontWeight: 'bold' }}>Edit Voter Details</Text>
                         <View style={{
@@ -373,6 +373,8 @@ const BoothEditVoterForm = ({ isVisible, onClose, selectedVoter, onEditVoter }) 
                             </TouchableOpacity>
                         </View>
                     </View>
+
+
                     <TextInput
                         value={name}
                         onChangeText={setName}
@@ -391,8 +393,8 @@ const BoothEditVoterForm = ({ isVisible, onClose, selectedVoter, onEditVoter }) 
                         placeholder='Enter contact no. here...'
                         keyboardType='phone-pad'
                         style={styles.input}
-                        maxLength={10}
                     />
+
                     <DropDownPicker
                         open={openCaste}
                         value={caste}
@@ -413,7 +415,7 @@ const BoothEditVoterForm = ({ isVisible, onClose, selectedVoter, onEditVoter }) 
                                 placeholder='Current Status'
                                 dropDownContainerStyle={{ zIndex: 999 }}
                                 style={[styles.dropdown, { zIndex: 999 }]}
-                    />                                                      
+                            />
                             <TextInput
                                 value={age ? age.toString() : ''}
                                 onChangeText={(text) => setAge(text ? Number(text) : null)}
@@ -491,15 +493,15 @@ const BoothEditVoterForm = ({ isVisible, onClose, selectedVoter, onEditVoter }) 
                             </Text>
                         </TouchableOpacity>
                     </View>
-                </TouchableOpacity>
-            </TouchableOpacity>
+                </Pressable >
+            </Pressable >
 
             <ColorLegendModal
                 isVisible={modalVisible}
                 closeModal={handleCloseModal}
                 onSelect={handleSelectedVoterType}
             />
-        </Modal>
+        </Modal >
     );
 };
 

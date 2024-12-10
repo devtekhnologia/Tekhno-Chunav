@@ -133,8 +133,8 @@ export default function WardNvoted({ route, navigation }) {
               borderRightWidth: 1, borderColor: '#D9D9D9',
               width: 60, alignItems: 'center',
             }}>
-          <Text>{fixedIndex}</Text>
-          </View>
+              <Text>{fixedIndex}</Text>
+            </View>
             <Text style={{ flex: 1 }}>{language === 'en' ? item.voter_name : item.voter_name_mar}</Text>
           </View>
         </View>
@@ -150,7 +150,7 @@ export default function WardNvoted({ route, navigation }) {
         <TextInput
           value={search}
           onChangeText={setSearch}
-          placeholder={language === 'en' ? 'Search by voter’s name or ID' : 'मतदाराचे नाव किंवा ओळखपत्राने शोधा'}
+          placeholder={language === 'en' ? 'Search by voter’s name' : 'मतदाराचे नाव किंवा ओळखपत्राने शोधा'}
           style={styles.searchInput}
         />
       </View>
@@ -158,7 +158,7 @@ export default function WardNvoted({ route, navigation }) {
       <FlatList
         data={filteredVoters}
         keyExtractor={item => item.voter_id.toString()}
-        showsVerticalScrollIndicator={false}
+        showsVerticalScrollIndicator={true}
         contentContainerStyle={styles.listContent}
         renderItem={renderItem}
         ListHeaderComponent={loading && <LoadingListComponent />}

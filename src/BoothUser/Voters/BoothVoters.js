@@ -45,19 +45,19 @@ export default function BoothVoters() {
 
     const filtered = voters.filter((voter, index) => {
       const fixedIndex = (index + 1).toString();
-        const searchFields = [
-            voter.voter_id.toString(),
-            voter.voter_name ? voter.voter_name.toLowerCase() : '',
-            voter.voter_name_mar ? voter.voter_name_mar.toLowerCase() : ''
-        ];
+      const searchFields = [
+        voter.voter_id.toString(),
+        voter.voter_name ? voter.voter_name.toLowerCase() : '',
+        voter.voter_name_mar ? voter.voter_name_mar.toLowerCase() : ''
+      ];
 
-        return searchTerms.every(term =>
-            searchFields.some(field => field.includes(term))
-        );
+      return searchTerms.every(term =>
+        searchFields.some(field => field.includes(term))
+      );
     });
 
     setFilteredVoters(filtered);
-};
+  };
 
   const handleVoterEditForm = (voter_id) => {
     fetchVoterDetails(voter_id);
@@ -92,17 +92,17 @@ export default function BoothVoters() {
   const updateVoterThumbStatus = async (voterId, thumbStatus) => {
     try {
       const apiUrl = `http://192.168.1.24:8000/api/voter_confirmation/${voterId}/`;
-      
+
       // Send the updated thumb status to the backend
       const response = await axios.put(apiUrl, {
         voter_id: voterId,
         voter_vote_confirmation_id: thumbStatus, // This will be 1 or null
       });
-  
+
       if (response.status !== 200) {
         throw new Error('Failed to update thumb status');
       }
-  
+
       console.log('Thumb status updated successfully!');
       return true;
     } catch (error) {
@@ -111,8 +111,8 @@ export default function BoothVoters() {
       return false;
     }
   };
-  
-  
+
+
 
   const toggleThumb = async (voterId) => {
     // Update local state immediately before making the API call
@@ -123,7 +123,7 @@ export default function BoothVoters() {
           : item
       )
     );
-  
+
     setFilteredVoters((prevFiltered) =>
       prevFiltered.map((item) =>
         item.voter_id === voterId
@@ -131,16 +131,16 @@ export default function BoothVoters() {
           : item
       )
     );
-  
+
     setThumbsUpState((prevState) => ({
       ...prevState,
       [voterId]: prevState[voterId] !== true,
     }));
-  
+
     try {
       const newThumbStatus = thumbsUpState[voterId] ? null : 1;
-        const updateResponse = await updateVoterThumbStatus(voterId, newThumbStatus);
-  
+      const updateResponse = await updateVoterThumbStatus(voterId, newThumbStatus);
+
       if (!updateResponse) {
         setVoters((prevVoters) =>
           prevVoters.map((item) =>
@@ -149,7 +149,7 @@ export default function BoothVoters() {
               : item
           )
         );
-  
+
         setFilteredVoters((prevFiltered) =>
           prevFiltered.map((item) =>
             item.voter_id === voterId
@@ -157,12 +157,12 @@ export default function BoothVoters() {
               : item
           )
         );
-  
+
         setThumbsUpState((prevState) => ({
           ...prevState,
           [voterId]: prevState[voterId] === true,
         }));
-  
+
         Alert.alert('Error', 'Failed to update thumb status. Please try again.');
       }
     } catch (error) {
@@ -170,8 +170,8 @@ export default function BoothVoters() {
       Alert.alert('Error', 'Failed to toggle thumb status. Please try again.');
     }
   };
-  
-  
+
+
 
   const fetchVotersData = () => {
     setLoading(true);
@@ -225,36 +225,36 @@ export default function BoothVoters() {
 
   const assignColorToSelectedVoters = async (colorId) => {
     try {
-        const payload = {
-            voter_ids: selectedVoters,
-            voter_favour_id: colorId,
-        };
-        
-        const response = await axios.put('http://192.168.1.24:8000/api/favour/', payload);
-        if (response.status === 200) {
-            const updatedVoters = filteredVoters.map(voter =>
-                selectedVoters.includes(voter.voter_id)
-                    ? { ...voter, voter_favour_id: colorId }
-                    : voter
-            );
-            setFilteredVoters(updatedVoters);
-            exitSelectionMode();
-            Alert.alert('Success', 'Color assigned successfully!');
-        } else {
-            throw new Error('Failed to update colors. Please try again.');
-        }
+      const payload = {
+        voter_ids: selectedVoters,
+        voter_favour_id: colorId,
+      };
+
+      const response = await axios.put('http://192.168.1.24:8000/api/favour/', payload);
+      if (response.status === 200) {
+        const updatedVoters = filteredVoters.map(voter =>
+          selectedVoters.includes(voter.voter_id)
+            ? { ...voter, voter_favour_id: colorId }
+            : voter
+        );
+        setFilteredVoters(updatedVoters);
+        exitSelectionMode();
+        Alert.alert('Success', 'Color assigned successfully!');
+      } else {
+        throw new Error('Failed to update colors. Please try again.');
+      }
     } catch (error) {
-        console.error('Error assigning color:', error.message);
-        Alert.alert('Error', 'Failed to assign color. Please try again.');
+      console.error('Error assigning color:', error.message);
+      Alert.alert('Error', 'Failed to assign color. Please try again.');
     }
-};
+  };
 
   const exitSelectionMode = () => {
     setSelectionMode(false);
     setSelectedVoters([]);
   };
 
-  const renderItem = ({ item, index}) => {
+  const renderItem = ({ item, index }) => {
     const fixedIndex = index + 1;
     const isSelected = selectedVoters.includes(item.voter_id);
     const isThumbsUp = thumbsUpState[item.voter_id];
@@ -278,30 +278,30 @@ export default function BoothVoters() {
 
     return (
       <TouchableOpacity
-  onLongPress={() => handleLongPress(item.voter_id)}
-  onPress={() => isSelectionMode ? toggleSelectVoter(item.voter_id) : handleVoterEditForm(item.voter_id)}
-  style={[
-    styles.itemContainer,
-    { backgroundColor: isSelected ? '#ddd' : 'white' } 
-  ]}
->
-         <View style={styles.idSectionContainer}>
-    <View style={[styles.idSection, { backgroundColor: color }]}>
-    <Text style={styles.indexText}>{fixedIndex}</Text>
-    </View>
-  </View>
-  <View style={styles.nameSection}>
-    <Text style={styles.itemText}>{language === 'en' ? 'Name' : 'नाव'} : {toTitleCase(item.voter_name_mar)}</Text>
-    <Text style={styles.itemText}>{language === 'en' ? 'Name' : 'नाव'} : {toTitleCase(item.voter_name)}</Text>
-    <Text style={styles.itemTown}>{language === 'en' ? 'Contact' : 'संपर्क'} : {item.voter_contact_number}</Text>
-    <Text style={styles.itemBooth}>{language === 'en' ? 'Booth' : 'बूथ'} : {item.booth_name}</Text>
-  </View>
-  {!isSelectionMode && (
-    <TouchableOpacity onPress={() => toggleThumb(item.voter_id)} style={styles.thumbsUpIcon}>
-      <Icon name={isThumbsUp ? 'thumb-up' : 'thumb-up-off-alt'} size={30} color={thumbsUpState[item.voter_id] ? 'black' : 'grey'} />
-    </TouchableOpacity>
-  )}
-</TouchableOpacity>
+        onLongPress={() => handleLongPress(item.voter_id)}
+        onPress={() => isSelectionMode ? toggleSelectVoter(item.voter_id) : handleVoterEditForm(item.voter_id)}
+        style={[
+          styles.itemContainer,
+          { backgroundColor: isSelected ? '#ddd' : 'white' }
+        ]}
+      >
+        <View style={styles.idSectionContainer}>
+          <View style={[styles.idSection, { backgroundColor: color }]}>
+            <Text style={styles.indexText}>{fixedIndex}</Text>
+          </View>
+        </View>
+        <View style={styles.nameSection}>
+          <Text style={styles.itemText}>{language === 'en' ? 'Name' : 'नाव'} : {toTitleCase(item.voter_name_mar)}</Text>
+          <Text style={styles.itemText}>{language === 'en' ? 'Name' : 'नाव'} : {toTitleCase(item.voter_name)}</Text>
+          <Text style={styles.itemTown}>{language === 'en' ? 'Contact' : 'संपर्क'} : {item.voter_contact_number}</Text>
+          <Text style={styles.itemBooth}>{language === 'en' ? 'Booth' : 'बूथ'} : {item.booth_name}</Text>
+        </View>
+        {!isSelectionMode && (
+          <TouchableOpacity onPress={() => toggleThumb(item.voter_id)} style={styles.thumbsUpIcon}>
+            <Icon name={isThumbsUp ? 'thumb-up' : 'thumb-up-off-alt'} size={30} color={thumbsUpState[item.voter_id] ? 'black' : 'grey'} />
+          </TouchableOpacity>
+        )}
+      </TouchableOpacity>
     );
   };
 
@@ -318,7 +318,7 @@ export default function BoothVoters() {
       />
 
 
-{isSelectionMode && (
+      {isSelectionMode && (
         <View style={styles.colorBar}>
           <TouchableOpacity onPress={() => assignColorToSelectedVoters(0)} style={[styles.colorButton, { backgroundColor: '#454345' }]} ><Text style={styles.colorText}></Text>
           </TouchableOpacity>
@@ -336,30 +336,30 @@ export default function BoothVoters() {
           </TouchableOpacity>
           <TouchableOpacity onPress={() => assignColorToSelectedVoters(7)} style={[styles.colorButton, { backgroundColor: '#c32ee8' }]} ><Text style={styles.colorText}></Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.colorButton, {backgroundColor:'#d8d4d9'}]} onPress={() => exitSelectionMode()}>
-          <Text style={styles.exitText}>✖</Text>
+          <TouchableOpacity style={[styles.colorButton, { backgroundColor: '#d8d4d9' }]} onPress={() => exitSelectionMode()}>
+            <Text style={styles.exitText}>✖</Text>
           </TouchableOpacity>
         </View>
       )}
 
-{loading ? (
+      {loading ? (
         <LoadingListComponent />
       ) : (
-      <FlatList
-        data={filteredVoters}
-        keyExtractor={item => item.voter_id.toString()}
-        renderItem={renderItem}
-        contentContainerStyle={styles.flatListContent}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={handleRefresh}
-            colors={['#3C4CAC']}
-          />
-        }
-        ListHeaderComponent={loading && <LoadingListComponent />}
-        ListEmptyComponent={!loading && <EmptyListComponent />}
-      />
+        <FlatList
+          data={filteredVoters}
+          keyExtractor={item => item.voter_id.toString()}
+          renderItem={renderItem}
+          contentContainerStyle={styles.flatListContent}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={handleRefresh}
+              colors={['#3C4CAC']}
+            />
+          }
+          ListHeaderComponent={loading && <LoadingListComponent />}
+          ListEmptyComponent={!loading && <EmptyListComponent />}
+        />
       )}
 
       {isFormVisible && (
@@ -454,14 +454,14 @@ const styles = StyleSheet.create({
     marginVertical: 5,
     padding: 10,
     // backgroundColor: '#eee',
-},
-colorButton: {
+  },
+  colorButton: {
     padding: 10,
     borderRadius: 10,
-},
-colorText: {
+  },
+  colorText: {
     fontSize: 16,
     paddingHorizontal: 5,
     borderRadius: 5,
-},
+  },
 });

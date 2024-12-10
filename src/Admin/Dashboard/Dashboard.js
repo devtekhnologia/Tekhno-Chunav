@@ -29,6 +29,7 @@ const Dashboard = () => {
     const [votedPercentage, setVotedPercentage] = useState('000');
     const [nvotedPercentage, setNVotedPercentage] = useState('000');
     const [totalNVoted, setNTotalVoted] = useState('000');
+    const [series, setSeries] = useState([0, 0, 1]);
 
     const [favorCounts, setFavorCounts] = useState({
         Favorable: 0,
@@ -83,6 +84,7 @@ const Dashboard = () => {
         getVotersByUserwise();
         getVotersByUserwisee();
         getVotedAndNonVotedCount();
+        getReligionwiseData();
     }, []);
 
     const handleRefresh = () => {
@@ -91,6 +93,7 @@ const Dashboard = () => {
         getVotersByUserwise();
         getVotersByUserwisee();
         getVotedAndNonVotedCount();
+        getReligionwiseData();
         setRefreshing(false);
     }
 
@@ -109,6 +112,21 @@ const Dashboard = () => {
         }
     };
 
+    const getReligionwiseData = async () => {
+        try {
+            const result = await axios.get('http://192.168.1.24:8000/api/religion_count/');
+            setSeries([
+                result.data.Hindu || 0,
+                result.data.Muslim || 0,
+                result.data['Not Defined'] || 1
+            ]);
+        } catch (error) {
+            Alert.alert('Error fetching religion-wise data:', error.toString ? error.toString() : 'Unknown error');
+        }
+    };
+
+
+
 
     const getVotersByUserwise = async () => {
         try {
@@ -123,7 +141,6 @@ const Dashboard = () => {
                 7: 'Purple',
                 0: 'Pending'
             };
-    
             // Create an object to hold counts for each category
             const updatedFavorCounts = {
                 Favorable: 0,
@@ -135,16 +152,15 @@ const Dashboard = () => {
                 Purple: 0,
                 Pending: 0
             };
-    
             result1.data.forEach(item => {
                 const key = favorCountsMap[item.voter_favour_id];
                 if (key) {
                     updatedFavorCounts[key] = item.count;
                 }
             });
-    
+
             setFavorCounts(updatedFavorCounts);
-    
+
             // setVoterCounter({
             //     TotalVoters: updatedFavorCounts.Favorable + updatedFavorCounts.Non_Favorable +
             //                  updatedFavorCounts.Doubted + updatedFavorCounts.Pro +
@@ -155,7 +171,6 @@ const Dashboard = () => {
             Alert.alert("Failed to fetch data", error.toString ? error.toString() : 'Unknown error');
         }
     };
-    
 
     return (
         <ScrollView style={styles.container}
@@ -165,10 +180,10 @@ const Dashboard = () => {
                     onRefresh={handleRefresh}
                 />}
             scrollEnabled={false}
-            showsVerticalScrollIndicator={false}
+            showsVerticalScrollIndicator={true}
         >
             <View style={styles.headerContainer}>
-                <Text style={styles.title}>{language === 'en' ? 'Washim Constituency' : 'वाशिम विधानसभा'}</Text>
+                <Text style={styles.title}>{language === 'en' ? 'Greater Kailash Constituency' : 'ग्रेटर कैलास विधानसभा'}</Text>
                 <Pressable onPress={() => { navigation.navigate('Total Voters') }} style={{
                     height: height * 0.1, borderRadius: 10,
                     paddingVertical: '2%',
@@ -238,7 +253,7 @@ const Dashboard = () => {
                 </View>
 
                 <View style={styles.votingStatsBox}>
-                    <CastDonotStat />
+                    <CastDonotStat series={series} />
                 </View>
             </View>
         </ScrollView>
@@ -253,15 +268,16 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
     },
     headerContainer: {
-        height: height * 0.15,
+        height: height * 0.12,
         width: "100%",
         justifyContent: 'center',
+
     },
     title: {
-        fontSize: 20,
+        fontSize: 17,
         fontWeight: '600',
         textAlign: 'center',
-        marginVertical: 5,
+        // marginVertical: 5,
         color: '#3C4CAC'
     },
     gradient: {
@@ -277,14 +293,15 @@ const styles = StyleSheet.create({
         color: 'white',
     },
     statsContainer: {
-        height: height * 0.20,
-        marginVertical: "3%"
+        // height: height * 0.20,
+        marginVertical: "1%",
+        justifyContent: 'center',
     },
     statsRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         height: height * 0.08,
-        marginVertical: "1.8%",
+        marginVertical: "2%",
         columnGap: 15
     },
     statsBox: {
@@ -322,6 +339,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         height: height * 0.38,
+        marginVertical: "1.5%",
+
     },
     votingStatsBox: {
         flex: 1,
@@ -334,11 +353,15 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginVertical: 10,
+        marginVertical: "1.5%",
         paddingHorizontal: 15,
+        paddingVertical: 5,
+        backgroundColor: '#E8E8E8',
+        borderRadius: 5
+
     },
     colorDigit: {
-        fontSize: width * 0.03,
+        fontSize: width * 0.037,
         fontWeight: 'bold',
     },
 });

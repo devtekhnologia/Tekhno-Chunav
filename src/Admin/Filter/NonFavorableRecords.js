@@ -55,7 +55,7 @@ const NonFavorableRecords = () => {
                 <TextInput
                     value={searchedValue}
                     onChangeText={text => { setSearchValue(text) }}
-                    placeholder={language === 'en' ? 'search by voter’s name or ID' : 'मतदाराचे नाव किंवा आयडी द्वारे शोधा'}
+                    placeholder={language === 'en' ? 'Search by voter’s name' : 'मतदाराचे नाव किंवा आयडी द्वारे शोधा'}
                     style={{ flex: 1, padding: 5, }}
                 />
             </View>
@@ -63,7 +63,7 @@ const NonFavorableRecords = () => {
             <View>
                 <FlatList
                     data={voterNameList}
-                    showsVerticalScrollIndicator={false}
+                    showsVerticalScrollIndicator={true}
                     keyExtractor={item => item.id}
                     renderItem={({ item }) => (
                         <Pressable style={styles.voterItem}>

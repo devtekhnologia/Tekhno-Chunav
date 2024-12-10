@@ -18,7 +18,7 @@ const BoothUser_ActivityLog = (routes) => {
     const [boothUsers, setBoothUsers] = useState([]);
 
     const searchedTown = boothUsers.filter(town =>
-        (town.voter_name && town.voter_name.toString().includes(searchedValue)) ||
+        (town.voter_name && town.voter_name.toString().toLowerCase().includes(searchedValue)) ||
         (town.voter_id && town.voter_id.toString().includes(searchedValue))
     );
 
@@ -68,7 +68,7 @@ const BoothUser_ActivityLog = (routes) => {
                 <TextInput
                     value={searchedValue}
                     onChangeText={text => setSearchValue(text)}
-                    placeholder={language === 'en' ? 'search by voter’s name or ID' : 'मतदाराचे नाव किंवा आयडी द्वारे शोधा'}
+                    placeholder={language === 'en' ? 'Search by voter’s name' : 'मतदाराचे नाव किंवा आयडी द्वारे शोधा'}
                     style={styles.searchInput}
                 />
             </View>
@@ -76,7 +76,7 @@ const BoothUser_ActivityLog = (routes) => {
             <FlatList
                 data={searchedTown}
                 keyExtractor={item => item.voter_id.toString()}
-                showsVerticalScrollIndicator={false}
+                showsVerticalScrollIndicator={true}
                 renderItem={({ item, index }) => (
                     <Pressable style={styles.voterItem}>
                         <View style={styles.voterDetails}>

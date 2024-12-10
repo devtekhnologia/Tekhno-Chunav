@@ -70,7 +70,7 @@ export default function WardBooths() {
                 <TextInput
                     value={searchedValue}
                     onChangeText={text => setSearchValue(text)}
-                    placeholder={language === 'en' ? "search booth by name or ID" : 'नाव किंवा आयडीद्वारे बूथ शोधा'}
+                    placeholder={language === 'en' ? "Search booth by name or ID" : 'नाव किंवा आयडीद्वारे बूथ शोधा'}
                     style={styles.searchInput}
                 />
             </View>
@@ -78,7 +78,7 @@ export default function WardBooths() {
             <FlatList
                 data={searchedBooth}
                 keyExtractor={item => item.booth_id.toString()}
-                showsVerticalScrollIndicator={false}
+                showsVerticalScrollIndicator={true}
                 renderItem={({ item }) => (
                     <Pressable style={styles.voterItem}
                         onPress={() => {
