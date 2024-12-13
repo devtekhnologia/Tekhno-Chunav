@@ -1,3 +1,4 @@
+# extraction vertically 
 import fitz
 from PIL import Image
 import io
@@ -14,7 +15,6 @@ from azure.cognitiveservices.vision.computervision import ComputerVisionClient
 from azure.cognitiveservices.vision.computervision.models import OperationStatusCodes
 from msrest.authentication import CognitiveServicesCredentials
 
-
 # Azure Credentials
 API_KEY = "AjGQ2JgRB5o3yCD2T32I4FuUbD5kb5NqEMaDvYb5q2fLUoWVcQCuJQQJ99ALACGhslBXJ3w3AAAEACOGERCw"
 ENDPOINT = "https://election-ai.cognitiveservices.azure.com/"
@@ -27,7 +27,6 @@ def preprocess_image(image):
     # Apply adaptive thresholding
     thresh = cv2.adaptiveThreshold(blur, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
     return thresh
-
 
 def segment_image_into_columns(image, num_columns=3):
     """
@@ -47,7 +46,6 @@ def segment_image_into_columns(image, num_columns=3):
         segments.append(segment)
 
     return segments
-
 
 def azure_ocr(image_data):
     # Perform OCR using Azure Computer Vision API
@@ -152,7 +150,6 @@ def process_text(all_extracted_text):
 
     pattern = r"((Name:\s*|Father's Name:\s*|Husband's Name:\s*|Mother's Name:\s*|Others:\s*|House Number:\s*|Age:\s*|Name:\s*).*?)(?=(Name:\s*|Father's Name:\s*|Husband's Name:\s*|Mother's Name:\s*|Others:\s*|House Number:\s*|Age:\s*|Name:|$))"
     result_text = re.sub(pattern, r'\1\n', cleaned_text)
-    print('result_text', result_text)
     return result_text
 
 
@@ -328,8 +325,8 @@ def upload_file(request):
                         match = re.search(constituency_pattern, page_text)
                         if match:
                             constituency_name = match.group(1).strip()
-                        else:
-                            print('Constituency name not found in the first page')
+                        # else:
+                        #     print('Constituency name not found in the first page')
                         
                         district = None
 
@@ -400,19 +397,16 @@ def upload_file(request):
                         match = re.search(part_no_pattern, full_page_text)
                         if match:
                             part_no = match.group(1).strip()
-                            # print("Part No:", part_no)
                         else:
                             countPage = 1
 
                     # Extract part number from the second page (page_num == 1)
                     if page_num == 1:
                         if countPage == 1 :
-                            # part_no_pattern = r"Part No\.?:\s*(\d+)"
                             part_no_pattern = r"Part No\.?\s*:\s*(\d+)"
                             match = re.search(part_no_pattern, full_page_text)
                             if match:
                                 part_no = match.group(1).strip()
-                            #     print("Part No:", part_no)
                             # else:
                             #     print('Part number not found on the second page')
 
@@ -437,6 +431,14 @@ def upload_file(request):
                     words_in_text = text.split()
                     filtered_words = [word for word in words_in_text if word not in words]
                     return " ".join(filtered_words)
+
+                def remove_after_number_of(text):
+                    # Find the index where "Number OF" appears
+                    index = text.find("4. NUMBER OF")
+                    if index != -1:
+                        # Keep the text before "Number OF"
+                        text = text[:index].strip()
+                    return text
 
                 def clean_town_or_village(text):
                     text = re.sub(r"\bTaluka\b.*", "", text, flags=re.IGNORECASE)
@@ -474,7 +476,8 @@ def upload_file(request):
                         house_numbers.append("")
 
                     ages.append(age.group(1) if age else "")
-
+                    # genders.append(gender.group(1) if gender else "")
+                        # Check gender and map accordingly
                     if gender:
                         gender_str = gender.group(1)
                         if gender_str.startswith("M"):
@@ -498,7 +501,6 @@ def upload_file(request):
                 regex_serial_voter_id = r"(?:(\d+)\s+)?((?:[A-Z]+\s?\d{1,12})|(?:\d[A-Z]+\d+))"
 
                 serial_voter_ids = re.findall(regex_serial_voter_id, result_text)
-
                 valid_serial_voter_ids = [
                     (serial.strip() if serial else '', voter_id.replace(" ", ""))
                     for serial, voter_id in serial_voter_ids
@@ -522,6 +524,8 @@ def upload_file(request):
 
                 polling_station = remove_unwanted_words(polling_station, unwanted_words)
                 address_station = remove_unwanted_words(address_station, unwanted_words)
+                
+                address_station = remove_after_number_of(address_station)
 
                 polling_station = clean_town_or_village(polling_station)
 
@@ -581,4 +585,3 @@ def upload_file(request):
             return render(request, 'upload_file.html', {'error_message': error_message})
 
     return render(request, 'upload_file.html')
-
