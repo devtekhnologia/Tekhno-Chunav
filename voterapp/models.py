@@ -1,32 +1,68 @@
 # working code
 
+# from django.db import models
+
+# class Voterlist(models.Model):
+#     voter_id = models.AutoField(primary_key=True)
+#     voter_name = models.CharField(max_length=255)
+#     voter_parent_name = models.CharField(max_length=255)
+#     voter_house_number = models.CharField(max_length=255)
+#     voter_age = models.CharField(max_length=255)
+#     voter_gender = models.CharField(max_length=255)
+#     voter_town_id = models.IntegerField()
+#     voter_booth_id = models.IntegerField()
+#     voter_contact_number = models.BigIntegerField()
+#     voter_cast_id = models.IntegerField()
+#     voter_favour_id = models.IntegerField()
+#     voter_constituency_id = models.IntegerField()
+#     voter_dob = models.DateField()
+#     voter_marital_status_id = models.IntegerField()
+#     voter_updated_by = models.IntegerField(null=True, blank=True)  # Store user_id as an integer
+#     voter_updated_date = models.DateField(auto_now=True, null=True, blank=True)
+#     voter_live_status_id = models.IntegerField(null=True, blank=True)
+#     voter_religion_id = models.IntegerField(null=True, blank=True)
+#     voter_dead_year = models.IntegerField(null=True, blank=True)
+#     voter_vote_confirmation_id = models.IntegerField(null=True, blank=True)
+#     voter_in_city_id =  models.IntegerField(null=True, blank=True)
+#     voter_current_location = models.CharField(max_length=1000)
+#     voter_name_mar = models.CharField(max_length=255)
+#     voter_serial_number = models.BigIntegerField(null=True, blank=True)
+#     voter_id_card_number = models.CharField(max_length=255, null=True, blank=True)
+
+
+#     class Meta:
+#         db_table = 'tbl_voter'
+
+
 from django.db import models
 
 class Voterlist(models.Model):
     voter_id = models.AutoField(primary_key=True)
+    voter_serial_number = models.IntegerField(null=True, blank=True)
+    voter_id_card_number = models.CharField(max_length=255, null=True, blank=True)
     voter_name = models.CharField(max_length=255)
-    voter_parent_name = models.CharField(max_length=255)
-    voter_house_number = models.CharField(max_length=255)
-    voter_age = models.CharField(max_length=255)
-    voter_gender = models.CharField(max_length=255)
-    voter_town_id = models.IntegerField()
-    voter_booth_id = models.IntegerField()
-    voter_contact_number = models.BigIntegerField()
-    voter_cast_id = models.IntegerField()
-    voter_favour_id = models.IntegerField()
-    voter_constituency_id = models.IntegerField()
-    voter_dob = models.DateField()
-    voter_marital_status_id = models.IntegerField()
-    voter_updated_by = models.IntegerField(null=True, blank=True)  # Store user_id as an integer
+    voter_parent_name = models.CharField(max_length=255, null=True, blank=True)
+    voter_house_number = models.CharField(max_length=255, null=True, blank=True)
+    voter_age = models.CharField(max_length=255, null=True, blank=True)
+    voter_gender = models.CharField(max_length=255, null=True, blank=True)
+    voter_contact_number = models.BigIntegerField(null=True, blank=True)
+    voter_current_location = models.CharField(max_length=1000, null=True, blank=True)
+    voter_booth_id = models.IntegerField(null=True, blank=True)
+    voter_town_id = models.IntegerField(null=True, blank=True)
+    voter_cast_id = models.IntegerField(null=True, blank=True)
+    voter_religion_id = models.IntegerField(null=True, blank=True)
+    voter_favour_id = models.IntegerField(null=True, blank=True)
+    voter_constituency_id = models.IntegerField(null=True, blank=True)
+    voter_dob = models.DateField(null=True, blank=True)
+    voter_marital_status_id = models.IntegerField(null=True, blank=True)
+    voter_updated_by = models.IntegerField(null=True, blank=True)  # Stores user_id
     voter_updated_date = models.DateField(auto_now=True, null=True, blank=True)
     voter_live_status_id = models.IntegerField(null=True, blank=True)
-    voter_religion_id = models.IntegerField(null=True, blank=True)
     voter_dead_year = models.IntegerField(null=True, blank=True)
     voter_vote_confirmation_id = models.IntegerField(null=True, blank=True)
-    voter_in_city_id =  models.IntegerField(null=True, blank=True)
-    voter_current_location = models.CharField(max_length=1000)
-    voter_name_mar = models.CharField(max_length=255)
-
+    voter_group_id = models.IntegerField(null=True, blank=True)
+    voter_in_city_id = models.IntegerField(null=True, blank=True)
+    voter_name_mar = models.CharField(max_length=255, null=True, blank=True)
 
     class Meta:
         db_table = 'tbl_voter'

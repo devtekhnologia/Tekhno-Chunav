@@ -18,12 +18,12 @@ class VoterlistSerializer(serializers.ModelSerializer):
     class Meta:
         model = Voterlist
         fields = [
-            'voter_id', 'voter_name', 'voter_parent_name', 'voter_house_number', 'voter_age', 'voter_gender', 
+            'voter_id', 'voter_serial_number', 'voter_id_card_number','voter_name', 'voter_parent_name', 'voter_house_number', 'voter_age', 'voter_gender', 
             'town_name', 'booth_id', 'booth_name', 'voter_contact_number', 'voter_cast_id', 'voter_cast_name', 
             'voter_favour_id', 'voter_constituency_id', 'voter_dob', 'voter_marital_status_id', 'voter_updated_by', 
             'user_name', 'voter_updated_date', 'voter_live_status_id', 'live_status_type', 'voter_religion_name', 
             'voter_dead_year', 'voter_vote_confirmation_id', 'voter_in_city_id', 'voter_current_location', 
-            'booth_name_mar', 'town_name_mar', 'voter_name_mar'  # Include voter_name_mar directly as a field
+            'booth_name_mar', 'town_name_mar', 'voter_name_mar'  
         ]
 
         extra_kwargs = {
@@ -47,6 +47,8 @@ class VoterlistSerializer(serializers.ModelSerializer):
             'booth_name_mar': {'allow_null': True, 'required': False},
             'town_name_mar': {'allow_null': True, 'required': False},
             'voter_name_mar': {'allow_null': True, 'required': False},
+            'voter_serial_number': {'allow_null': True, 'required': False},
+            'voter_id_card_number': {'allow_null': True, 'required': False}
         }
 
     def get_town_name(self, obj):
