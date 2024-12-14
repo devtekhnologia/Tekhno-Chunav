@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Techno चुनाव-BoothWiseVotersList</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
+
+  <style>
+    /* scrollbar */
+    body::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    body::-webkit-scrollbar-thumb:hover {
+      background: #838ab6;
+    }
+
+    body::-webkit-scrollbar {
+      background-color: transparent;
+    }
+
+    body::-webkit-scrollbar-thumb {
+      background: #9DA5D5;
+      border-radius: 8px;
+    }
+
+    table .bg-blue {
+      font-weight: 600;
+      background-color: #DCE1FF !important;
+    }
+
+    .search {
+      position: relative;
+    }
+
+    .btn-close {
+      position: absolute;
+      right: 45px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+    }
+
+    .custom-text-light {
+      color: gray;
+    }
+
+    #noDataMessage {
+      display: none;
+    }
+
+    #loading {
+      display: none;
+      font-size: 20px;
+      color: #4caf50;
+      margin-top: 20px;
+    }
+
+    /* CSS for the spinning animation */
+    .spinner {
+      border: 4px solid #f3f3f3;
+      /* Light gray */
+      border-top: 4px solid #3498db;
+      /* Blue */
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+
+    /* Keyframes for the spinning effect */
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* Style for the result text */
+    #result {
+      margin-top: 20px;
+      font-size: 18px;
+      color: #333;
+    }
+
+    /* Dropdown styling */
+    select {
+      padding: 10px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+
+<body>
+  {% include "navbar.html" %}
+  <div id="contentWrapper">
+    <div style="flex: 1">
+      <div class="container mt-3">
+        <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item custom-text-light"><a class="nav-link" href="/dashboard/">Dashboard</a></li>
+            <li class="breadcrumb-item custom-text-light" aria-current="page" style="cursor: default;">Voter</li>
+            <li class="breadcrumb-item" aria-current="page" style="cursor: default;">Booth Wise Voters List</li>
+          </ol>
+        </nav>
+
+        <div class="row">
+          <div class="col-12">
+            <div class="overflow-hidden card table-nowrap table-card bg-light rounded mb-3">
+              <div class="row" style="margin-bottom: 15px;">
+                <div class="col mx-5">
+                  <br><br>
+                  <div class="d-flex col-12 flex-row justify-content-center gap-3 mb-4">
+                    <!-- Town Select -->
+                    <select id="townSelect" class="form-select" aria-label="Select Town">
+                      <option value="" selected>Select Town</option>
+                    </select>
+
+                    <!-- Booth Select -->
+                    <select id="boothSelect" class="form-select" aria-label="Booth select">
+                      <option value="" disabled selected>Select Booth</option>
+                    </select>
+                  </div>
+
+                  <div class="row justify-content-center text-center">
+                    <div class="col-4">
+                      <h5 class="mt-1" style="cursor: default;"><strong>Total Voters:</strong>
+                        <span id="voterCount">0</span>
+                      </h5>
+                    </div>
+                    <div class="col-4">
+                      <h5 class="mt-1" style="cursor: default;"><strong>Voted Voters:</strong>
+                        <span id="votedCount">0</span>
+                      </h5>
+                      <p id="votedCountParcent"><i><b>Percent:</b></i></p>
+                    </div>
+                    <div class="col-4">
+                      <h5 class="mt-1" style="cursor: default;"><strong>Non-voted Voters:</strong>
+                        <span id="non-votedCount">0</span>
+                      </h5>
+                      <p id="non-votedCountParcent"><i><b>Percent:</b></i></p>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filter -->
+        <div class="d-flex justify-content-end gap-3 me-4 mb-1">
+          <!-- Voter caste assign -->
+          <div class="mb-3" style="display: none;" id="caste-select-container">
+            <div class="input-group mb-3" style="width: 230px;">
+              <select id="caste-select" class="form-select bg-light" aria-label="Small select example">
+                <option selected>Select Caste</option>
+              </select>
+              <button id="update-button" class="btn btn-primary input-group-append">Assign</button>
+            </div>
+          </div>
+
+          <div class="mb-3" style="display: none;" id="favour-select-container">
+            <div class="input-group mb-3" style="width: 230px;">
+              <select id="favour-select" class="form-select bg-light" aria-label="Small select example">
+                <option selected>Select Favour</option>
+                <option class="text-success" value="1">Green</option>
+                <option class="text-danger" value="2">Red</option>
+                <option class="text-warning" value="3">Yellow</option>
+                <option class="text-primary" value="4">Blue</option>
+                <option style="color: rgb(17, 180, 255);" value="5">Light Blue</option>
+                <option style="color: palevioletred;" value="6">Pink</option>
+                <option style="color: purple;" value="7">Purple</option>
+              </select>
+              <button id="update-favour-button" class="btn btn-primary input-group-append">Assign</button>
+            </div>
+          </div>
+
+          <div class=" mb-3" id="location-favor-filters">
+            <div class="input-group" style="width: 380px;">
+              <select id="locationtypeSelect" class="form-select bg-light" aria-label="Small select example">
+                <option value="null" selected>Select Location</option>
+                <option value="1">In City</option>
+                <option value="2">Near City</option>
+                <option value="3">Out of City</option>
+              </select>
+              <select id="town-type-select" class="form-select bg-light" aria-label="Small select example">
+                <option selected>Select Favour Type</option>
+                <option class="text-success" value="1">Green</option>
+                <option class="text-danger" value="2">Red</option>
+                <option class="text-warning" value="3">Yellow</option>
+                <option class="text-primary" value="4">Blue</option>
+                <option style="color: rgb(17, 180, 255);" value="5">Light Blue</option>
+                <option style="color: palevioletred;" value="6">Pink</option>
+                <option style="color: purple;" value="7">Purple</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="search" style="width: 350px;">
+            <div class="input-group">
+              <input type="text" id="search-input" name="search" class="form-control bg-light"
+                placeholder="Search by Name" />
+              <button type="button" id="clear-button" class="btn-close" aria-label="Close"></button>
+              <button class="btn btn-success" type="button" id="search-button">
+                <i class="fa-solid fa-magnifying-glass"></i>
+              </button>
+            </div>
+          </div>
+
+          <a href="#" class="btn btn-light border me-4 mb-3" id="exportButton">
+            <!-- <i class="fa-solid fa-arrow-up-from-bracket"></i>&nbsp; -->
+            Export
+          </a>
+        </div>
+
+        <div class="col-12 mb-3 mb-lg-5">
+          <div class="overflow-hidden table-nowrap rounded table-card">
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <thead class="text-uppercase" style="display: none;" id="tableHeading">
+                  <tr>
+                    <th class="bg-blue fw-bolder text-center" style="width: 0%;">
+                      <input class="form-check-input booth-checkbox" type="checkbox" value="1" id="townCheck">
+                    </th>
+                    <th class="bg-blue fw-bolder text-center" style="width: 15%;">Sr. No.</th>
+                    <th class="bg-blue fw-bolder" style="width: 30%;">Voter Name</th>
+                    <th class="bg-blue fw-bolder" style="width: 20%;">Contact Number</th>
+                    <th class="bg-blue fw-bolder" style="width: 20%;">Current Location</th>
+                    <th class="bg-blue fw-bolder text-center" style="width: 15%;">Actions</th>
+                    <th class="bg-blue"></th>
+                  </tr>
+                </thead>
+                <tbody id="votersTableBody" class="text-center">
+                  <tr id="noDataRow" style="display: none;">
+                    <td colspan="6">No data available.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div id="loading">
+          <div class="spinner"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Voter Details Modal -->
+  <div class="modal fade" id="voterDetailsModal" tabindex="-1" aria-labelledby="voterDetailsModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+      <div class="modal-content">
+        <div class="modal-header thd">
+          <h5 class="modal-title" id="voterDetailsModalLabel">Voter Details</h5>
+          <div class="ms-auto">
+            <a type="button" id="edit-button" class="btn btn-outline-danger me-2">
+              <i class="fa-solid fa-user-pen"></i>&nbsp;Edit
+            </a>
+            <a type="button" id="family-button" class="btn btn-outline-primary">
+              <i class="fa-solid fa-users"></i>&nbsp;Family</a>
+          </div>
+        </div>
+        <div class="modal-body">
+          <table class="table p-1">
+            <tbody>
+              <tr>
+                <th class="bg-light fw-semibold">Voter Name</th>
+                <td id="voter_name"></td>
+              </tr>
+              <tr>
+                <th class="bg-light fw-semibold">Parent Name</th>
+                <td id="voter_parent_name"></td>
+              </tr>
+              <tr>
+                <th class="bg-light fw-semibold">Date of Birth</th>
+                <td id="voter_dob"></td>
+              </tr>
+              <tr>
+                <th class="bg-light fw-semibold">Live Status</th>
+                <td id="voter_live_status"></td>
+              </tr>
+              <tr>
+                <th class="bg-light fw-semibold">Gender</th>
+                <td id="voter_gender"></td>
+              </tr>
+              <tr>
+                <th class="bg-light fw-semibold">Contact Number</th>
+                <td id="voter_contact_number"></td>
+              </tr>
+              <tr>
+                <th class="bg-light fw-semibold">Age</th>
+                <td id="voter_age"></td>
+              </tr>
+              <tr>
+                <th class="bg-light fw-semibold">Marital Status</th>
+                <td id="marital_status"></td>
+              </tr>
+              <tr>
+                <th class="bg-light fw-semibold">Cast</th>
+                <td id="voter_cast_name"></td>
+              </tr>
+              <tr>
+                <th class="bg-light fw-semibold">Location Type</th>
+                <td id="voter_in_city"></td>
+              </tr>
+              <tr>
+                <th class="bg-light fw-semibold">Current Location</th>
+                <td id="current_location"></td>
+              </tr>
+
+              <tr>
+                <th class="bg-light fw-semibold">Town Name</th>
+                <td id="town_name"></td>
+              </tr>
+              <tr>
+                <th class="bg-light fw-semibold">Booth Name</th>
+                <td id="booth_name"></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-light m-1" id="export-pdf-button">
+              <i class="fa-solid fa-arrow-up-from-bracket"></i>&nbsp;Export
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
+    </script>
+  <script>
+    let votersData = []; // Store the fetched voters data
+    let currentVoterId; // Variable to store the currently selected voter ID
+
+    // Capitalize function
+    function capitalizeWords(str) {
+      return str.split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join(' ');
+    }
+
+    // Show loading animation until data is fetched
+    // function onDropdownChange(event) {
+    //   const dropdown = event.target;
+    //   const selectedValue = townSelect.value;
+
+    //   // Only proceed if the selected value is not the default one
+    //   if (selectedValue !== "0") {
+    //     document.getElementById('loading').style.display = 'block';
+    //     document.getElementById('result').textContent = '';
+
+    //     fetchData(selectedValue).then((data) => {
+    //       // Hide loading animation once data is fetched
+    //       document.getElementById('loading').style.display = 'none';
+
+    //       // Show the fetched data
+    //       document.getElementById('result').textContent = data;
+    //     });
+    //   }
+    // }
+
+    // /Attach event listener to the dropdown
+    // document.getElementById('townSelect').addEventListener('change', onDropdownChange);
+
+
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const townSelect = document.getElementById('townSelect');
+      const boothSelect = document.getElementById('boothSelect');
+      const votersTableBody = document.getElementById('votersTableBody');
+      const noDataRow = document.getElementById('noDataRow');
+
+      // Initialize towns dropdown
+      fetchTowns();
+
+      // Fetch towns data
+      function fetchTowns() {
+        fetch('http://192.168.1.38:8000/api/towns/')
+          .then(response => response.json())
+          .then(data => {
+            data.forEach(town => {
+              const option = new Option(town.town_name, town.town_id);
+              townSelect.add(option);
+            });
+            townSelect.addEventListener('change', fetchBooths);
+          })
+          .catch(error => console.error('Error fetching towns data:', error));
+      }
+
+      // Fetch booths based on selected town
+      function fetchBooths() {
+        const selectedTownId = townSelect.value;
+        if (!selectedTownId) return;
+
+        fetch(`http://192.168.1.38:8000/api/booths_by_town/${selectedTownId}/`)
+          .then(response => response.json())
+          .then(data => {
+            boothSelect.innerHTML = '<option value="" disabled selected>Select Booth</option>';
+            data.forEach(booth => {
+              const option = new Option(booth.booth_name, booth.booth_id);
+              boothSelect.add(option);
+            });
+            boothSelect.addEventListener('change', fetchVotersByBooth);
+          })
+          .catch(error => console.error('Error fetching booths data:', error));
+      }
+
+      // Fetch voters based on selected booth and town
+      function fetchVotersByBooth() {
+        const selectedBoothId = boothSelect.value;
+        const selectedTownId = townSelect.value;
+        if (!selectedBoothId || !selectedTownId) return;
+
+        fetch(`http://192.168.1.38:8000/api/get_voters_by_booth/${selectedBoothId}/`)
+          .then(response => response.json())
+          .then(data => {
+            votersData = data;
+            // console.log('totalV--', data);
+            renderVoters(votersData);
+          })
+          .catch(error => console.error('Error fetching voters data:', error));
+      }
+
+      function renderVoters(voters) {
+        const fragment = document.createDocumentFragment();
+        const votersTableBody = document.getElementById('votersTableBody');
+        const noDataRow = document.getElementById('noDataRow');
+        const tableHeading = document.getElementById('tableHeading');
+
+        votersTableBody.textContent = ''; // Clear previous voters
+        // noDataRow.style.display = voters.length === 0 ? 'table-row' : 'none'; 
+
+        // Hide the table headings if there are no voters
+        if (voters.length === 0) {
+          tableHeading.style.display = 'none'; // Hide the heading
+          updateCounts(0, 0, 0); // Reset counts when no data is available
+          return;
+        }
+
+        const votedCount = voters.reduce((count, voter) => count + (voter.voter_vote_confirmation_id === 1 ? 1 : 0), 0);
+        const totalvotedCountParcent = ((votedCount / voters.length) * 100).toFixed(2);
+        const nonVotedCount = voters.reduce((count, voter) => count + (voter.voter_vote_confirmation_id === null ? 1 : 0), 0);
+        const totalnonVotedCountParcent = ((nonVotedCount / voters.length) * 100).toFixed(2);
+
+        // Show the table heading if there are voters
+        tableHeading.style.display = 'table-header-group';
+
+        // Process voters and add rows
+        voters.forEach((voter, index) => {
+          const row = document.createElement('tr');
+          const color = getColorBasedOnFavor(voter.voter_favour_id);
+
+          const checkboxCell = document.createElement('td');
+          checkboxCell.style.textAlign = 'center';
+          const checkbox = document.createElement('input');
+          checkbox.classList.add('form-check-input'); // Add Bootstrap class for the checkbox
+          checkbox.type = 'checkbox'; // Set the checkbox type
+          checkbox.id = `voterCheck_${voter.voter_id}`; // Set the checkbox ID to the voter ID
+          checkbox.value = voter.voter_id;
+          checkboxCell.appendChild(checkbox);
+          row.appendChild(checkboxCell);
+
+          // Creating cells for voter details
+          const srNoCell = document.createElement('td');
+          srNoCell.className = 'text-center';
+          srNoCell.textContent = index + 1;
+          row.appendChild(srNoCell);
+
+          const nameCell = document.createElement('td');
+          nameCell.className = 'text-start';
+          nameCell.textContent = capitalizeWords(voter.voter_name);
+          row.appendChild(nameCell);
+
+          const contactCell = document.createElement('td');
+          contactCell.className = 'text-start';
+          contactCell.textContent = voter.voter_contact_number || 'None';
+          row.appendChild(contactCell);
+
+          const locationCell = document.createElement('td');
+          locationCell.className = 'text-start';
+          locationCell.textContent = voter.voter_current_location || 'None';
+          row.appendChild(locationCell);
+
+          const voteConfirmationButton = getVoteStatusDetailsButton(voter);
+          const actionCell = document.createElement('td');
+          actionCell.appendChild(voteConfirmationButton);
+          row.appendChild(actionCell);
+
+          const detailsButton = document.createElement('button');
+          detailsButton.className = 'btn btn-light btn-sm m-1';
+          detailsButton.onclick = () => showVoterDetails(voter.voter_id);
+          detailsButton.innerHTML = '<i class="fa-solid fa-circle-info"></i>';
+          actionCell.appendChild(detailsButton);
+
+          const colorCell = document.createElement('td');
+          colorCell.style.backgroundColor = color;
+          row.appendChild(colorCell);
+
+          // Append the row to the fragment
+          fragment.appendChild(row);
+        });
+
+        votersTableBody.appendChild(fragment);
+        updateCounts(voters.length, votedCount, nonVotedCount, totalvotedCountParcent, totalnonVotedCountParcent);
+      }
+
+      function updateCounts(total, voted, nonVoted, totalvotedCountParcent, totalnonVotedCountParcent) {
+        document.getElementById('voterCount').textContent = total;
+        document.getElementById('votedCount').textContent = voted;
+        document.getElementById('non-votedCount').textContent = nonVoted;
+        document.getElementById('votedCountParcent').innerHTML = "<b>Percent:</b> <i>" + totalvotedCountParcent + "%</i>";
+        document.getElementById('votedCountParcent').style.fontStyle = "italic"; // Optional for the overall style
+
+        document.getElementById('non-votedCountParcent').innerHTML = "<b>Percent:</b> <i>" + totalnonVotedCountParcent + "%</i>";
+        document.getElementById('non-votedCountParcent').style.fontStyle = "italic"; // Optional for the overall style
+      }
+
+      function getColorBasedOnFavor(favourId) {
+        const colors = {
+          1: '#188050', // Green
+          2: '#DC3545', // Red
+          3: '#F2B707', // Yellow
+          4: '#0B5ED7', // Blue
+          5: '#11b4ff', // Sky Blue 
+          6: 'palevioletred', // Pink
+          7: 'purple', // Purple
+        };
+        return colors[favourId] || '#D3D3D3'; // Default to grey
+      }
+
+      function getVoteStatusDetailsButton(voter) {
+        const voteConfirmationButton = document.createElement('button');
+
+        // Add event listener to handle click
+        voteConfirmationButton.addEventListener('click', function () {
+          updateVoteConfirmation(voter.voter_vote_confirmation_id, voter, voteConfirmationButton);
+          updateCounts(voters.length, votedCount, nonVotedCount, totalvotedCountParcent, totalnonVotedCountParcent);
+        });
+
+        // Conditional button based on voter_vote_confirmation_id
+        if (voter.voter_vote_confirmation_id === null) {
+          voteConfirmationButton.className = 'btn btn-secondary btn-sm m-1';
+          voteConfirmationButton.innerHTML = '<i class="fa-regular fa-thumbs-up"></i>'; // Icon for "Confirm Vote"
+        } else if (voter.voter_vote_confirmation_id === 1) {
+          voteConfirmationButton.className = 'btn btn-primary btn-sm m-1';
+          voteConfirmationButton.innerHTML = '<i class="fa-solid fa-thumbs-up"></i>'; // Icon for "Undo Confirmation"
+        } else {
+          // Optionally handle other cases (e.g., no action)
+          voteConfirmationButton.className = 'btn btn-danger btn-sm';
+          voteConfirmationButton.textContent = 'No Action';
+        }
+
+        return voteConfirmationButton;
+      }
+
+      function updateVoteConfirmation(voteStatusId, voter, voteConfirmationButton) {
+
+        const newConfirmationStatus = voteStatusId === 1 ? null : 1; // Toggle logic
+
+        try {
+          fetch(`http://192.168.1.38:8000/api/voter_confirmation/${voter.voter_id}/`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ voter_vote_confirmation_id: newConfirmationStatus })
+          })
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('Failed to update vote confirmation status');
+              }
+
+              // Update the voter object with the new confirmation status
+              voter.voter_vote_confirmation_id = newConfirmationStatus;
+
+              // Update button appearance based on the new status
+              if (newConfirmationStatus === null) {
+                voteConfirmationButton.className = 'btn btn-secondary btn-sm m-1';
+                voteConfirmationButton.innerHTML = '<i class="fa-regular fa-thumbs-up"></i>'; // Icon for "Confirm Vote"
+              } else {
+                voteConfirmationButton.className = 'btn btn-primary btn-sm m-1';
+                voteConfirmationButton.innerHTML = '<i class="fa-solid fa-thumbs-up"></i>'; // Icon for "Undo Confirmation"
+              }
+            })
+            .catch(error => {
+              alert('Error toggling vote confirmation. Please try again.');
+            });
+        } catch (error) {
+          console.error('Error toggling vote confirmation:', error);
+          alert('Error toggling vote confirmation. Please try again.');
+        }
+      }
+
+      // Fetch and populate voter details in the modal
+      window.showVoterDetails = function (voterId) {
+        currentVoterId = voterId; // Save the current voter ID
+        fetch(`http://192.168.1.38:8000/api/voters/${voterId}/`)
+          .then(response => response.json())
+          .then(data => {
+            document.getElementById('voter_name').textContent = capitalizeWords(data.voter_name) || '--';
+            document.getElementById('voter_parent_name').textContent = capitalizeWords(data.voter_parent_name) || '--';
+            document.getElementById('voter_dob').textContent = data.voter_dob || '--';
+            document.getElementById('voter_gender').textContent = data.voter_gender || '--';
+            document.getElementById('voter_contact_number').textContent = data.voter_contact_number || '--';
+            document.getElementById('voter_age').textContent = data.voter_age || '--';
+            document.getElementById('voter_cast_name').textContent = data.voter_cast_name || '--';
+            document.getElementById('town_name').textContent = data.town_name || '--';
+            document.getElementById('booth_name').textContent = data.booth_name || '--';
+
+            document.getElementById('voter_in_city').textContent = (data.voter_in_city_id === 1) ? 'In City' : (data.voter_in_city_id === 2 ? 'Near City' : (data.voter_in_city_id === 3 ? 'Out of City' : '--'));
+            document.getElementById('voter_live_status').textContent = (data.voter_live_status_id === 1) ? 'Alive' : (data.voter_live_status_id === 2 ? 'Dead' : '--');
+            document.getElementById('marital_status').textContent = data.voter_marital_status_id || '--';
+            document.getElementById('current_location').textContent = data.voter_current_location || '--';
+            // Update the Edit button with the voter ID
+            document.getElementById('edit-button').href = `/editvoter/${voterId}/`;
+            // Update the Family button with the voter ID
+            document.getElementById('family-button').href = `/familydetails/${voterId}`;
+
+            updateBackgroundColor(data.voter_favour_id);
+
+            // Show the modal
+            const voterDetailsModal = new bootstrap.Modal(document.getElementById('voterDetailsModal'));
+            voterDetailsModal.show();
+          })
+          .catch(error => console.error('Error fetching voter details:', error));
+      };
+
+      // Function to update the background color based on favour_id in Voter details modal
+      function updateBackgroundColor(favourId) {
+        const thdElements = document.querySelectorAll('.thd');
+        thdElements.forEach(element => {
+          element.style.backgroundColor = '';
+        });
+
+        const colors = {
+          1: '#D1E7DD', // Light Green
+          2: '#F8D7DA', // Light Red
+          3: '#fff3cd', // Light Yellow
+          4: '#DCE1FF', // Light Blue 
+          5: '#d1faff', // Light Sky Blue 
+          6: '#fed6ff', // Light Pink
+          7: '#ebd1ff', // Light Purple
+        };
+        const color = colors[favourId] || '#D3D3D3'; // Default grey
+        thdElements.forEach(element => {
+          element.style.backgroundColor = color;
+        });
+      }
+
+      // Function to get the town and booth IDs from the URL path
+      function getIdsFromPath() {
+        const pathParts = window.location.pathname.split('/');
+        // console.log(pathParts); // Log the parts for debugging
+        const townId = pathParts[2]; // Check if this index is correct
+        const boothId = pathParts[3]; // Check if this index is correct
+        return { townId, boothId };
+      }
+
+      // Export button functionality in Page
+      exportButton.addEventListener('click', function (event) {
+        event.preventDefault(); // Prevent default anchor behavior
+
+        const selectedBoothId = boothSelect.value;
+        const selectedLocationId = locationtypeSelect.value;
+        // console.log('B--', selectedBoothId, 'L--', selectedLocationId);
+
+
+
+        if (!selectedBoothId || !selectedLocationId) {
+          alert('Please select both Booth and Location before exporting pdf.');
+          return;
+        }
+
+        const pdfUrl = `http://192.168.1.38:8000/api/generate_voter_pdf_by_booth/booth_id/${selectedBoothId}/city_id/${selectedLocationId}/`;
+
+        if (selectedBoothId || selectedLocationId) {
+          // Fetch PDF
+          fetch(pdfUrl)
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('Network response was not ok');
+              }
+              return response.blob();
+            })
+            .then(blob => {
+              const url = window.URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = `BoothWiseVoterList.pdf`;
+              document.body.appendChild(a);
+              a.click();
+              a.remove();
+            })
+            .catch(error => {
+              alert('Make sure you have selected both Booth and Location before exporting pdf.');
+            });
+        } else {
+          alert('Please select both Booth and Location before exporting pdf.');
+        }
+      });
+
+      // Favor type filter
+      document.getElementById('town-type-select').addEventListener('change', function () {
+        const selectedFavourId = parseInt(this.value);
+        if (!isNaN(selectedFavourId)) {
+          const filteredVoters = votersData.filter(voter => voter.voter_favour_id === selectedFavourId);
+          renderVoters(filteredVoters);
+        } else {
+          renderVoters(votersData); // If no selection, show all voters
+        }
+      });
+
+      // Location type filter
+      document.getElementById('locationtypeSelect').addEventListener('change', function () {
+        const selectedLocationId = parseInt(this.value);
+        if (!isNaN(selectedLocationId)) {
+          const filteredVoters = votersData.filter(voter => voter.voter_in_city_id === selectedLocationId);
+          renderVoters(filteredVoters);
+        } else {
+          renderVoters(votersData); // If no selection, show all voters
+        }
+      });
+
+      // Main function to initialize the page
+      function init() {
+        const { townId, boothId } = getIdsFromPath();
+        if (townId && boothId) {
+          fetchVoters_by_tid_AND_bid(townId, boothId); // Fetch voters for the town_id and booth_id from URL
+        } else if (townId) {
+          fetchVoters_by_bid(townId); // Fetch voters for the booth_id from URL
+        } else {
+          console.log('No town_id or booth_id found in URL path, user can select from dropdowns');
+        }
+      }
+
+      function fetchVoters_by_tid_AND_bid(townId, boothId) {
+        fetch(`http://192.168.1.38:8000/api/town/${townId}/booth/${boothId}/`)
+          .then(response => response.json())
+          .then(data => {
+            votersData = data; // Store fetched voters data
+            renderVoters(votersData);
+          })
+          .catch(error => console.error('Error fetching voters data:', error));
+      }
+
+      function fetchVoters_by_bid(boothId) {
+        fetch(`http://192.168.1.38:8000/api/get_voters_by_booth/${parseInt(boothId)}/`)
+          .then(response => response.json())
+          .then(data => {
+            votersData = data; // Store fetched voters data
+            renderVoters(votersData);
+          })
+          .catch(error => console.error('Error fetching voters data:', error));
+      }
+
+      init(); // Initialize the page
+
+
+      // Add event listener for the export button
+      document.getElementById('export-pdf-button').addEventListener('click', () => {
+        if (!currentVoterId) {
+          alert('Please select a voter first to export.');
+          return;
+        }
+        const pdfUrl = `http://192.168.1.38:8000/api/generate_voter_pdf/${currentVoterId}/`;
+        fetch(pdfUrl)
+          .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.blob(); // Get the response as a Blob
+          })
+          .then(blob => {
+            const url = window.URL.createObjectURL(blob); // Create a URL for the Blob
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `voterDetails.pdf`; // Set the file name
+            document.body.appendChild(a);
+            a.click(); // Programmatically click the anchor element
+            a.remove(); // Remove the anchor from the document
+          })
+          .catch(error => console.error('Error exporting PDF:', error));
+      });
+
+      // Search functionality
+      document.getElementById('search-input').addEventListener('input', function () {
+        const searchTerm = this.value.toLowerCase();
+        const filteredVoters = votersData.filter(voter =>
+          voter.voter_name.toLowerCase().includes(searchTerm)
+        );
+        renderVoters(filteredVoters);
+      });
+
+      // Clear search input
+      document.getElementById('clear-button').addEventListener('click', () => {
+        document.getElementById('search-input').value = '';
+        renderVoters(votersData); // Render original voters data
+      });
+    });
+
+
+
+
+
+    // Multi Caste assign function
+    document.addEventListener('DOMContentLoaded', function () {
+      let selectedVoters = []; // This will track the selected voters
+
+      // Fetch caste data from the API and populate the caste select options
+      fetch('http://192.168.1.38:8000/api/cast/')
+        .then(response => response.json())
+        .then(data => {
+          const casteSelect = document.getElementById('caste-select');
+
+          // Add each caste option to the select dropdown
+          data.forEach(caste => {
+            const option = document.createElement('option');
+            option.value = caste.cast_id;
+            option.textContent = caste.cast_name;
+            casteSelect.appendChild(option);
+          });
+        })
+        .catch(error => console.error('Error fetching caste data:', error));
+
+      const tableBody = document.getElementById('votersTableBody');
+      const tableHeadingCheckbox = document.getElementById('townCheck'); // Corrected ID
+
+      // Select all checkboxes when the table heading checkbox is clicked
+      tableHeadingCheckbox.addEventListener('change', function () {
+        const checkboxes = tableBody.querySelectorAll('input[type="checkbox"]');
+        console.log('checkboxes--', checkboxes);
+
+        checkboxes.forEach(checkbox => {
+          checkbox.checked = tableHeadingCheckbox.checked; // Sync checkbox state with header checkbox
+          const row = checkbox.closest('tr');
+          const voterId = checkbox.value;
+
+          // Toggle "selected" class for each row based on checkbox state
+          if (checkbox.checked) {
+            row.classList.add('selected');
+            selectedVoters.push(voterId);
+          } else {
+            row.classList.remove('selected');
+            selectedVoters = selectedVoters.filter(id => id !== voterId);
+          }
+        });
+
+        // Show or hide caste select based on the number of selected voters
+        if (selectedVoters.length > 0) {
+          document.getElementById('caste-select-container').style.display = 'block';
+          document.getElementById('location-favor-filters').style.display = 'none';
+        } else {
+          document.getElementById('caste-select-container').style.display = 'none';
+          document.getElementById('location-favor-filters').style.display = 'block';
+        }
+      });
+
+      // Add event listener to handle individual voter row selection
+      tableBody.addEventListener('click', function (event) {
+        // Check if the clicked element is a checkbox
+        if (event.target.type === 'checkbox') {
+          const checkbox = event.target;
+          const row = checkbox.closest('tr');
+          const voterId = checkbox.value;
+
+          // Toggle the "selected" class to indicate voter selection
+          row.classList.toggle('selected', checkbox.checked);
+
+          // Add or remove the voter from the selectedVoters array
+          if (checkbox.checked) {
+            selectedVoters.push(voterId);
+          } else {
+            selectedVoters = selectedVoters.filter(id => id !== voterId);
+          }
+          console.log('selectedVoters:', selectedVoters);
+
+          // Show or hide caste select based on the number of selected voters
+          if (selectedVoters.length > 0) {
+            document.getElementById('caste-select-container').style.display = 'block';
+            document.getElementById('location-favor-filters').style.display = 'none';
+          } else {
+            document.getElementById('caste-select-container').style.display = 'none';
+            document.getElementById('location-favor-filters').style.display = 'block';
+          }
+        }
+      });
+
+      // Add event listener to the "Assign" button
+      document.getElementById('update-button').addEventListener('click', function () {
+        const selectedCasteId = document.getElementById('caste-select').value;
+
+        // Ensure that a caste and at least one voter are selected
+        if (!selectedCasteId || selectedCasteId === "Select Caste") {
+          alert('Please select a caste.');
+          return;
+        }
+
+        if (selectedVoters.length === 0) {
+          alert('Please select at least one voter.');
+          return;
+        }
+
+        // Prepare the payload to send to the API
+        const payload = {
+          "voter_ids": selectedVoters.map(voterId => parseInt(voterId)), // Ensure voter IDs are integers
+          "voter_cast_id": parseInt(selectedCasteId) // Ensure caste ID is an integer
+        };
+        console.log('Payload:', JSON.stringify(payload));
+
+        // Make the PUT request to assign caste to voters
+        fetch('http://192.168.1.38:8000/api/assign_voter_cast/', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCsrfToken() // CSRF token for security
+          },
+          body: JSON.stringify(payload)
+        })
+          .then(response => response.json())
+          .then(data => {
+            if (data.message) {
+              alert(`Successfully updated ${data.message.split(' ')[2]} records.`);
+              location.reload(); // Reload the page to refresh the table and reset selections
+            } else {
+              alert('Failed to assign caste. Please try again.');
+            }
+          })
+          .catch(error => {
+            console.error('Error assigning caste:', error);
+            alert('An error occurred while assigning the caste.');
+          });
+      });
+
+      // Helper function to get CSRF token from the page
+      const getCsrfToken = () => {
+        const csrfTokenElement = document.querySelector('[name=csrfmiddlewaretoken]');
+        return csrfTokenElement ? csrfTokenElement.value : ''; // Ensure CSRF token is returned if available
+      };
+    });
+
+
+
+
+    // Multi Favour assign function
+    document.addEventListener('DOMContentLoaded', function () {
+      let selectedVoters = []; // This will track the selected voters
+
+      // Fetch caste data from the API and populate the caste select options
+      // fetch('http://192.168.1.38:8000/api/cast/')
+      //   .then(response => response.json())
+      //   .then(data => {
+      //     const casteSelect = document.getElementById('caste-select');
+
+      //     // Add each caste option to the select dropdown
+      //     data.forEach(caste => {
+      //       const option = document.createElement('option');
+      //       option.value = caste.cast_id;
+      //       option.textContent = caste.cast_name;
+      //       casteSelect.appendChild(option);
+      //     });
+      //   })
+      //   .catch(error => console.error('Error fetching caste data:', error));
+
+      const tableBody = document.getElementById('votersTableBody');
+      const tableHeadingCheckbox = document.getElementById('townCheck'); // Corrected ID
+
+      // Select all checkboxes when the table heading checkbox is clicked
+      tableHeadingCheckbox.addEventListener('change', function () {
+        const checkboxes = tableBody.querySelectorAll('input[type="checkbox"]');
+        console.log('checkboxes--', checkboxes);
+
+        checkboxes.forEach(checkbox => {
+          checkbox.checked = tableHeadingCheckbox.checked; // Sync checkbox state with header checkbox
+          const row = checkbox.closest('tr');
+          const voterId = checkbox.value;
+
+          // Toggle "selected" class for each row based on checkbox state
+          if (checkbox.checked) {
+            row.classList.add('selected');
+            selectedVoters.push(voterId);
+          } else {
+            row.classList.remove('selected');
+            selectedVoters = selectedVoters.filter(id => id !== voterId);
+          }
+        });
+
+        // Show or hide caste select based on the number of selected voters
+        if (selectedVoters.length > 0) {
+          document.getElementById('favour-select-container').style.display = 'block';
+          document.getElementById('location-favor-filters').style.display = 'none';
+        } else {
+          document.getElementById('favour-select-container').style.display = 'none';
+          document.getElementById('location-favor-filters').style.display = 'block';
+        }
+      });
+
+      // Add event listener to handle individual voter row selection
+      tableBody.addEventListener('click', function (event) {
+        // Check if the clicked element is a checkbox
+        if (event.target.type === 'checkbox') {
+          const checkbox = event.target;
+          const row = checkbox.closest('tr');
+          const voterId = checkbox.value;
+
+          // Toggle the "selected" class to indicate voter selection
+          row.classList.toggle('selected', checkbox.checked);
+
+          // Add or remove the voter from the selectedVoters array
+          if (checkbox.checked) {
+            selectedVoters.push(voterId);
+          } else {
+            selectedVoters = selectedVoters.filter(id => id !== voterId);
+          }
+          console.log('selectedVoters:', selectedVoters);
+
+          // Show or hide caste select based on the number of selected voters
+          if (selectedVoters.length > 0) {
+            document.getElementById('favour-select-container').style.display = 'block';
+            document.getElementById('location-favor-filters').style.display = 'none';
+          } else {
+            document.getElementById('favour-select-container').style.display = 'none';
+            document.getElementById('location-favor-filters').style.display = 'block';
+          }
+        }
+      });
+
+      // Add event listener to the "Assign" button
+      document.getElementById('update-favour-button').addEventListener('click', function () {
+        const selectedFavourId = document.getElementById('favour-select').value;
+
+        // Ensure that a caste and at least one voter are selected
+        if (!selectedFavourId || selectedFavourId === "Select Favour") {
+          alert('Please select a caste.');
+          return;
+        }
+
+        if (selectedVoters.length === 0) {
+          alert('Please select at least one voter.');
+          return;
+        }
+
+        // Prepare the payload to send to the API
+        const payload = {
+          "voter_ids": selectedVoters.map(voterId => parseInt(voterId)), // Ensure voter IDs are integers
+          "voter_favour_id": parseInt(selectedFavourId) // Ensure caste ID is an integer
+        };
+        console.log('Payload:', JSON.stringify(payload));
+
+        // Make the PUT request to assign caste to voters
+        fetch('http://192.168.1.38:8000/api/favour/', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCsrfToken() // CSRF token for security
+          },
+          body: JSON.stringify(payload)
+        })
+          .then(response => response.json())
+          .then(data => {
+            if (data.message) {
+              alert(`Successfully updated ${data.message.split(' ')[2]} records.`);
+              location.reload(); // Reload the page to refresh the table and reset selections
+            } else {
+              alert('Failed to assign favour color. Please try again.');
+            }
+          })
+          .catch(error => {
+            console.error('Error assigning favour color:', error);
+            alert('An error occurred while assigning the favour color.');
+          });
+      });
+
+      // Helper function to get CSRF token from the page
+      const getCsrfToken = () => {
+        const csrfTokenElement = document.querySelector('[name=csrfmiddlewaretoken]');
+        return csrfTokenElement ? csrfTokenElement.value : ''; // Ensure CSRF token is returned if available
+      };
+    });
+
+  </script>
+
+</body>
+
+</html>

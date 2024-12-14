@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Techno चुनाव-GroupDetails</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
+    <style>
+        /* scrollbar */
+        body::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        body::-webkit-scrollbar-thumb:hover {
+            background: #838ab6;
+        }
+
+        body::-webkit-scrollbar {
+            background-color: transparent;
+        }
+
+        body::-webkit-scrollbar-thumb {
+            background: #9DA5D5;
+            border-radius: 8px;
+        }
+
+        table th {
+            font-weight: 600;
+            background-color: #DCE1FF !important;
+        }
+
+        .search {
+            position: relative;
+        }
+
+        .btn-close {
+            position: absolute;
+            right: 45px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            background-color: #F8F9FA;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .pagination .page-item.active .page-link {
+            color: #fff;
+            background-color: #3C4CAC;
+            border-color: #DCE1FF;
+        }
+
+        .custom-text-light {
+            color: gray;
+        }
+
+        .breadcrumb {
+            --bs-breadcrumb-margin-bottom: 0;
+        }
+    </style>
+</head>
+
+<body>
+    {% include "navbar.html" %}
+    <div id="contentWrapper">
+        <div class="container mt-3">
+
+            <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item custom-text-light">
+                        <a class="nav-link" href="/dashboard/">Dashboard</a>
+                    </li>
+                    <li class="breadcrumb-item custom-text-light" aria-current="page" style="cursor: default;">
+                        Group</li>
+                    <li class="breadcrumb-item" aria-current="page" style="cursor: default;">Group Details</li>
+                </ol>
+            </nav>
+
+            <!-- Search -->
+            <div class="d-flex justify-content-end gap-3 me-4 mb-3">
+                <div class="search" style="width: 260px;">
+                    <form class="d-flex" method="GET">
+                        <div class="input-group">
+                            <input type="text" id="search-input" name="search" class="form-control bg-light"
+                                placeholder="Search by Group or User" value="{{ request.GET.search }}" />
+                            <button type="button" id="clear-button" class="btn-close" aria-label="Close"></button>
+                            <button class="btn btn-success" type="submit"><i
+                                    class="fa-solid fa-magnifying-glass"></i></button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="row" style="margin-bottom: 30px;">
+                <div class="col-12 mb-3">
+                    <div class="card">
+                        <div class="table-responsive rounded">
+                            <table class="table mb-0 table-striped rounded">
+                                <thead class="text-muted text-uppercase view-object">
+                                    <tr>
+                                        <th class="text-center fw-bolder" style="width: 5%;">Sr. No.</th>
+                                        <th class="fw-bolder" style="width: 20%;">Group Name</th>
+                                        <th class="fw-bolder" style="width: 15%;">Assigned User</th>
+                                        <th class="fw-bolder" style="width: 15%;">Contact</th>
+                                        <th class="fw-bolder" style="width: 10%;">Voter Count</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="user-table-body">
+                                    {% if page_obj %}
+                                    {% for group in page_obj %}
+                                    <tr>
+                                        <td data-bs-toggle="modal" class="text-center">
+                                            {{ forloop.counter|add:page_obj.start_index|add:"-1" }}
+                                        </td>
+                                        <td data-bs-target="#groupVoterDetailsModal">
+                                            <a class="link-underline-primary text-dark group-name-link"
+                                                style="cursor: pointer;"
+                                                data-group-user-id="{{ group.voter_group_user_id }}">
+                                                {{ group.voter_group_name }}
+                                            </a>
+                                        </td>
+                                        <td>{{ group.voter_group_name }}</td>
+                                        <td>{{ group.group_user_contact }}</td>
+                                        <td>{{ group.group_voter_count }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                    {% else %}
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted">
+                                            No Data Available
+                                        </td>
+                                    </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- <div class="col-12 mb-3">
+                    <div class="card">
+                        <div class="table-responsive rounded">
+                            <table class="table mb-0 table-striped rounded">
+                                <thead class="text-muted text-uppercase view-object">
+                                    <tr>
+                                        <th class="text-center fw-bolder" style="width: 5%;">Sr. No.</th>
+                                        <th class="fw-bolder" style="width: 20%;">Group Name</th>
+                                        <th class="fw-bolder" style="width: 15%;">Assigned User</th>
+                                        <th class="fw-bolder" style="width: 15%;">Contact</th>
+                                        <th class="fw-bolder" style="width: 10%;">Voter Count</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="user-table-body">
+                                    {% if page_obj %}
+                                    {% for group in page_obj %}
+                                    <tr>
+                                        <td data-bs-toggle="modal" class="text-center">
+                                            {{ forloop.counter|add:page_obj.start_index|add:"-1" }}
+                                        </td>
+                                        <td data-bs-target="#groupVoterDetailsModal">
+                                            <a class="link-underline-primary text-dark group-name-link"
+                                                style="cursor: pointer;"
+                                                data-group-user-id="{{ group.voter_group_user_id }}">
+                                                {{ group.voter_group_name }}
+                                            </a>
+                                        </td>
+                                        <td>{{ group.voter_group_name }}</td>
+                                        <td>{{ group.group_user_contact }}</td>
+                                        <td>{{ group.group_voter_count }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div> -->
+
+                <!-- Voter Details Modal -->
+                <div class="modal fade" id="groupVoterDetailsModal" tabindex="-1"
+                    aria-labelledby="groupVoterDetailsModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="groupVoterDetailsModalLabel">Group Voter Details</h5>
+                                <div class="ms-auto">
+                                    <a type="button" id="add-voters-button" class="btn btn-sm btn-outline-danger me-2">
+                                        <i class="fa-solid fa-pen-to-square"></i>&nbsp;Add
+                                    </a>
+                                    <!-- <a type="button" id="delete-voters-button" class="btn btn-sm btn-outline-primary">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </a> -->
+                                </div>
+                            </div>
+                            <div class="modal-body">
+                                <table class="table p-1">
+                                    <thead class="text-muted text-uppercase">
+                                        <tr>
+                                            <th class="text-center fw-bolder">Sr. No.</th>
+                                            <th class="fw-bolder">Voter Name</th>
+                                            <th class="fw-bolder">Contact</th>
+                                            <th class="fw-bolder">Booth Name</th>
+                                            <th class="fw-bolder">Actions</th>
+                                            <th class="fw-bolder"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="voter-table-body">
+                                        <!-- Example of dynamically populated rows -->
+                                        {% if voter_list %}
+                                        {% for voter in voter_list %}
+                                        <tr>
+                                            <td class="text-center">{{ forloop.counter }}</td>
+                                            <td>{{ voter.name }} <br>{{voter_name_mar}} </td>
+                                            <td>{{ voter.age }}</td>
+                                            <td>{{ voter.voter_vote_confirmation_id }}</td>
+                                            <td>{{ voter.contact }}</td>
+                                            <td>{{ voter.voter_favour_id }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                        {% else %}
+                                        <tr>
+                                            <td colspan="5" class="text-center">No voters found.</td>
+                                        </tr>
+                                        {% endif %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Voter Details Modal -->
+                <div class="modal fade" id="voterDetailsModal" tabindex="-1" aria-labelledby="voterDetailsModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header thd">
+                                <h5 class="modal-title" id="voterDetailsModalLabel">
+                                    Voter Details
+                                </h5>
+                                <div class="ms-auto">
+                                    <a type="button" id="edit-button" class="btn btn-outline-danger me-2">
+                                        <i class="fa-solid fa-user-pen"></i> Edit
+                                    </a>
+                                    <a type="button" id="family-button" class="btn btn-outline-primary"><i
+                                            class="fa-solid fa-users"></i> Family</a>
+                                </div>
+                            </div>
+                            <div class="modal-body">
+                                <table class="table p-1">
+                                    <tbody>
+                                        <tr>
+                                            <th class="bg-light fw-semibold">Voter Name</th>
+                                            <td id="voter_name"></td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light fw-semibold">Parent Name</th>
+                                            <td id="voter_parent_name"></td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light fw-semibold">Date of Birth</th>
+                                            <td id="voter_dob"></td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light fw-semibold">Live Status</th>
+                                            <td id="voter_live_status"></td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light fw-semibold">Gender</th>
+                                            <td id="voter_gender"></td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light fw-semibold">Contact Number</th>
+                                            <td id="voter_contact_number"></td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light fw-semibold">Age</th>
+                                            <td id="voter_age"></td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light fw-semibold">Marital Status</th>
+                                            <td id="marital_status"></td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light fw-semibold">Cast</th>
+                                            <td id="voter_cast_name"></td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light fw-semibold">Location Type</th>
+                                            <td id="voter_in_city"></td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light fw-semibold">Current Location</th>
+                                            <td id="current_location"></td>
+                                        </tr>
+
+                                        <tr>
+                                            <th class="bg-light fw-semibold">Town Name</th>
+                                            <td id="town_name"></td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light fw-semibold">Booth Name</th>
+                                            <td id="booth_name"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                        Close
+                                    </button>
+                                    <button type="button" class="btn btn-light m-1" id="export-pdf-button">
+                                        <i class="fa-solid fa-arrow-up-from-bracket"></i>&nbsp;Export
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pagination controls -->
+                <div class="d-flex justify-content-center">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center mx-4">
+                            {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link"
+                                    href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}"
+                                    aria-label="First">
+                                    <span aria-hidden="true">&laquo;&laquo;</span>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link"
+                                    href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}"
+                                    aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                            {% else %}
+                            <li class="page-item disabled"><span class="page-link">&laquo;&laquo;</span></li>
+                            <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
+                            {% endif %}
+
+                            <!-- Page Numbers -->
+                            {% for num in page_obj.paginator.page_range %}
+                            {% if num >= page_obj.number|add:'-1' and num <= page_obj.number|add:'1' %} <li
+                                class="page-item {% if page_obj.number == num %}active{% endif %}">
+                                <a class="page-link"
+                                    href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}">
+                                    {{ num }}</a>
+                                </li>
+                                {% endif %}
+                                {% endfor %}
+
+                                <!-- Next Page and Last Page -->
+                                {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link"
+                                        href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}"
+                                        aria-label="Next">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link"
+                                        href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}"
+                                        aria-label="Last">
+                                        <span aria-hidden="true">&raquo;&raquo;</span>
+                                    </a>
+                                </li>
+                                {% else %}
+                                <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
+                                <li class="page-item disabled"><span class="page-link">&raquo;&raquo;</span></li>
+                                {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+    <script>
+        const groupUserId = 0;
+
+        // Function to capitalize first letter of each word
+        function capitalizeWords(str) {
+            return str.replace(/\w\S*/g, function (txt) {
+                return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+            });
+        }
+
+        // Search close button
+        document.getElementById('clear-button').addEventListener('click', function () {
+            document.getElementById('search-input').value = '';
+
+            // Submit the form without the search input to reload the page
+            var form = this.closest('form');
+            var url = new URL(window.location.href);
+            url.searchParams.delete('search'); // Remove the search query parameter from the URL
+            window.location.href = url.toString(); // Reload the page with the updated URL
+        });
+
+        // Add event listener to the Add Voters button
+        document.getElementById("add-voters-button").addEventListener("click", function () {
+            // Redirect to the totalvoterlist page with the groupId parameter
+            const groupId = getStoredGroupId();
+            window.location.href = `/totalvoterlist/${groupId}/`;
+        });
+
+        // Function to fetch and display voter details for a given group user ID
+        async function loadVoterDetails(event, groupUserId) {
+            // Define the API URL dynamically based on the group user ID
+            const apiUrl = `http://192.168.1.38:8000/api/voters_by_group_user/${groupUserId}/`;
+
+            // Get the modal table body
+            const tableBody = document.getElementById('voter-table-body');
+
+            // Show a loading spinner while fetching data
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </td>
+                </tr>
+            `;
+
+            try {
+                // Fetch voter details from the API
+                const response = await fetch(apiUrl);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                // Parse the JSON response
+                const data = await response.json();
+                const voters = data.voters;
+                const OG01 = data.voter_group_id;
+                localStorage.setItem('OG01', OG01);
+
+                // Clear existing table rows
+                tableBody.innerHTML = '';
+
+                // Check if we have voters and populate the table
+                if (voters.length > 0) {
+                    voters.forEach((voter, index) => {
+                        // Determine the background color based on voter.favour_id
+                        let backgroundColor = "#D3D3D3"; // Default to grey
+
+                        switch (voter.voter_favour_id) {
+                            case 1:
+                                backgroundColor = "Green"; // Green
+                                break;
+                            case 2:
+                                backgroundColor = "Red"; // Red
+                                break;
+                            case 3:
+                                backgroundColor = "Yellow"; // Yellow
+                                break;
+                            case 4:
+                                backgroundColor = "#0B5ED7"; // Blue
+                                break;
+                            case 5:
+                                backgroundColor = "#11b4ff"; // Sky Blue
+                                break;
+                            case 6:
+                                backgroundColor = "palevioletred"; // Pink
+                                break;
+                            case 7:
+                                backgroundColor = "purple"; // Purple
+                                break;
+                        }
+
+                        // Create table row with dynamic background color
+                        const row = document.createElement('tr');
+                        // <td class="text-center">
+                        //     <span>
+                        //         <input class="form-check-input voter-checkbox" type="checkbox" value="${voter.voter_id}" id="voterCheck${voter.voter_id}">
+                        //     </span>
+                        // </td>
+                        row.innerHTML = `
+                            <td class="text-center">${index + 1}</td>
+                            <td>${voter.voter_name} <br/> ${voter.voter_name_mar || ''}</td>
+                            <td>${voter.voter_contact_number || '--'}</td>
+                            <td>${voter.booth_name || '--'}</td>
+                            <td style="background-color: ${backgroundColor};"></td>
+                        `;
+
+                        // Actions Cell
+                        const actionsCell = document.createElement("td");
+                        let detailsButton;
+
+                        // Conditional button based on voter_vote_confirmation_id
+                        if (voter.voter_vote_confirmation_id === null) {
+                            detailsButton = document.createElement("button");
+                            detailsButton.className = "btn voter-detail-link btn-secondary btn-sm m-1";
+                            detailsButton.innerHTML = '<i class="fa-regular fa-circle-xmark"></i>';
+                        } else if (voter.voter_vote_confirmation_id === 1) {
+                            detailsButton = document.createElement("button");
+                            detailsButton.className = "btn voter-detail-link btn-primary btn-sm m-1";
+                            detailsButton.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
+                        } else {
+                            // Optionally, handle other cases or leave empty
+                            detailsButton = document.createElement("button");
+                            detailsButton.className = "btn voter-detail-link btn-secondary btn-sm m-1";
+                            detailsButton.innerHTML = '<i class="fa-regular fa-circle-xmark"></i>';
+                        }
+
+                        // Delete Button
+                        let deleteButton = document.createElement("button");
+                        deleteButton.className = "btn btn-danger btn-sm m-1";
+                        deleteButton.innerHTML = '<i class="fa-solid fa-trash"></i>';
+
+                        detailsButton.onclick = function () {
+                            currentVoterId = voter.voter_id;
+                            // Fetch voter details from the API
+                            fetch(`http://192.168.1.38:8000/api/voters/${voter.voter_id}/`)
+                                .then((response) => {
+                                    if (!response.ok) {
+                                        throw new Error("Network response was not ok");
+                                    }
+                                    return response.json();
+                                })
+                                .then((voterDetails) => {
+                                    // Populate the modal with voter details
+                                    document.getElementById('voter_name').textContent = capitalizeWords(voterDetails.voter_name) || '--';
+                                    document.getElementById('voter_parent_name').textContent = capitalizeWords(voterDetails.voter_parent_name) || '--';
+                                    document.getElementById('voter_dob').textContent = voterDetails.voter_dob || '--';
+                                    document.getElementById('voter_gender').textContent = voterDetails.voter_gender || '--';
+                                    document.getElementById('voter_contact_number').textContent = voterDetails.voter_contact_number || '--';
+                                    document.getElementById('voter_age').textContent = voterDetails.voter_age || '--';
+                                    document.getElementById('voter_cast_name').textContent = voterDetails.voter_cast_name || '--';
+                                    document.getElementById('town_name').textContent = voterDetails.town_name || '--';
+                                    document.getElementById('booth_name').textContent = voterDetails.booth_name || '--';
+
+                                    document.getElementById('voter_in_city').textContent = (voterDetails.voter_in_city_id === 1) ? 'In City' : (voterDetails.voter_in_city_id === 2 ? 'Near City' : (voterDetails.voter_in_city_id === 3 ? 'Out of City' : '--'));
+                                    document.getElementById('voter_live_status').textContent = (voterDetails.voter_live_status_id === 1) ? 'Alive' : (voterDetails.voter_live_status_id === 2 ? 'Dead' : '--');
+                                    document.getElementById('marital_status').textContent = voterDetails.voter_marital_status_id || '--';
+                                    document.getElementById('current_location').textContent = voterDetails.voter_current_location || '--';
+
+                                    // Update the Family button with the voter ID
+                                    document.getElementById("family-button").href = `/familydetails/${voterDetails.voter_id}/`;
+
+                                    // Update the Edit button with the voter ID
+                                    document.getElementById("edit-button").href = `/editvoter/${voterDetails.voter_id}/`;
+
+                                    // Change the background color of elements with class 'thd' based on voter_favour_id
+                                    const thdElements = document.querySelectorAll(".thd");
+                                    thdElements.forEach((element) => {
+                                        element.style.backgroundColor = ""; // Clear previous colors
+                                    });
+
+                                    // Set Voter Details background color based on favour_id
+                                    switch (parseInt(voterDetails.voter_favour_id)) {
+                                        case 1:
+                                            thdElements.forEach((element) => { element.style.backgroundColor = "#D1E7DD"; }); // Light Green
+                                            break;
+                                        case 2:
+                                            thdElements.forEach((element) => { element.style.backgroundColor = "#F8D7DA"; }); // Light Red
+                                            break;
+                                        case 3:
+                                            thdElements.forEach((element) => { element.style.backgroundColor = "#fff3cd"; }); // Light Yellow
+                                            break;
+                                        case 4:
+                                            thdElements.forEach((element) => { element.style.backgroundColor = "#DCE1FF"; }); // Light Blue
+                                            break;
+                                        case 5:
+                                            thdElements.forEach(element => { element.style.backgroundColor = '#d1faff'; }); // Light Sky Blue
+                                            break;
+                                        case 6:
+                                            thdElements.forEach(element => { element.style.backgroundColor = '#fed6ff'; }); // Light Pink
+                                            break;
+                                        case 7:
+                                            thdElements.forEach(element => { element.style.backgroundColor = '#ebd1ff'; }); // Light Purple
+                                            break;
+                                        default:
+                                            thdElements.forEach((element) => { element.style.backgroundColor = "#D3D3D3"; }); // Default Light gray
+                                    }
+
+                                    // Show the modal
+                                    const voterDetailsModal = new bootstrap.Modal(document.getElementById("voterDetailsModal"));
+                                    voterDetailsModal.show();
+                                });
+                        };
+
+                        // Action for the Delete Button
+                        deleteButton.onclick = function () {
+                            if (confirm("Are you sure you want to delete this voter?")) {
+                                console.log(parseInt(getStoredGroupId()), voter.voter_id);
+
+                                // Delete the voter via the API
+                                fetch(`http://192.168.1.38:8000/api/remove_voter_from_existing_group/${parseInt(getStoredGroupId())}/${voter.voter_id}/`, {
+                                    method: 'POST',
+                                })
+                                    .then(response => response.json()) // Parse JSON response
+                                    .then(data => {
+                                        if (data.message === "Voter removed from the group successfully!") {
+                                            // Remove the voter row from the table after successful deletion
+                                            row.remove();
+                                            alert(data.message); // Show success message from the API
+                                        } else {
+                                            // Handle unexpected message or failure in the response
+                                            throw new Error("Unexpected response from API");
+                                        }
+                                    })
+                                    .catch(error => {
+                                        console.error("Error deleting voter:", error);
+                                        alert("Error deleting voter.");
+                                    });
+                            }
+                        };
+
+
+                        // Append the Details and Delete buttons to the actions cell
+                        actionsCell.appendChild(detailsButton);
+                        actionsCell.appendChild(deleteButton);
+                        row.insertBefore(actionsCell, row.children[4]); // Column 5 is the "Voted/Non Voted" column
+
+                        // Append the row to the table body
+                        tableBody.appendChild(row);
+                    });
+                } else {
+                    // Show a message if no voters are found
+                    tableBody.innerHTML = `
+                        <tr>
+                            <td colspan="7" class="text-center">No voters found.</td>
+                        </tr>
+                    `;
+                }
+            } catch (error) {
+                // Handle errors and display an error message
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center text-danger">Failed to load voter details.</td>
+                    </tr>
+                `;
+                console.error("Error fetching voter details:", error);
+            }
+        }
+
+        // Add an event listener to load voter details when a group name is clicked
+        document.querySelectorAll('.group-name-link').forEach((link) => {
+            link.addEventListener('click', (event) => {
+                const groupUserId = event.target.dataset.groupUserId;
+                // Store the groupUserId in localStorage
+                localStorage.setItem('OG02', groupUserId);
+                // Manually trigger the modal to open
+                const modal = new bootstrap.Modal(document.getElementById('groupVoterDetailsModal'));
+                modal.show();
+                // console.log("Group User ID:", groupUserId);
+                loadVoterDetails(event, groupUserId);
+            });
+        });
+
+        // Function to retrieve the groupUserId from localStorage
+        function getStoredGroupId() {
+            return localStorage.getItem('OG01');
+        }
+
+        // Function to retrieve the groupUserId from localStorage
+        function getStoredGroupUserId() {
+            return localStorage.getItem('OG02');
+        }
+
+        // Event listener for opening the "Add Voters" modal
+        document.getElementById('add-voters-button').addEventListener('click', function () {
+            // const groupUserId = 1; // Example groupUserId, replace this with the actual one
+            const modal = new bootstrap.Modal(document.getElementById('addVotersModal'));
+            modal.show();
+            console.log("Got Group User ID:", getStoredGroupUserId());
+
+            // Fetch and populate the voter list
+            loadVotersForSelection(getStoredGroupUserId());
+        });
+
+        // document.getElementById('addVotersBtn').addEventListener('click', async function () {
+        //     const selectedVoters = Array.from(document.getElementById('voterSelect').selectedOptions).map(option => parseInt(option.value));
+        //     const voterGroupId = getStoredGroupUserId(); // Replace this with the actual group ID
+
+        //     if (selectedVoters.length === 0) {
+        //         alert('Please select at least one voter.');
+        //         return;
+        //     }
+
+        //     const apiUrl = 'http://192.168.1.38:8000/api/add_voter_to_existing_group/';
+
+        //     const requestBody = {
+        //         voter_ids: selectedVoters,
+        //         voter_group_user_id: parseInt(voterGroupId)
+        //     };
+
+        //     console.log('Selected Voters:', requestBody);
+
+        //     try {
+        //         const response = await fetch(apiUrl, {
+        //             method: 'POST',
+        //             headers: {
+        //                 'Content-Type': 'application/json',
+        //             },
+        //             body: JSON.stringify(requestBody),
+        //         });
+
+        //         if (!response.ok) {
+        //             throw new Error('Failed to add voters.');
+        //         }
+
+        //         const data = await response.json();
+
+        //         // Check for the success message in the response
+        //         if (data.message) {
+        //             // alert(data.message);  // Display the success message returned from the API
+
+        //             // Optionally, reload the group or refresh the modal content
+        //             const modal = bootstrap.Modal.getInstance(document.getElementById('addVotersModal'));
+        //             const voterDetailsmodal = bootstrap.Modal.getInstance(document.getElementById('groupVoterDetailsModal'));
+        //             modal.hide();
+        //             voterDetailsmodal.hide();
+        //         } else {
+        //             alert('Failed to add voters. Please try again.');
+        //         }
+
+        //     } catch (error) {
+        //         console.error('Error adding voters:', error);
+        //         alert('Failed to add voters. Please try again.');
+        //     }
+        // });
+
+
+        async function loadVotersForSelection(groupUserId) {
+            const apiUrl = 'http://192.168.1.38:8000/api/total_voters/';
+            const voterSelect = document.getElementById('voterSelect');
+
+            // Show loading message in the select dropdown until data is loaded
+            voterSelect.innerHTML = '<option>Loading...</option>';
+
+            try {
+                const response = await fetch(apiUrl);
+                if (!response.ok) {
+                    throw new Error(`Failed to load voters. Status: ${response.status}`);
+                }
+
+                const voters = await response.json();
+
+                // Clear the select element before adding new options
+                voterSelect.innerHTML = '';
+
+                // Populate the select dropdown with voter options
+                voters.forEach(voter => {
+                    const option = document.createElement('option');
+                    option.value = voter.voter_id;
+                    option.textContent = `${voter.voter_name} (${voter.voter_name_mar || ''})`;
+                    voterSelect.appendChild(option);
+                });
+
+            } catch (error) {
+                console.error("Error fetching voters:", error);
+                voterSelect.innerHTML = '<option>Error loading voters</option>';
+            }
+        }
+    </script>
+</body>
+
+</html>
