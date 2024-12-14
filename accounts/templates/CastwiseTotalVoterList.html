@@ -96,13 +96,29 @@
                                         </select>
                                     </div>
                                     <div class="row justify-content-center text-center">
+                                        <div class="col-4">
+                                            <h6 class="mt-1" style="cursor: default;"><strong>Total Voters:</strong>
+                                                <span id="totalCount">0</span></h6>
+                                        </div>
+                                        <div class="col-4">
+                                            <h6 class="mt-1" style="cursor: default;"><strong>Voted Voters:</strong>
+                                                <span id="votedCount">0</span></h6>
+                                            <p id="votedCountParcent"><i>percent: 0%</i></p>
+                                        </div>
+                                        <div class="col-4">
+                                            <h6 class="mt-1" style="cursor: default;"><strong>Non-voted Voters:</strong>
+                                                <span id="nonVotedCount">0</span></h6>
+                                            <p id="nonVotedCountParcent"><i>percent: 0%</i></p>
+                                        </div>
+                                    </div>
+                                    <!-- <div class="row justify-content-center text-center">
                                         <p class="col-4 mt-2"><strong>Total Voters:</strong> <span
                                                 id="voterCount"></span></p>
                                         <p class="col-4 mt-2"><strong>Voted Voters:</strong> <span
                                                 id="votedCount"></span></p>
                                         <p class="col-4 mt-2"><strong>Non-voted Voters:</strong> <span
                                                 id="nonVotedCount"></span></p>
-                                    </div>
+                                    </div> -->
                                 </div>
                             </div>
                         </div>
@@ -350,21 +366,29 @@
             // Function to update the voter counts based on the current voter data
             function updateCounts(data) {
                 const totalCount = data.length;
-                let votedCount = 0;
-                let nonVotedCount = 0;
+                let votedCount = data.filter(voter => voter.voter_vote_confirmation_id == 1).length;
+                let nonVotedCount = totalCount - votedCount;
+                const votedPercentage = ((votedCount / totalCount) * 100).toFixed(2);
+                const nonVotedPercentage = ((nonVotedCount / totalCount) * 100).toFixed(2);
 
-                data.forEach(voter => {
-                    if (voter.voter_vote_confirmation_id === 1) {
-                        votedCount++;
-                    } else if (voter.voter_vote_confirmation_id === null) {
-                        nonVotedCount++;
-                    }
-                });
+                // data.forEach(voter => {
+                //     if (voter.voter_vote_confirmation_id === 1) {
+                //         votedCount++;
+                //     } else if (voter.voter_vote_confirmation_id === null) {
+                //         nonVotedCount++;
+                //     }
+                // });
 
                 // Update counts in the HTML
-                document.getElementById('voterCount').textContent = totalCount;
+                document.getElementById('totalCount').textContent = totalCount;
                 document.getElementById('votedCount').textContent = votedCount;
                 document.getElementById('nonVotedCount').textContent = nonVotedCount;
+
+                document.getElementById('votedCountParcent').innerHTML = "percent: <i>" + votedPercentage + "%</i>";
+                document.getElementById('votedCountParcent').style.fontStyle = "italic"; // Optional for the overall style
+
+                document.getElementById('nonVotedCountParcent').innerHTML = "percent: <i>" + nonVotedPercentage + "%</i>";
+                document.getElementById('nonVotedCountParcent').style.fontStyle = "italic"; // Optional for the overall style
             }
 
             // Function to display voters in the table
@@ -426,9 +450,6 @@
                         voteConfirmationButton.className = 'btn btn-primary btn-sm m-1';
                         voteConfirmationButton.innerHTML = '<i class="fa-solid fa-thumbs-up"></i>'; // Icon for "Undo Confirmation"
                     }
-
-
-
 
                     // Add event listener for toggling vote confirmation
                     voteConfirmationButton.addEventListener('click', async () => {
@@ -714,7 +735,6 @@
 
 
         // chekbox to assign favour 
-
         document.addEventListener('DOMContentLoaded', function () {
 
             // Add event listener to handle voter row selection
@@ -806,7 +826,7 @@
                     "voter_ids": selectedVoters.map(voterId => parseInt(voterId)), // Ensure voter IDs are integers
                     "voter_favour_id": parseInt(selectedfavourId) // Ensure favour ID is an integer
                 };
-                console.log('Payload:', JSON.stringify(payload));
+                // console.log('Payload:', JSON.stringify(payload));
 
                 // Make the PUT request to assign favour to voters
                 fetch('http://192.168.1.38:8000/api/favour/', {
@@ -846,7 +866,7 @@
         });
 
         // Select All checkbox logic
-        const selectAllCheckbox = document.getElementById('select-all');
+        const selectAllCheckbox = document.getElementById('select-all-checkbox');
         selectAllCheckbox.addEventListener('change', function () {
             const checkboxes = document.querySelectorAll('.form-check-input');
             checkboxes.forEach(checkbox => {

@@ -101,7 +101,7 @@
 <body>
   <nav class="navbar sticky-top navbar-expand-lg border-bottom bg-white z-5">
     <div class="d-flex align-items-center">
-      <button type="button" class="btn hmb-btn ms-5" id="sidebarToggle"><i class="fa-solid fa-bars"></i></button>
+      <button type="button" class="btn hmb-btn ms-4" id="sidebarToggle"><i class="fa-solid fa-bars"></i></button>
 
       <span class="h4 align-content-center ms-2 mb-0" style="cursor: default;"><a href="{% url 'dashboard' %}"
           class="text-decoration-none title-color">DEV Constituency</a></span>
@@ -111,7 +111,7 @@
     </div>
     <div class="collapse navbar-collapse justify-content-end d-flex">
 
-      <a class="nav-link dropdown-toggle me-5" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"
+      <a class="nav-link dropdown-toggle me-4" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"
         data-bs-toggle="tooltip" data-bs-placement="bottom" title="Profile">
         <img src="{% static '../static/images/user.svg' %}" width="40px" alt="Profile">
       </a>
@@ -239,6 +239,10 @@
                   List</a>
               </li>
               <li>
+                <a class="dropdown-item p-1 option nav-link link-dark" href="{% url 'TownWiseVoterList' %}">Town Wise
+                  Voter List</a>
+              </li>
+              <li>
                 <a class="dropdown-item p-1 option nav-link link-dark" href="{% url 'PrabhagWiseVoterList' %}">Ward Wise
                   Voter List</a>
               </li>
@@ -265,6 +269,10 @@
                   List</a>
               </li>
               <li>
+                <a class="dropdown-item p-1 option nav-link link-dark" href="{% url 'ReligionwiseTownVoterList' %}">Town
+                  Voter List</a>
+              </li>
+              <li>
                 <a class="dropdown-item p-1 option nav-link link-dark"
                   href="{% url 'ReligionwiseBoothVoterList' %}">Booth Voter List</a>
               </li>
@@ -287,6 +295,9 @@
                   List</a>
               </li>
               <li>
+                <a class="dropdown-item p-1 option nav-link link-dark" href="{% url 'CastwiseTownVoterList' %}">Town
+                  Voter List</a>
+              </li>
               <li>
                 <a class="dropdown-item p-1 option nav-link link-dark" href="{% url 'CastwiseBoothVoterList' %}">Booth
                   Voter List</a>
@@ -308,13 +319,39 @@
                 <a class="dropdown-item p-1 option nav-link link-dark" href="{% url 'ExitPoll' %}">Main Exit Poll</a>
               </li>
               <li>
+                <a class="dropdown-item p-1 option nav-link link-dark" href="{% url 'TownExitPoll' %}">Town Wise Exit
+                  Poll</a>
+              </li>
+              <li>
                 <a class="dropdown-item p-1 option nav-link link-dark" href="{% url 'BoothExitPoll' %}">Booth Wise Exit
                   Poll</a>
               </li>
             </ul>
           </div>
         </li>
-        
+        <!-- <li>
+          <div class="dropdown mb-2 mt-1">
+            <button id="headingSeven" class="accordion-button" type="button" data-bs-toggle="collapse"
+              data-bs-target="#collapseSeven" aria-expanded="false"
+              aria-controls="collapseOne">&nbsp;&nbsp;&nbsp;&nbsp;<img
+                src="{% static '../static/images/sideNav-Towntype-icon.svg' %}" alt="Cast">&nbsp;
+              Town Type &nbsp;<img src="{% static '../static/images/arrow-right.svg' %}">
+            </button>
+            <ul id="collapseSeven" class="accordion-collapse collapse" aria-labelledby="headingSixth"
+              data-bs-parent="#accordionExample">
+              <li>
+                <a class="dropdown-item p-1 option nav-link link-dark" href="{% url 'TownCategory' %}">Assign Town
+                  Type</a>
+              </li>
+              <li>
+                <a class="dropdown-item p-1 option nav-link link-dark" href="{% url 'ShaharList' %}">Urban Town List</a>
+              </li>
+              <li>
+                <a class="dropdown-item p-1 option nav-link link-dark" href="{% url 'GraminList' %}">Rural Town List</a>
+              </li>
+            </ul>
+          </div>
+        </li> -->
 
         <hr class="border border-dark border-2 opacity-30"
           style="margin-bottom: 5px; margin-top: 5px; margin-right: 7px;" />

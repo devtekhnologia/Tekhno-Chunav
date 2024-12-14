@@ -132,21 +132,21 @@
 
                   <div class="row justify-content-center text-center">
                     <div class="col-4">
-                      <h5 class="mt-1" style="cursor: default;"><strong>Total Voters:</strong>
+                      <h6 class="mt-1" style="cursor: default;"><strong>Total Voters:</strong>
                         <span id="voterCount">0</span>
-                      </h5>
+                      </h6>
                     </div>
                     <div class="col-4">
-                      <h5 class="mt-1" style="cursor: default;"><strong>Voted Voters:</strong>
+                      <h6 class="mt-1" style="cursor: default;"><strong>Voted Voters:</strong>
                         <span id="votedCount">0</span>
-                      </h5>
-                      <p id="votedCountParcent"><i><b>Percent:</b></i></p>
+                      </h6>
+                      <p id="votedCountParcent"><i>Percent: 0%</i></p>
                     </div>
                     <div class="col-4">
-                      <h5 class="mt-1" style="cursor: default;"><strong>Non-voted Voters:</strong>
+                      <h6 class="mt-1" style="cursor: default;"><strong>Non-voted Voters:</strong>
                         <span id="non-votedCount">0</span>
-                      </h5>
-                      <p id="non-votedCountParcent"><i><b>Percent:</b></i></p>
+                      </h6>
+                      <p id="non-votedCountParcent"><i>Percent: 0%</i></p>
                     </div>
                   </div>
 
@@ -418,7 +418,7 @@
           .catch(error => console.error('Error fetching booths data:', error));
       }
 
-      // Fetch voters based on selected booth and town
+      // Fetch voters based on selected booth
       function fetchVotersByBooth() {
         const selectedBoothId = boothSelect.value;
         const selectedTownId = townSelect.value;
@@ -521,10 +521,10 @@
         document.getElementById('voterCount').textContent = total;
         document.getElementById('votedCount').textContent = voted;
         document.getElementById('non-votedCount').textContent = nonVoted;
-        document.getElementById('votedCountParcent').innerHTML = "<b>Percent:</b> <i>" + totalvotedCountParcent + "%</i>";
+        document.getElementById('votedCountParcent').innerHTML = "Percent: <i>" + totalvotedCountParcent + "%</i>";
         document.getElementById('votedCountParcent').style.fontStyle = "italic"; // Optional for the overall style
 
-        document.getElementById('non-votedCountParcent').innerHTML = "<b>Percent:</b> <i>" + totalnonVotedCountParcent + "%</i>";
+        document.getElementById('non-votedCountParcent').innerHTML = "Percent: <i>" + totalnonVotedCountParcent + "%</i>";
         document.getElementById('non-votedCountParcent').style.fontStyle = "italic"; // Optional for the overall style
       }
 
@@ -625,9 +625,9 @@
             document.getElementById('marital_status').textContent = data.voter_marital_status_id || '--';
             document.getElementById('current_location').textContent = data.voter_current_location || '--';
             // Update the Edit button with the voter ID
-            document.getElementById('edit-button').href = `/editvoter/${voterId}/`;
+            document.getElementById('edit-button').href = `/editvoter/${data.voter_id}/`;
             // Update the Family button with the voter ID
-            document.getElementById('family-button').href = `/familydetails/${voterId}`;
+            document.getElementById('family-button').href = `/familydetails/${data.voter_id}/`;
 
             updateBackgroundColor(data.voter_favour_id);
 

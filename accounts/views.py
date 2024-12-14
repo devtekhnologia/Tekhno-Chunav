@@ -211,12 +211,22 @@ def BoothDetails(request):
         data = []
 
     # Search functionality
+    # search_query = request.GET.get('search', '')
+    # if search_query:
+    #     booth_data = [
+    #         booth for booth in booth_data 
+    #         if search_query.lower() in booth['booth_name'].lower() or 
+    #            search_query.lower() in booth['town_name'].lower()
+    #     ]
+
+    # Search functionality
     search_query = request.GET.get('search', '')
     if search_query:
         booth_data = [
-            booth for booth in booth_data 
-            if search_query.lower() in booth['booth_name'].lower() or 
-               search_query.lower() in booth['town_name'].lower()
+            booth for booth in booth_data
+            if search_query.lower() in booth['booth_name'].lower() or
+               search_query.lower() in booth['town_name'].lower() or
+               search_query.lower() in booth['user_name'].lower()
         ]
 
     # Sort the booth_data alphabetically by Town Name
@@ -301,7 +311,10 @@ def TownDetails(request):
 
     # Filter data by search query
     if search_query:
-        data = [item for item in data if search_query.lower() in item['town_name'].lower()]
+        data = [item for item in data
+                 if (item.get('town_name') and search_query.lower() in item['town_name'].lower()) or
+                    (item.get('town_user_names') and search_query.lower() in item['town_user_names'].lower())
+                ]
 
     # Sort users by 'user_name' in alphabetical order
     data.sort(key=lambda x: x.get('town_name', '').lower())
@@ -1224,9 +1237,127 @@ def EditBoothUser(request, id):
     return render(request, 'EditBoothUser.html', {'user': user})
 
 
+# # Total Voter List
+# @login_required(login_url='login')
+# def TotalVoterList(request):
+#     sort_order = request.GET.get('sort', '')  # Get the sort query (a-z)
+#     response = requests.get(f"{BASE_URL}api/total_voters/")
+#     voters_list = []
+
+#     if response.status_code == 200:
+#         data = response.json()
+#         if isinstance(data, list):
+#             voters_list = data
+#         elif isinstance(data, dict):
+#             voters_list = data.get('voters', [])
+
+#     # Capitalize each word in the 'voter_name' field
+#     # for voter in voters_list:
+#     #     voter_name = voter.get('voter_name', '')
+#     #     voter['voter_name'] = voter_name.title() if voter_name else ''
+#     for voter in voters_list:
+#         if isinstance(voter.get('voter_name'), str):
+#             voter['voter_name'] = format_name(voter['voter_name'])
+
+
+#     # If sort_order is 'a-z', sort surnames alphabetically (A-Z)
+#     # if sort_order == 'a-z':
+#     #     voters_list.sort(key=lambda x: (x.get('voter_name', '').lower()if x.get('voter_name') else ''))  # Sort A-Z
+#     # If sort_order is 'a-z', sort surnames alphabetically (A-Z)
+#     # Sort the list based on 'a-z' or default
+#     if sort_order == 'a-z':
+#         voters_list.sort(key=lambda x: (x.get('voter_name', '').lower() if x.get('voter_name') else ''))  # Sort A-Z
+#     else:
+#         # Default sort can be based on 'voter_id' or any other default order
+#         voters_list.sort(key=lambda x: x.get('voter_id', 0))  # Default sort by voter ID or any field
+
+
+#     # Search functionality
+#     search_query = request.GET.get('search', '').strip().lower()
+#     if search_query:
+#         voters_list = [
+#             voter for voter in voters_list
+#             if isinstance(voter.get('voter_name'), str) and search_query in voter.get('voter_name', '').lower()
+#         ]
+
+#     # Pagination
+#     paginator = Paginator(voters_list, 500)  # Show 500 voters per page
+#     page_number = request.GET.get('page', 1)
+#     page_obj = paginator.get_page(page_number)
+
+#     context = {
+#         'voters_list': page_obj,
+#         'paginator': paginator,
+#         'page_obj': page_obj,
+#         'sort_order': sort_order,
+#     }
+#     return render(request, 'TotalVoterList.html', context)
+
+
 # Total Voter List
 @login_required(login_url='login')
 def TotalVoterList(request):
+    sort_order = request.GET.get('sort', '')  # Get the sort query (a-z)
+    response = requests.get(f"{BASE_URL}api/total_voters/")
+    voters_list = []
+
+    if response.status_code == 200:
+        data = response.json()
+        if isinstance(data, list):
+            voters_list = data
+        elif isinstance(data, dict):
+            voters_list = data.get('voters', [])
+
+    # Capitalize each word in the 'voter_name' field
+    for voter in voters_list:
+        if isinstance(voter.get('voter_name'), str):
+            voter['voter_name'] = format_name(voter['voter_name'])
+
+    # Define the color mapping for each `voter_favour_id`
+    favour_colors = {
+        1: '#2d8c61',
+        2: '#dc3545',
+        3: '#ffc107',
+        4: '#3683fd',
+        5: '#35befd',
+        6: '#dc7093',
+        7: '#8f0080',
+    }
+
+    # If sort_order is 'a-z', sort surnames alphabetically (A-Z)
+    if sort_order == 'a-z':
+        voters_list.sort(key=lambda x: (x.get('voter_name', '').lower() if x.get('voter_name') else ''))
+    else:
+        # Default sort by voter ID
+        voters_list.sort(key=lambda x: x.get('voter_id', 0))
+
+    # Search functionality
+    search_query = request.GET.get('search', '').strip().lower()
+    if search_query:
+        voters_list = [
+            voter for voter in voters_list
+            if isinstance(voter.get('voter_name'), str) and search_query in voter.get('voter_name', '').lower()
+        ]
+
+    # Pagination
+    paginator = Paginator(voters_list, 500)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+
+    # Pass the color mapping to the template
+    context = {
+        'voters_list': page_obj,
+        'paginator': paginator,
+        'page_obj': page_obj,
+        'sort_order': sort_order,
+        'favour_colors': favour_colors,  # Pass the favour_colors dictionary
+    }
+    return render(request, 'TotalVoterList.html', context)
+
+
+# Total Voter List with group Id
+@login_required(login_url='login')
+def TotalVoterListWithGroupId(request, id):
     sort_order = request.GET.get('sort', '')  # Get the sort query (a-z)
     response = requests.get(f"{BASE_URL}api/total_voters/")
     voters_list = []
@@ -1245,67 +1376,24 @@ def TotalVoterList(request):
     for voter in voters_list:
         if isinstance(voter.get('voter_name'), str):
             voter['voter_name'] = format_name(voter['voter_name'])
-
-
-    # If sort_order is 'a-z', sort surnames alphabetically (A-Z)
-    # if sort_order == 'a-z':
-    #     voters_list.sort(key=lambda x: (x.get('voter_name', '').lower()if x.get('voter_name') else ''))  # Sort A-Z
-    # If sort_order is 'a-z', sort surnames alphabetically (A-Z)
-    # Sort the list based on 'a-z' or default
-    if sort_order == 'a-z':
-        voters_list.sort(key=lambda x: (x.get('voter_name', '').lower() if x.get('voter_name') else ''))  # Sort A-Z
-    else:
-        # Default sort can be based on 'voter_id' or any other default order
-        voters_list.sort(key=lambda x: x.get('voter_id', 0))  # Default sort by voter ID or any field
-
-
-    # Search functionality
-    search_query = request.GET.get('search', '').strip().lower()
-    if search_query:
-        voters_list = [
-            voter for voter in voters_list
-            if search_query in voter.get('voter_name', '').lower()
-        ]
-
-    # Pagination
-    paginator = Paginator(voters_list, 500)  # Show 500 voters per page
-    page_number = request.GET.get('page', 1)
-    page_obj = paginator.get_page(page_number)
-
-    context = {
-        'voters_list': page_obj,
-        'paginator': paginator,
-        'page_obj': page_obj,
-        'sort_order': sort_order,
+    
+    # Define the color mapping for each `voter_favour_id`
+    favour_colors = {
+        1: '#2d8c61',
+        2: '#dc3545',
+        3: '#ffc107',
+        4: '#3683fd',
+        5: '#35befd',
+        6: '#dc7093',
+        7: '#8f0080',
     }
-    return render(request, 'TotalVoterList.html', context)
 
-
-# Total Voter List with group Id
-@login_required(login_url='login')
-def TotalVoterListWithGroupId(request, id):
-    response = requests.get(f"{BASE_URL}api/total_voters/")
-    voters_list = []
-
-    if response.status_code == 200:
-        data = response.json()
-        if isinstance(data, list):
-            voters_list = data
-        elif isinstance(data, dict):
-            voters_list = data.get('voters', [])
-
-    # Capitalize each word in the 'voter_name' field
-    # for voter in voters_list:
-    #     voter_name = voter.get('voter_name', '')
-    #     voter['voter_name'] = voter_name.title() if voter_name else ''
-    for voter in voters_list:
-        if isinstance(voter.get('voter_name'), str):
-            voter['voter_name'] = format_name(voter['voter_name'])
-
-    # Check for the sorting parameter
-    sort_order = request.GET.get('sort', '').strip().lower()
+    # If sort_order is 'a-z', sort surnames alphabetically (A-Z)
     if sort_order == 'a-z':
-        voters_list.sort(key=lambda voter: voter.get('voter_name', '').lower())
+        voters_list.sort(key=lambda x: (x.get('voter_name', '').lower() if x.get('voter_name') else ''))
+    else:
+        # Default sort by voter ID
+        voters_list.sort(key=lambda x: x.get('voter_id', 0))
 
     # Search functionality
     search_query = request.GET.get('search', '').strip().lower()
@@ -1324,7 +1412,9 @@ def TotalVoterListWithGroupId(request, id):
         'voters_list': page_obj,
         'paginator': paginator,
         'page_obj': page_obj,
-        'group_id': int(id)
+        'group_id': int(id),
+        'sort_order': sort_order,
+        'favour_colors': favour_colors,
     }
     return render(request, 'TotalVoterList.html', context)
 
@@ -1373,33 +1463,44 @@ def TotalVoterListWithGroupId(request, id):
 #     }
 #     return render(request, 'TotalVoterList.html', context)
 
-
 # Family Details
 @login_required(login_url='login')
 def FamilyDetails(request, id):
     url = f"{BASE_URL}api/family_group_details/{id}/"
     money_url = f"{BASE_URL}api/family_group_get_description/{id}/"
+    
+    # Send requests
     response = requests.get(url)
     money_response = requests.get(money_url)
 
+    # Check if the response is valid JSON
+    family_data = {}
+    money_data = {}
+    family_found = False
+
     if response.status_code == 200:
-        family_data = response.json()
-        money_data = money_response.json()
-        family_found = True
-        
-        # Format family group and members names
-        family_data['family_group_name'] = format_name(family_data['family_group_name'])
-        family_data['family_group_head_name'] = format_name(family_data['family_group_head_name'])
+        try:
+            family_data = response.json()  # Try to parse the JSON data
+        except ValueError:
+            print("Invalid JSON response from family group API.")
+            family_data = {}  # or handle the error as needed
+        else:
+            family_found = True
+            # Format family group and members names
+            family_data['family_group_name'] = format_name(family_data['family_group_name'])
+            family_data['family_group_head_name'] = format_name(family_data['family_group_head_name'])
+            for member in family_data['family_members']:
+                member['voter_name'] = format_name(member['voter_name'])
 
-        for member in family_data['family_members']:
-            member['voter_name'] = format_name(member['voter_name'])
-
-    else:
-        family_data = {}
-        family_found = False
-        money_data = {}
+    if money_response.status_code == 200:
+        try:
+            money_data = money_response.json()  # Try to parse the JSON data
+        except ValueError:
+            print("Invalid JSON response from money group API.")
+            money_data = {}  # or handle the error as needed
 
     return render(request, 'FamilyDetails.html', {'family_data': family_data, 'family_found': family_found, 'm_data': money_data})
+
 
 # Group Details
 @login_required(login_url='login')
@@ -1411,16 +1512,32 @@ def GroupDetails(request):
     api_url = f"{BASE_URL}api/get_voter_group_details/"
     response = requests.get(api_url)
 
+
+    # Check if the API request was successful
     if response.status_code == 200:
-        data = response.json()  # Assuming the API returns a JSON response
-        # Capitalize each word in the 'town_user_names' field when multiple names are separated by commas
-        for item in data:
-            if item.get('voter_group_name'):
-                # Split names by commas, capitalize each name, and join them back with commas
-                item['voter_group_name'] = ', '.join( name.strip().title() for name in item['voter_group_name'].split(','))
+        try:
+            data = response.json()  # Assuming the API returns a JSON response
+            # Ensure the data is a list
+            if isinstance(data, list):
+                # Capitalize each word in the 'voter_group_name' field when multiple names are separated by commas
+                for item in data:
+                    # Ensure that 'item' is a dictionary and contains 'voter_group_name'
+                    if isinstance(item, dict) and item.get('voter_group_name'):
+                        # Capitalize each word in 'voter_group_name' by splitting names, title-casing them, and joining them back
+                        item['voter_group_name'] = ', '.join(name.strip().title() for name in item['voter_group_name'].split(','))
+            else:
+                # Handle the case where the response is not a list as expected
+                print("Unexpected data structure: API did not return a list.")
+                data = []
+        except ValueError:
+            # Handle the case where JSON decoding fails
+            print("Failed to decode JSON from the response.")
+            data = []
     else:
+        # Handle the case where the response status code is not 200
+        print(f"API request failed with status code: {response.status_code}")
         data = []
-        
+
     # Filter data by search query
     if search_query:
         data = [item for item in data if search_query.lower() in str(item['voter_group_name']).lower() or str(item['group_user_name']).lower() in search_query.lower()]

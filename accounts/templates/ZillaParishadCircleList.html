@@ -359,11 +359,12 @@
 
         });
 
-        // Fetch zp details based on PSC id
-        function fetchPSDetails(psId) {
-            fetch(`http://192.168.1.38:8000/api/get_panchayat_samiti_circle_by_zp_circle/${parseInt(psId)}/`)
+        // Fetch ps details based on ZP id
+        function fetchPSDetails(zpId) {
+            fetch(`http://192.168.1.38:8000/api/get_panchayat_samiti_circle_by_zp_circle/${parseInt(zpId)}/`)
                 .then(response => {
                     if (!response.ok) {
+                        alert('Network response was not ok');
                         throw new Error('Network response was not ok');
                     }
                     return response.json();
@@ -397,7 +398,7 @@
                         if (event.target.closest('.zp-name')) {
                             const PSCId = event.target.closest('.zp-name').getAttribute('data-zp-id');
                             const PSCName = event.target.closest('.zp-name').getAttribute('data-zp-name');
-                            fetchzpDetails(PSCId, PSCName);
+                            fetchTownDetails(PSCId, PSCName);
                         }
                     });
                 })
@@ -406,35 +407,35 @@
                 });
         }
 
-        // Fetch zp details based on PSC id
-        function fetchzpDetails(PSCId, PSCName) {
-            fetch(`http://192.168.1.38:8000/api/get_zp_info_by_psc/${parseInt(PSCId)}/`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    const zpTableBody = document.getElementById('zp-table-body');
-                    zpTableBody.innerHTML = ''; // Clear previous data
+        // Fetch Town details based on PS id
+        function fetchTownDetails(PSCId, PSCName) {
+                fetch(`http://192.168.1.38:8000/api/get_town_info_by_psc/${parseInt(PSCId)}/`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        const boothTableBody = document.getElementById('booth-table-body');
+                        boothTableBody.innerHTML = ''; // Clear previous data
 
-                    // Set the modal title to the zp name
-                    const modalTitle = document.getElementById('zpDetailsModalLabel');
-                    modalTitle.textContent = `${PSCName} PSC's zp List`; // Update the title
+                        // Set the modal title to the town name
+                        const modalTitle = document.getElementById('boothDetailsModalLabel');
+                        modalTitle.textContent = `${PSCName} PSC's Town List`; // Update the title
 
-                    // Check if 'data' exists and is an array
-                    if (Array.isArray(data)) {  // Adjusted to directly check if 'data' is an array
-                        data.forEach((zp) => {
-                            const row = `
+                        // Check if 'data' exists and is an array
+                        if (Array.isArray(data)) {  // Adjusted to directly check if 'data' is an array
+                            data.forEach((town) => {
+                                const row = `
                                     <tr>
-                                        <td class="text-center">${zp.serial_number}</td>
-                                        <td data-booth-id="${zp.zp_id}" data-booth-name="${zp.zp_name}" class="booth-name"><a class="link-underline-primary text-dark" style="cursor: pointer;">
-                                                ${zp.zp_name}</a></td>
-                                        <td>${zp.zp_user_names || '--'}</td> 
-                                        <td>${zp.voter_count || '--'}</td>
+                                        <td class="text-center">${town.serial_number}</td>
+                                        <td data-booth-id="${town.town_id}" data-booth-name="${town.town_name}" class="booth-name"><a class="link-underline-primary text-dark" style="cursor: pointer;">
+                                                ${town.town_name}</a></td>
+                                        <td>${town.town_user_names || '--'}</td> 
+                                        <td>${town.voter_count || '--'}</td>
                                         <td>
-                                            <a href="/zpwisevoterlist/${zp.zp_id}/" 
+                                            <a href="/townwisevoterlist/${town.town_id}/" 
                                             class="btn btn-primary btn-sm" 
                                             data-bs-toggle="tooltip" 
                                             data-bs-placement="right" 
@@ -444,33 +445,33 @@
                                         </td>
                                     </tr>
                                 `;
-                            zpTableBody.innerHTML += row;
-                        });
-                    }
-                    // Show the zp details modal
-                    const zpDetailsModal = new bootstrap.Modal(document.getElementById('zpDetailsModal'));
-                    zpDetailsModal.show();
-
-                    // Add event listener for zp names
-                    zpTableBody.addEventListener('click', function (event) {
-                        if (event.target.closest('.booth-name')) {
-                            const zpId = event.target.closest('.booth-name').getAttribute('data-booth-id');
-                            const zpName = event.target.closest('.booth-name').getAttribute('data-booth-name');
-                            
-                            fetchBoothDetails(zpId, zpName);
+                                boothTableBody.innerHTML += row;
+                            });
                         }
-                    });
-                })
-                .catch(error => {
-                    console.error('Error fetching zp details:', error);
-                });
-        }
+                        // Show the booth details modal
+                        const boothDetailsModal = new bootstrap.Modal(document.getElementById('boothDetailsModal'));
+                        boothDetailsModal.show();
 
-        // Function to fetch booth details from the API
-        function fetchBoothDetails(zpId, zpName) {
-            fetch(`http://192.168.1.38:8000/api/get_booth_details_by_zp_id/${parseInt(zpId)}/`)
+                        // Add event listener for town names
+                        boothTableBody.addEventListener('click', function (event) {
+                            if (event.target.closest('.booth-name')) {
+                                const townId = event.target.closest('.booth-name').getAttribute('data-booth-id');
+                                const townName = event.target.closest('.booth-name').getAttribute('data-booth-name');
+                                fetchBoothDetails(townId, townName);
+                            }
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error fetching town details:', error);
+                    });
+            }
+
+        // Function to fetch booth details from Town ID
+        function fetchBoothDetails(townId, townName) {
+            fetch(`http://192.168.1.38:8000/api/get_booth_details_by_town_id/${parseInt(townId)}/`)
                 .then(response => {
                     if (!response.ok) {
+                        alert('Network response was not ok');
                         throw new Error('Network response was not ok');
                     }
                     return response.json();
@@ -481,7 +482,7 @@
 
                     // Set the modal title to the zp name
                     const modalTitle = document.getElementById('boothDetailsModalLabel');
-                    modalTitle.textContent = `${zpName} zp's Booth List`; // Update the title
+                    modalTitle.textContent = `${townName} zp's Booth List`; // Update the title
 
                     // Check if 'data' exists and is an array
                     if (Array.isArray(data.data)) {
@@ -506,7 +507,7 @@
                                     <td>${usersDisplay || '--'}</td>
                                     <td>${booth.voter_count || '--'}</td>
                                     <td>
-                                        <a href="/boothwisevoterlist/${zpId}/${booth.booth_id}/" 
+                                        <a href="/boothwisevoterlist/${townId}/${booth.booth_id}/" 
                                         class="btn btn-primary btn-sm" 
                                         data-bs-toggle="tooltip" 
                                         data-bs-placement="right" 

@@ -89,13 +89,32 @@
                                         </select>
                                     </div>
                                     <div class="row justify-content-center text-center">
+                                        <div class="col-4">
+                                            <h6 class="mt-1" style="cursor: default;"><strong>Total Voters:</strong>
+                                                <span id="totalCount">0</span>
+                                            </h6>
+                                        </div>
+                                        <div class="col-4">
+                                            <h6 class="mt-1" style="cursor: default;"><strong>Voted Voters:</strong>
+                                                <span id="votedCount">0</span>
+                                            </h6>
+                                            <p id="votedCountParcent"><i>percent: 0%</i></p>
+                                        </div>
+                                        <div class="col-4">
+                                            <h6 class="mt-1" style="cursor: default;"><strong>Non-voted Voters:</strong>
+                                                <span id="non-votedCount">0</span>
+                                            </h6>
+                                            <p id="non-votedCountParcent"><i>percent: 0%</i></p>
+                                        </div>
+                                    </div>
+                                    <!-- <div class="row justify-content-center text-center">
                                         <p class="col-4 mt-2"><strong>Total Voters:</strong> <span
                                                 id="voterCount"></span></p>
                                         <p class="col-4 mt-2"><strong>Voted Voters:</strong> <span
                                                 id="votedCount"></span></p>
                                         <p class="col-4 mt-2"><strong>Non-voted Voters:</strong> <span
                                                 id="non-votedCount"></span></p>
-                                    </div>
+                                    </div> -->
                                 </div>
                             </div>
                         </div>
@@ -317,6 +336,8 @@
                     // Fetch voters data when both town and religion are selected
                     religionSelect.addEventListener('change', function () {
                         const selectedTownId = townSelect.value;
+                        // console.log("selectedTownId", selectedTownId);
+
                         const selectedReligionId = religionSelect.value;
 
                         if (selectedTownId && selectedReligionId) {
@@ -324,6 +345,7 @@
                                 .then(response => response.json())
                                 .then(data => {
                                     votersData = data; // Store the original data
+                                    // console.log(votersData);
                                     populateTable(votersData); // Populate the table
                                 })
                                 .catch(error => console.error('Error fetching voters data:', error));
@@ -332,17 +354,17 @@
                 })
                 .catch(error => console.error('Error fetching towns data:', error));
 
-            // Function to update the voter counts
-            function updateCounts(data) {
-                const totalCount = data.length;
-                const votedCount = data.filter(voter => voter.voter_confirmation_id === 1).length;
-                const nonVotedCount = totalCount - votedCount;
+            // // Function to update the voter counts
+            // function updateCounts(data) {
+            //     const totalCount = data.length;                
+            //     const votedCount = data.filter(voter => voter.voter_vote_confirmation_id === 1).length;
+            //     const nonVotedCount = totalCount - votedCount;
 
-                // Display counts
-                document.getElementById('voterCount').textContent = totalCount || '0';
-                document.getElementById('votedCount').textContent = votedCount || '0';
-                document.getElementById('non-votedCount').textContent = nonVotedCount || '0';
-            }
+            //     // Display counts
+            //     document.getElementById('voterCount').textContent = totalCount || '0';
+            //     document.getElementById('votedCount').textContent = votedCount || '0';
+            //     document.getElementById('non-votedCount').textContent = nonVotedCount || '0';
+            // }
 
             // Populate the table
             function populateTable(data) {
@@ -365,15 +387,23 @@
                 if (data.length > 0) {
                     // Update voter counts
                     const totalCount = data.length || ' ';
-                    const votedCount = data.filter(voter => voter.voter_confirmation_id === 1).length || ' ';
+                    const votedCount = data.filter(voter => voter.voter_vote_confirmation_id === 1).length || ' ';
                     const nonVotedCount = (totalCount - votedCount) || ' ';
+
+                    const votedCountParcent = ((votedCount / totalCount) * 100).toFixed(2);
+                    const nonVotedCountParcent = ((nonVotedCount / totalCount) * 100).toFixed(2);
+
                     // Display counts
-                    document.getElementById('voterCount').textContent = totalCount;
+                    document.getElementById('totalCount').textContent = totalCount;
                     document.getElementById('votedCount').textContent = votedCount;
                     document.getElementById('non-votedCount').textContent = nonVotedCount;
+                    document.getElementById('votedCountParcent').innerHTML = "percent: <i>" + votedCountParcent + "%</i>";
+                    document.getElementById('votedCountParcent').style.fontStyle = "italic"; // Optional for the overall style
+                    document.getElementById('non-votedCountParcent').innerHTML = "percent: <i>" + nonVotedCountParcent + "%</i>";
+                    document.getElementById('non-votedCountParcent').style.fontStyle = "italic"; // Optional for the overall style
                 } else {
                     // Display counts
-                    document.getElementById('voterCount').innerHTML = '';
+                    document.getElementById('totalCount').innerHTML = '';
                     document.getElementById('votedCount').innerHTML = '';
                     document.getElementById('non-votedCount').innerHTML = '';
                 }
@@ -413,6 +443,7 @@
 
                     // Create a toggle button for vote confirmation
                     const voteConfirmationButton = document.createElement('button');
+                    // console.log("sssdddddddddds",voter.voter_vote_confirmation_id);
 
                     // Set the button icon based on the current confirmation status
                     if (voter.voter_vote_confirmation_id === null) {
@@ -428,7 +459,14 @@
 
                     // Add event listener for toggling vote confirmation
                     voteConfirmationButton.addEventListener('click', async () => {
+                        // console.log('before vote stat-', voter.voter_vote_confirmation_id);
+
                         const newConfirmationStatus = voter.voter_vote_confirmation_id === null ? 1 : null; // Toggle logic
+                        // console.log('after toggle-', newConfirmationStatus);
+                        // console.log('b vid-', voter.voter_id);
+
+
+
 
                         try {
                             const response = await fetch(`http://192.168.1.38:8000/api/voter_confirmation/${voter.voter_id}/`, {
@@ -438,6 +476,8 @@
                                 },
                                 body: JSON.stringify({ voter_vote_confirmation_id: newConfirmationStatus })
                             });
+
+                            // console.log("response-", response);
 
                             if (!response.ok) {
                                 throw new Error('Failed to update vote confirmation status');
@@ -449,7 +489,8 @@
                             //     ? '<i class="fa-regular fa-thumbs-up"></i>' // Icon for "Confirm Vote"
                             //     : '<i class="fa-solid fa-thumbs-up"></i>'; // Icon for "Undo Confirmation"
                             // Set the button icon based on the current confirmation status
-                            console.log('After status', newConfirmationStatus);
+                            // console.log('After status', newConfirmationStatus);
+
 
                             if (newConfirmationStatus === null) {
                                 voteConfirmationButton.className = 'btn btn-secondary btn-sm m-1';
@@ -465,6 +506,7 @@
                         }
                     });
                     actionsCell.appendChild(voteConfirmationButton);
+
                     detailsButton.onclick = function () {
                         currentVoterId = voter.voter_id;
                         // Fetch voter details from the API
@@ -763,7 +805,7 @@
                     "voter_ids": selectedVoters.map(voterId => parseInt(voterId)), // Ensure voter IDs are integers
                     "voter_favour_id": parseInt(selectedfavourId) // Ensure favour ID is an integer
                 };
-                console.log('Payload:', JSON.stringify(payload));
+                // console.log('Payload:', JSON.stringify(payload));
 
                 // Make the PUT request to assign favour to voters
                 fetch('http://192.168.1.38:8000/api/favour/', {
@@ -803,7 +845,7 @@
         });
 
         // Select All checkbox logic
-        const selectAllCheckbox = document.getElementById('select-all');
+        const selectAllCheckbox = document.getElementById('select-all-checkbox');
         selectAllCheckbox.addEventListener('change', function () {
             const checkboxes = document.querySelectorAll('.form-check-input');
             checkboxes.forEach(checkbox => {

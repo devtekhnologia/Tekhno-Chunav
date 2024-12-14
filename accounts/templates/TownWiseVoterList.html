@@ -82,18 +82,18 @@
                   </div>
                   <div class="row justify-content-center text-center">
                     <div class="col-4">
-                      <h5 class="mt-1" style="cursor: default;"><strong>Total Voters:</strong> <span
-                          id="voterCount">0</span></h5>
+                      <h6 class="mt-1" style="cursor: default;"><strong>Total Voters:</strong> <span
+                          id="voterCount">0</span></h6>
                     </div>
                     <div class="col-4">
-                      <h5 class="mt-1" style="cursor: default;"><strong>Voted Voters:</strong> <span
-                          id="votedCount">0</span></h5>
-                      <p id="votedCountParcent"><i><b>percent:</b></i></p>
+                      <h6 class="mt-1" style="cursor: default;"><strong>Voted Voters:</strong> <span
+                          id="votedCount">0</span></h6>
+                      <p id="votedCountParcent"><i>percent: 0%</i></p>
                     </div>
                     <div class="col-4">
-                      <h5 class="mt-1" style="cursor: default;"><strong>Non-voted Voters:</strong> <span
-                          id="non-votedCount">0</span></h5>
-                      <p id="non-votedCountParcent"><i><b>percent:</b></i></p>
+                      <h6 class="mt-1" style="cursor: default;"><strong>Non-voted Voters:</strong> <span
+                          id="non-votedCount">0</span></h6>
+                      <p id="non-votedCountParcent"><i>percent: 0%</i></p>
                     </div>
                   </div>
                 </div>
@@ -417,7 +417,7 @@
           const response = await fetch(`http://192.168.1.38:8000/api/town_wise_voter_list/${townId}/`);
           const data = await response.json();
           votersData = data;  // Store the fetched voters data
-          console.log(votersData);
+          // console.log(votersData);
 
           renderVoters(votersData);  // Render voters in the table
         } catch (error) {
@@ -453,10 +453,10 @@
         document.getElementById('votedCountParcent').textContent = votedVotersParc;
         document.getElementById('non-votedCountParcent').textContent = nonVotedVotersParc;
 
-        document.getElementById('votedCountParcent').innerHTML = "<b>percent:</b> <i>" + votedVotersParc + "%</i>";
+        document.getElementById('votedCountParcent').innerHTML = "percent: <i>" + votedVotersParc + "%</i>";
         document.getElementById('votedCountParcent').style.fontStyle = "italic"; // Optional for the overall style
 
-        document.getElementById('non-votedCountParcent').innerHTML = "<b>percent:</b> <i>" + nonVotedVotersParc + "%</i>";
+        document.getElementById('non-votedCountParcent').innerHTML = "percent: <i>" + nonVotedVotersParc + "%</i>";
         document.getElementById('non-votedCountParcent').style.fontStyle = "italic"; // Optional for the overall style
 
         // Sort voters alphabetically by voter_name
@@ -613,7 +613,7 @@
                 document.getElementById('current_location').textContent = voterDetails.voter_current_location || '--';
 
                 // Update the Family button with the voter ID
-                document.getElementById('family-button').href = `/familydetails/${voter.voter_id}`;
+                document.getElementById('family-button').href = `/familydetails/${voter.voter_id}/`;
 
                 // Update the Edit button with the voter ID
                 document.getElementById('edit-button').href = `/editvoter/${voter.voter_id}/`;
@@ -1013,7 +1013,7 @@
           "voter_ids": selectedVoters.map(voterId => parseInt(voterId)), // Ensure voter IDs are integers
           "voter_cast_id": parseInt(selectedCasteId) // Ensure caste ID is an integer
         };
-        console.log('Payload:', JSON.stringify(payload));
+        // console.log('Payload:', JSON.stringify(payload));
 
         // Make the PUT request to assign caste to voters
         fetch('http://192.168.1.38:8000/api/assign_voter_cast/', {
@@ -1054,7 +1054,7 @@
     });
 
     // Select All checkbox logic
-    const selectAllCheckbox = document.getElementById('select-all');
+    const selectAllCheckbox = document.getElementById('select-all-checkbox');
     selectAllCheckbox.addEventListener('change', function () {
       const checkboxes = document.querySelectorAll('.form-check-input');
       checkboxes.forEach(checkbox => {

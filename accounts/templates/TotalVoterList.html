@@ -129,7 +129,7 @@
 
       <!-- Search -->
       <div class="d-flex justify-content-end gap-3 mx-4 mb-3">
-        <div class="input-group mb-3">
+        <div class="input-group">
           <button id="add-voters-btn" type="button" class="btn btn-success" data-bs-toggle="tooltip"
             data-bs-placement="top" data-bs-title="Add Voter in existing Group">Add User
           </button>
@@ -138,14 +138,14 @@
           </button>
         </div>
 
-        <div class="input-group mb-3" style="width: 330px;">
+        <div class="input-group" style="width: 370px;">
           <select id="caste-select-container" class="form-select bg-light" aria-label="Small select example">
             <option selected>Caste</option>
           </select>
           <button id="update-button" class="btn btn-primary input-group-append">Assign</button>
         </div>
 
-        <div class="input-group mb-3" style="width: 440px;">
+        <div class="input-group" style="width: 440px;">
           <select id="favour-select" class="form-select bg-light" aria-label="Small select example">
             <option selected>Favour Color</option>
             <option class="text-success" value="1">Favour</option>
@@ -164,7 +164,7 @@
             <div class="input-group">
               <input type="text" id="search-input" name="search" class="form-control bg-light"
                 placeholder="Search by Name" value="{{ request.GET.search }}" />
-              <button type="button" id="clear-button" class="btn-close" aria-label="Close"></button>
+              <button type="button" id="clear-button" style="background-color: #f1f7fcf4;" class="btn-close" aria-label="Close"></button>
               <button class="btn btn-success" type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
             </div>
           </form>
@@ -216,18 +216,15 @@
                         <i class="fa-brands fa-whatsapp"></i>
                       </button>
                     </td>
-                    <!-- <td id="favour_id"
-                      class="{% if voter.voter_favour_id == 1 %}bg-success{% elif voter.voter_favour_id == 2 %}bg-danger{% elif voter.voter_favour_id == 3 %}bg-warning{% elif voter.voter_favour_id == 4 %}bg-primary{% elif voter.voter_favour_id == 5 %}bg-light-primary{% elif voter.voter_favour_id == 6 %}bg-pink{% elif voter.voter_favour_id == 7 %}bg-purple{% elif voter.voter_favour_id == null %}bg-custom-table-light{% endif %}">
-                    </td> -->
-                    <td class="
-                      {% if voter.voter_favour_id == 1 %}bg-success
-                      {% elif voter.voter_favour_id == 2 %}bg-danger
-                      {% elif voter.voter_favour_id == 3 %}bg-warning
-                      {% elif voter.voter_favour_id == 4 %}bg-primary
-                      {% elif voter.voter_favour_id == 5 %}bg-light-primary
-                      {% elif voter.voter_favour_id == 6 %}bg-pink
-                      {% elif voter.voter_favour_id == 7 %}bg-purple
-                      {% else %}bg-custom-table-light
+                    <td style="background-color: 
+                      {% if voter.voter_favour_id == 1 %} #2d8c61; 
+                      {% elif voter.voter_favour_id == 2 %} #dc3545; 
+                      {% elif voter.voter_favour_id == 3 %} #ffc107; 
+                      {% elif voter.voter_favour_id == 4 %} #3683fd; 
+                      {% elif voter.voter_favour_id == 5 %} #35befd; 
+                      {% elif voter.voter_favour_id == 6 %} #dc7093; 
+                      {% elif voter.voter_favour_id == 7 %} #8f0080; 
+                      {% else %} rgb(218, 217, 217); 
                       {% endif %}">
                     </td>
                   </tr>
@@ -311,6 +308,14 @@
             <div class="modal-body">
               <table class="table p-1">
                 <tbody>
+                  <!-- <tr>
+                    <th class="bg-light fw-semibold">Reg. No.</th>
+                    <td id="voter_serial_number"></td>
+                  </tr>
+                  <tr>
+                    <th class="bg-light fw-semibold">VoterID</th>
+                    <td id="voter_id_card_number"></td>
+                  </tr> -->
                   <tr>
                     <th class="bg-light fw-semibold">Voter Name</th>
                     <td id="voter_name"></td>
@@ -458,6 +463,19 @@
 
 
     document.addEventListener('DOMContentLoaded', function () {
+      // Search close button
+      document.getElementById('clear-button').addEventListener('click', function () {
+        document.getElementById('search-input').value = '';
+
+        // Submit the form without the search input to reload the page
+        var form = this.closest('form');
+        var url = new URL(window.location.href);
+        url.searchParams.delete('search'); // Remove the search query parameter from the URL
+        window.location.href = url.toString(); // Reload the page with the updated URL
+      });
+
+
+
       // Function to get initials
       const getInitials = name => name
         .split(' ')
@@ -471,7 +489,7 @@
 
     // Voter Details Modal
     document.addEventListener('DOMContentLoaded', function () {
-      let voterId= null
+      let voterId = null
       document.querySelectorAll('.voter-detail-link').forEach(function (link) {
         link.addEventListener('click', function (event) {
           event.preventDefault();
@@ -485,6 +503,8 @@
               const capitalizeEachWord = str => str.replace(/\b\w+/g, l => l.charAt(0).toUpperCase() + l.slice(1).toLowerCase());
 
               // Populate modal with API data
+              // document.getElementById('voter_serial_number').textContent = data.voter_serial_number || '--';
+              // document.getElementById('voter_id_card_number').textContent = data.voter_id_card_number || '--';
               document.getElementById('voter_name').textContent = capitalizeEachWord(data.voter_name) || '--';
               document.getElementById('voter_parent_name').textContent = capitalizeEachWord(data.voter_parent_name) || '--';
               document.getElementById('voter_dob').textContent = data.voter_dob || '--';
@@ -570,7 +590,7 @@
 
       // Export Print button
       document.getElementById('export-pdf-button').addEventListener('click', function () {
-    
+
         if (voterId) {
           fetch(`http://192.168.1.38:8000/api/generate_voter_pdf/${voterId}`, {
             method: 'GET',
@@ -596,6 +616,9 @@
         }
       });
     });
+
+
+
 
     // Whatsapp
     document.addEventListener('DOMContentLoaded', function () {
@@ -665,6 +688,8 @@
       .catch(error => console.error('Error fetching data:', error));
 
 
+
+
     // VG User registration
     document.addEventListener("DOMContentLoaded", function () {
       const vgUserButton = document.getElementById("create-vguser-btn");
@@ -699,13 +724,13 @@
 
           const data = {
             voter_group_user_name: document.getElementById("vgUserName").value,
-            voter_group_user_contact_number: document.getElementById("vgUserContact").value,
+            voter_group_user_contact_number: parseInt(document.getElementById("vgUserContact").value),
             voter_group_name: document.getElementById("vgGroupName").value,
             voter_group_user_password: document.getElementById("vgUserPassword").value,
             voter_ids: selectedVoterIds,
           };
-          // console.log('payload-',data);
-          
+          console.log('payload-', data);
+
           // Make API request
           fetch('http://192.168.1.38:8000/api/create_voter_group_user/', {
             method: 'POST',
@@ -798,7 +823,7 @@
           voter_ids: selectedVoterIds,
           voter_group_user_id: groupId
         };
-        
+
         // console.log('Request Body:', requestBody);
 
         // Fetch the API
@@ -833,6 +858,9 @@
         return csrfToken;
       }
     });
+
+
+
 
     // Assign multiple Castes
     document.addEventListener('DOMContentLoaded', function () {
@@ -893,7 +921,6 @@
           "voter_cast_id": parseInt(selectedCasteId)
         };
         // console.log('payload-', payload);
-        // console.log('json-', JSON.stringify(payload));
 
         // Make the PUT request to assign caste to voters
         fetch('http://192.168.1.38:8000/api/assign_voter_cast/', {
@@ -924,6 +951,11 @@
         return document.querySelector('[name=csrfmiddlewaretoken]').value;
       };
     });
+
+
+
+
+
 
     // Assign multiple Favour
     document.addEventListener('DOMContentLoaded', function () {

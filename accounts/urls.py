@@ -1,12 +1,12 @@
 
 from django.urls import path
 from django.conf.urls import handler404, handler500
-from .views import register, login_view, AddBoothUser, SurnameWiseVoterList, VotedNonvotedList, TotalVoterListWithGroupId, RUExitPoll, GroupDetails, BoothWiseVoterListWithOnlyBID, PrabhagDetails, PrabhagUserList, AddPrabhagUser, PrabhagWiseVoterListWithID, PrabhagWiseVoterList, ZillaParishadCircleList, PanchayatSamitiCircleList, PrabhagWiseBoothList, TownCategory, GraminList, ShaharList, FamilyDetails, BoothWiseVoterList, BoothWiseVoterListWithID, TownWiseVoterListID, TownExitPoll, BoothExitPoll, FAQs, TownDetails, delete_town_user, delete_booth_user, religionwiseBoothVoterList, religionwiseTownVoterList, religionwiseTotalVoterList, castwiseBoothVoterList, castwiseTotalVoterList, castwiseTownVoterList, boothUserActivityLog, ActivityLog, logout_view, ContactUs, user_profile, dashboard, user_list, AddTownUser, ExitPoll, TownUserList, BoothDetails, BoothUser, navbar, index, TotalVoterList
-from .views import EditPSUser, EditVoterDetails, EditBoothUser, EditTownUser, EditZPUser, EditPSUser
+from .views import register, login_view, AddBoothUser, SurnameWiseVoterList, VotedNonvotedList, TotalVoterListWithGroupId, GroupDetails, BoothWiseVoterListWithOnlyBID, PrabhagDetails, PrabhagUserList, AddPrabhagUser, PrabhagWiseVoterListWithID, PrabhagWiseVoterList, FamilyDetails, BoothWiseVoterList, BoothWiseVoterListWithID, TownWiseVoterListID, TownExitPoll, BoothExitPoll, FAQs, delete_booth_user, religionwiseBoothVoterList, religionwiseTownVoterList, religionwiseTotalVoterList, castwiseBoothVoterList, castwiseTotalVoterList, castwiseTownVoterList, boothUserActivityLog, ActivityLog, logout_view, ContactUs, user_profile, dashboard, user_list, ExitPoll, BoothDetails, BoothUser, navbar, index, TotalVoterList
+from .views import EditPSUser, EditVoterDetails, EditBoothUser, EditZPUser, EditPSUser
 from .views import TownWiseVoterList
 from .views import CastWiseVoter
-from .views import AddZPUser, ZPUserList
-from .views import AddPSUser, PSUserList
+# from .views import AddZPUser, ZPUserList
+# from .views import AddPSUser, PSUserList
 from .views import UnderCons
 
 # Define a custom 404 handler
@@ -35,17 +35,14 @@ urlpatterns = [
     # path('psuserlist/', PSUserList, name='PSUserList'),
 
     # Town
-    path('towndetails/', TownDetails, name='TownDetails'),
+    # path('towndetails/', TownDetails, name='TownDetails'),
     # path('town_user/', AddTownUser, name='AddTownUser'),
     # path('KaryakartaList/', TownUserList, name='KaryakartaList'),
 
     # Prabhag
     path('addprabhaguser/', AddPrabhagUser, name='AddPrabhagUser'),
     path('prabhaguserlist/', PrabhagUserList, name='PrabhagUserList'),
-    # path('prabhagdetails/', PrabhagDetails, name='PrabhagDetails'),
-    # path('prabhagdetails/', PrabhagWiseBoothList, name = 'PrabhagWiseBoothList'),
     path('prabhagdetails/', PrabhagDetails, name='PrabhagDetails'),
-    # path('prabhagwisebooths/', PrabhagWiseBoothList, name = 'PrabhagWiseBoothList'),
     path('prabhagwisevoterlist/', PrabhagWiseVoterList, name='PrabhagWiseVoterList'),
     path('prabhagwisevoterlist/<str:id>/', PrabhagWiseVoterListWithID, name='PrabhagWiseVoterListWithID'),
 
@@ -102,13 +99,13 @@ urlpatterns = [
     # Edit
     path('editvoter/<str:id>/', EditVoterDetails, name='EditVoterDetails'),
     path('editpsuser/<int:id>/', EditPSUser, name='EditPSUser'),
-    path('edittownuser/<int:id>/', EditTownUser, name='EditTownUser'),
+    # path('edittownuser/<int:id>/', EditTownUser, name='EditTownUser'),
     path('editboothuser/<int:id>/', EditBoothUser, name='EditBoothUser'),
     path('editzpuser/<int:id>/', EditZPUser, name='EditZPUser'),
     path('editpsuser/<int:id>/', EditPSUser, name='EditPSUser'),
 
     # Delete
-    path('delete_town_user/<str:user_id>/', delete_town_user, name='delete_town_user'),
+    # path('delete_town_user/<str:user_id>/', delete_town_user, name='delete_town_user'),
     path('delete_booth_user/<str:user_id>/', delete_booth_user, name='delete_booth_user'),
 
     # ActivityLog
