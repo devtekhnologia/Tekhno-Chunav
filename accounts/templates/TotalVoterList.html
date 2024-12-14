@@ -1,0 +1,1022 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Techno चुनाव - Total Voter List</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
+
+  <style>
+    /* scrollbar */
+    body::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    body::-webkit-scrollbar-thumb:hover {
+      background: #838ab6;
+    }
+
+    body::-webkit-scrollbar {
+      background-color: transparent;
+    }
+
+    body::-webkit-scrollbar-thumb {
+      background: #9DA5D5;
+      border-radius: 8px;
+    }
+
+    .blue-background {
+      font-weight: 600;
+      background-color: #DCE1FF !important;
+    }
+
+    .search {
+      position: relative;
+    }
+
+    .btn-close {
+      position: absolute;
+      right: 45px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+    }
+
+    .input-group {
+      position: relative;
+    }
+
+    .pagination .page-item.active .page-link {
+      color: #fff;
+      background-color: #3C4CAC;
+      border-color: #DCE1FF;
+    }
+
+    .custom-text-light {
+      color: gray;
+    }
+
+    .bg-custom-success {
+      /* background-color: #36AE7C; */
+      background-color: #D1E7DD;
+    }
+
+    .bg-custom-danger {
+      /* background-color: #EB5353; */
+      background-color: #F8D7DA;
+    }
+
+    .bg-custom-warning {
+      /* background-color: #F9D923; */
+      background-color: #fff3cd;
+    }
+
+    .bg-pink {
+      background-color: #fa66e4;
+    }
+
+    .bg-purple {
+      background-color: #db60fd;
+    }
+
+    .bg-light-primary {
+      /* background-color: #F9D923; */
+      background-color: #76f4f0;
+    }
+
+    .bg-custom-light {
+      /* background-color: #F9D923; */
+      background-color: #D3D3D3;
+    }
+
+    .bg-c-gray {
+      /* background-color: #F9D923; */
+      background-color: #D3D3D3;
+    }
+
+    .bg-custom-table-light {
+      /* background-color: #F9D923; */
+      background-color: rgb(144, 160, 177);
+      /* #b5b9be; */
+    }
+
+    /* .details-btn-custom{
+      background-color: #adabab;
+    } */
+  </style>
+</head>
+
+<body>
+  {% csrf_token %}
+  {% include "navbar.html" %}
+  <div id="contentWrapper">
+    <div style="flex:1"></div>
+    <div class="container mt-3">
+
+      <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item custom-text-light">
+            <a class="nav-link" href="/dashboard/">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item custom-text-light" aria-current="page" style="cursor: default;">Voter</li>
+          <li class="breadcrumb-item" aria-current="page" style="cursor: default;">Total Voters List</li>
+        </ol>
+      </nav>
+
+      <!-- Search -->
+      <div class="d-flex justify-content-end gap-3 mx-4 mb-3">
+        <div class="input-group mb-3">
+          <button id="add-voters-btn" type="button" class="btn btn-success" data-bs-toggle="tooltip"
+            data-bs-placement="top" data-bs-title="Add Voter in existing Group">Add User
+          </button>
+          <button id="create-vguser-btn" type="button" class="btn btn-success" data-bs-toggle="tooltip"
+            data-bs-placement="top" data-bs-title="Create Voter Group User">VG User
+          </button>
+        </div>
+
+        <div class="input-group mb-3" style="width: 330px;">
+          <select id="caste-select-container" class="form-select bg-light" aria-label="Small select example">
+            <option selected>Caste</option>
+          </select>
+          <button id="update-button" class="btn btn-primary input-group-append">Assign</button>
+        </div>
+
+        <div class="input-group mb-3" style="width: 440px;">
+          <select id="favour-select" class="form-select bg-light" aria-label="Small select example">
+            <option selected>Favour Color</option>
+            <option class="text-success" value="1">Favour</option>
+            <option class="text-danger" value="2">Against</option>
+            <option class="text-warning" value="3">Doubted</option>
+            <option style="color: rgb(17, 180, 255);" value="5">Pro</option>
+            <option class="text-primary" value="4">Pro Plus</option>
+            <option style="color: palevioletred;" value="6">No Vote</option>
+            <option style="color: purple;" value="7">No Vote Voted</option>
+          </select>
+          <button id="update-favour-button" class="btn btn-primary input-group-append">Assign</button>
+        </div>
+
+        <div class="search" style="width: 430px;">
+          <form class="d-flex" method="GET">
+            <div class="input-group">
+              <input type="text" id="search-input" name="search" class="form-control bg-light"
+                placeholder="Search by Name" value="{{ request.GET.search }}" />
+              <button type="button" id="clear-button" class="btn-close" aria-label="Close"></button>
+              <button class="btn btn-success" type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="row mb-3">
+        <div class="col-12">
+          <div class="card rounded">
+            <div class="table-responsive">
+              <table class="table table-striped mb-0">
+                <thead class="bg-body text-uppercase text-muted">
+                  <tr class="blue-background">
+                    <th class="blue-background"></th>
+                    <th class="fw-bolder text-center blue-background" style="width: 10%;">Sr. No.</th>
+                    <th class="fw-bolder blue-background" style="width: 30%;">Voter Name&nbsp;&nbsp;
+                      <!-- <a href="/totalvoterlist/?{% if sort_order == 'a-z' %}{% else %}sort=a-z{% endif %}"
+                        class="btn btn-sm btn-outline-dark {% if sort_order == 'a-z' %}active{% endif %}">
+                        A-Z
+                      </a> -->
+                    </th>
+                    <th class="fw-bolder blue-background" style="width: 30%;">Voter Name (Mar)
+                    </th>
+                    <!-- <th class="fw-bolder blue-background" style="width: 30%;">Contact No</th> -->
+                    <th class="fw-bolder blue-background" style="width: 30%;">Actions</th>
+                    <th class="blue-background"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% if page_obj %}
+                  {% for voter in page_obj %}
+                  <tr>
+                    <td class="text-center">
+                      <span>
+                        <input class="form-check-input booth-checkbox" type="checkbox" value="{{voter.voter_id}}"
+                          id="voterCheck${voter.voter_id}">
+                      </span>
+                    </td>
+                    <td class="text-center">{{ forloop.counter|add:page_obj.start_index|add:"-1" }}</td>
+                    <td class="bg-c-gray">{{ voter.voter_name }}</td>
+                    <td>{{ voter.voter_name_mar }}</td>
+                    <td>
+                      <button type="button" class="btn voter-detail-link btn-primary btn-sm"
+                        data-voter-id="{{ voter.voter_id }}">
+                        <i class="fa-solid fa-circle-info"></i>
+                      </button>
+                      <button type="button" class="btn btn-success btn-sm m-1 whatsapp-button"
+                        data-voter-id="{{ voter.voter_id }}">
+                        <i class="fa-brands fa-whatsapp"></i>
+                      </button>
+                    </td>
+                    <!-- <td id="favour_id"
+                      class="{% if voter.voter_favour_id == 1 %}bg-success{% elif voter.voter_favour_id == 2 %}bg-danger{% elif voter.voter_favour_id == 3 %}bg-warning{% elif voter.voter_favour_id == 4 %}bg-primary{% elif voter.voter_favour_id == 5 %}bg-light-primary{% elif voter.voter_favour_id == 6 %}bg-pink{% elif voter.voter_favour_id == 7 %}bg-purple{% elif voter.voter_favour_id == null %}bg-custom-table-light{% endif %}">
+                    </td> -->
+                    <td class="
+                      {% if voter.voter_favour_id == 1 %}bg-success
+                      {% elif voter.voter_favour_id == 2 %}bg-danger
+                      {% elif voter.voter_favour_id == 3 %}bg-warning
+                      {% elif voter.voter_favour_id == 4 %}bg-primary
+                      {% elif voter.voter_favour_id == 5 %}bg-light-primary
+                      {% elif voter.voter_favour_id == 6 %}bg-pink
+                      {% elif voter.voter_favour_id == 7 %}bg-purple
+                      {% else %}bg-custom-table-light
+                      {% endif %}">
+                    </td>
+                  </tr>
+                  {% endfor %}
+                  {% else %}
+                  <tr>
+                    <td colspan="6" class="text-center">No results found</td>
+                  </tr>
+                  {% endif %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Modal Structure -->
+      <div class="modal fade" id="vgUserModal" tabindex="-1" aria-labelledby="vgUserModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="vgUserModalLabel">Create Voter Group</h5>
+            </div>
+            <div class="modal-body">
+              <form id="vgUserForm">
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label for="vgUserName" class="form-label"><strong>Group Admin Name</strong></label>
+                    <input type="text" class="form-control" id="vgUserName" required>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label for="vgUserContact" class="form-label"><strong>Group Admin Contact</strong></label>
+                    <input type="text" class="form-control" id="vgUserContact" required>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label for="vgGroupName" class="form-label"><strong>Group Name</strong></label>
+                    <input type="text" class="form-control" id="vgGroupName" required>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <div class="input-group mb-3">
+                      <label for="vgUserPassword" class="form-label"><strong>Password</strong></label>
+                      <input type="password" class="form-control" id="vgUserPassword" required
+                        style="width: calc(100% - 20%);">
+                      <button class="btn bg-light border-top border-end border-bottom"
+                        style="width: 20%; background-color: #fff;" type="button" id="togglePassword">
+                        <i class="fas fa-eye-slash"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label"><strong>Selected Voters</strong></label>
+                  <ul id="selectedVotersList" class="list-group"></ul>
+                </div>
+                <button type="submit" class="btn btn-primary">Create Group</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal -->
+      <div class="modal fade" id="voterDetailsModal" tabindex="-1" aria-labelledby="voterDetailsModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg">
+          <div class="modal-content">
+            <div class="modal-header thd">
+              <h5 class="modal-title" id="voterDetailsModalLabel">Voter Details</h5>
+              <div class="ms-auto">
+                <a type="button" id="edit-button" class="btn btn-outline-danger me-2">
+                  <i class="fa-solid fa-user-pen"></i>&nbsp;Edit
+                </a>
+                <a type="button" id="family-button" class="btn btn-outline-primary">
+                  <i class="fa-solid fa-users"></i>&nbsp;Family</a>
+              </div>
+              <!-- <a type="button" id="family-button" class="btn btn-primary ms-auto">Family</a> -->
+            </div>
+            <div class="modal-body">
+              <table class="table p-1">
+                <tbody>
+                  <tr>
+                    <th class="bg-light fw-semibold">Voter Name</th>
+                    <td id="voter_name"></td>
+                  </tr>
+                  <tr>
+                    <th class="bg-light fw-semibold">Parent Name</th>
+                    <td id="voter_parent_name"></td>
+                  </tr>
+                  <tr>
+                    <th class="bg-light fw-semibold">Date of Birth</th>
+                    <td id="voter_dob"></td>
+                  </tr>
+                  <tr>
+                    <th class="bg-light fw-semibold">Live Status</th>
+                    <td id="voter_live_status"></td>
+                  </tr>
+                  <tr>
+                    <th class="bg-light fw-semibold">Gender</th>
+                    <td id="voter_gender"></td>
+                  </tr>
+                  <tr>
+                    <th class="bg-light fw-semibold">Contact Number</th>
+                    <td id="voter_contact_number"></td>
+                  </tr>
+                  <tr>
+                    <th class="bg-light fw-semibold">Age</th>
+                    <td id="voter_age"></td>
+                  </tr>
+                  <tr>
+                    <th class="bg-light fw-semibold">Marital Status</th>
+                    <td id="marital_status"></td>
+                  </tr>
+                  <tr>
+                    <th class="bg-light fw-semibold">Cast</th>
+                    <td id="voter_cast_name"></td>
+                  </tr>
+                  <tr>
+                    <th class="bg-light fw-semibold">Location Type</th>
+                    <td id="voter_in_city"></td>
+                  </tr>
+                  <tr>
+                    <th class="bg-light fw-semibold">Current Location</th>
+                    <td id="current_location"></td>
+                  </tr>
+
+                  <tr>
+                    <th class="bg-light fw-semibold">Town Name</th>
+                    <td id="town_name"></td>
+                  </tr>
+                  <tr>
+                    <th class="bg-light fw-semibold">Booth Name</th>
+                    <td id="booth_name"></td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-light m-1" id="export-pdf-button">
+                  <i class="fa-solid fa-arrow-up-from-bracket"></i>&nbsp;Export
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination-container" style="margin-bottom: 20px;">
+        <nav aria-label="Page navigation">
+          <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+              <a class="page-link" href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}"
+                aria-label="First">
+                <span aria-hidden="true">&laquo;&laquo;</span>
+              </a>
+            </li>
+            <li class="page-item">
+              <a class="page-link"
+                href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}"
+                aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+              </a>
+            </li>
+            {% endif %}
+
+            {% if page_obj.number > 1 %}
+            <li class="page-item">
+              <a class="page-link"
+                href="?page={{ page_obj.number|add:'-1' }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
+                {{ page_obj.number|add:'-1' }}</a>
+            </li>
+            {% endif %}
+
+            <li class="page-item active" aria-current="page"><span class="page-link">{{ page_obj.number }}</span></li>
+
+            {% if page_obj.number < paginator.num_pages %} <li class="page-item">
+              <a class="page-link"
+                href="?page={{ page_obj.number|add:'1' }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
+                {{ page_obj.number|add:'1' }}</a>
+              </li>
+              {% endif %}
+
+              {% if page_obj.has_next %}
+              <li class="page-item">
+                <a class="page-link"
+                  href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}"
+                  aria-label="Next">
+                  <span aria-hidden="true">&raquo;</span>
+                </a>
+              </li>
+              <li class="page-item">
+                <a class="page-link"
+                  href="?page={{ paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}"
+                  aria-label="Last">
+                  <span aria-hidden="true">&raquo;&raquo;</span>
+                </a>
+              </li>
+              {% endif %}
+          </ul>
+        </nav>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+    crossorigin="anonymous"></script>
+  <script>
+
+    const togglePassword = document.querySelector('#togglePassword');
+    const password = document.querySelector('#vgUserPassword');
+    const icon = togglePassword.querySelector('i');
+
+    togglePassword.addEventListener('click', function () {
+      // Toggle the type attribute
+      const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+      password.setAttribute('type', type);
+
+      // Toggle the eye icon
+      icon.classList.toggle('fa-eye-slash');
+      icon.classList.toggle('fa-eye');
+    });
+
+
+    document.addEventListener('DOMContentLoaded', function () {
+      // Search close button
+      document.getElementById('clear-button').addEventListener('click', function () {
+        document.getElementById('search-input').value = '';
+
+        // Submit the form without the search input to reload the page
+        var form = this.closest('form');
+        var url = new URL(window.location.href);
+        url.searchParams.delete('search'); // Remove the search query parameter from the URL
+        window.location.href = url.toString(); // Reload the page with the updated URL
+      });
+
+
+
+      // Function to get initials
+      const getInitials = name => name
+        .split(' ')
+        .reduce((acc, word) => acc + word[0].toUpperCase(), '');
+      // Apply initials to each element with the class 'voter-name'
+      document.querySelectorAll('.voter-name').forEach(function (element) {
+        const fullName = element.textContent.trim();
+        element.textContent = getInitials(fullName);
+      });
+    });
+
+    // Voter Details Modal
+    document.addEventListener('DOMContentLoaded', function () {
+      let voterId = null
+      document.querySelectorAll('.voter-detail-link').forEach(function (link) {
+        link.addEventListener('click', function (event) {
+          event.preventDefault();
+          voterId = this.getAttribute('data-voter-id');
+
+          // Fetch voter details from the API
+          fetch(`http://192.168.1.38:8000/api/voters/${voterId}/`)
+            .then(response => response.json())
+            .then(data => {
+              // Helper function to capitalize each word
+              const capitalizeEachWord = str => str.replace(/\b\w+/g, l => l.charAt(0).toUpperCase() + l.slice(1).toLowerCase());
+
+              // Populate modal with API data
+              document.getElementById('voter_name').textContent = capitalizeEachWord(data.voter_name) || '--';
+              document.getElementById('voter_parent_name').textContent = capitalizeEachWord(data.voter_parent_name) || '--';
+              document.getElementById('voter_dob').textContent = data.voter_dob || '--';
+              document.getElementById('voter_gender').textContent = data.voter_gender || '--';
+              document.getElementById('voter_contact_number').textContent = data.voter_contact_number || '--';
+              document.getElementById('voter_age').textContent = data.voter_age || '--';
+              document.getElementById('voter_cast_name').textContent = data.voter_cast_name || '--';
+              document.getElementById('town_name').textContent = data.town_name || '--';
+              document.getElementById('booth_name').textContent = data.booth_name || '--';
+
+              document.getElementById('voter_in_city').textContent = (data.voter_in_city_id === 1) ? 'In City' : (data.voter_in_city_id === 2 ? 'Near City' : (data.voter_in_city_id === 3 ? 'Out of City' : '--'));
+              document.getElementById('voter_live_status').textContent = (data.voter_live_status_id === 1) ? 'Alive' : (data.voter_live_status_id === 2 ? 'Dead' : '--');
+              document.getElementById('marital_status').textContent = data.voter_marital_status_id || '--';
+              document.getElementById('current_location').textContent = data.voter_current_location || '--';
+
+              // Update the Family button with the voter ID
+              document.getElementById('family-button').href = `/familydetails/${data.voter_id}/`;
+
+              // Update the Edit button with the voter ID
+              document.getElementById('edit-button').href = `/editvoter/${data.voter_id}/`;
+
+              // Change the background color of elements with class 'thd' based on voter_favour_id
+              const favourId = data.voter_favour_id;
+              // console.log('f-id---', data.voter_favour_id);
+
+              const thdElements = document.querySelectorAll('.thd');
+
+              // Clear previous background colors
+              thdElements.forEach(element => {
+                element.style.backgroundColor = '';
+              });
+
+              // Set background color based on favour_id
+              switch (parseInt(favourId)) {
+                case 1:
+                  thdElements.forEach(element => {
+                    element.style.backgroundColor = '#D1E7DD'; // Light Green
+                  });
+                  break;
+                case 2:
+                  thdElements.forEach(element => {
+                    element.style.backgroundColor = '#F8D7DA'; // Light Red
+                  });
+                  break;
+                case 3:
+                  thdElements.forEach(element => {
+                    element.style.backgroundColor = '#fff3cd'; // Light Yellow
+                  });
+                  break;
+                case 4:
+                  thdElements.forEach(element => {
+                    element.style.backgroundColor = '#DCE1FF'; // Light Blue
+                  });
+                  break;
+                case 5:
+                  thdElements.forEach(element => {
+                    element.style.backgroundColor = '#d1faff'; // Light Sky Blue
+                  });
+                  break;
+                case 6:
+                  thdElements.forEach(element => {
+                    element.style.backgroundColor = '#fed6ff'; // Light Pink
+                  });
+                  break;
+                case 7:
+                  thdElements.forEach(element => {
+                    element.style.backgroundColor = '#ebd1ff'; // Light Purple
+                  });
+                  break;
+                default:
+                  thdElements.forEach(element => {
+                    element.style.backgroundColor = '#D3D3D3'; // Default blue
+                  });
+              }
+
+              // Show the modal
+              var voterDetailsModal = new bootstrap.Modal(document.getElementById('voterDetailsModal'));
+              voterDetailsModal.show();
+            })
+          // .catch(error => console.error('Error fetching voter details:', error));
+        });
+      });
+
+      // Export Print button
+      document.getElementById('export-pdf-button').addEventListener('click', function () {
+
+        if (voterId) {
+          fetch(`http://192.168.1.38:8000/api/generate_voter_pdf/${voterId}`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/pdf'
+            }
+          })
+            .then(response => response.blob())
+            .then(blob => {
+              const url = URL.createObjectURL(blob);
+              const link = document.createElement('a');
+              link.href = url;
+              link.download = `voter_details.pdf`;
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+              URL.revokeObjectURL(url);
+              alert('PDF has been downloaded!');
+            })
+            .catch(error => console.error('Error exporting PDF:', error));
+        } else {
+          alert('No voter selected for export.');
+        }
+      });
+    });
+
+
+
+
+    // Whatsapp
+    document.addEventListener('DOMContentLoaded', function () {
+      document.querySelectorAll('.whatsapp-button').forEach(function (button) {
+        button.addEventListener('click', function () {
+          const voterId = this.getAttribute('data-voter-id');
+
+          // Payload in the required format
+          const payload = {
+            "voter_ids": [parseInt(voterId)]
+          };
+
+          // Make a POST request to the WhatsApp API
+          fetch('http://192.168.1.38:8000/api/send_whatsapp_message/', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': getCsrfToken() // Ensure your token is correct
+            },
+            body: JSON.stringify(payload)
+          })
+            .then(response => {
+
+              // Check for success in the response
+              if (data.results && data.results[0].status === 'success') {
+                alert('WhatsApp message sent successfully!');
+              } else {
+                alert('Failed to send WhatsApp message.');
+                console.log('Error response:', data);
+              }
+            });
+        })
+        // .catch(error => {
+        //   console.error('Error:', error);
+        //   alert('An error occurred while sending the WhatsApp message.');
+        // });
+      });
+    });
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const getCsrfToken = () => csrfToken;
+
+    fetch('http://192.168.1.38:8000/api/total_voters/') // Replace with your actual API endpoint
+      .then(response => response.json())
+      .then(data => {
+        const favourId = data[0].voter_favour_id;
+        // console.log('clr--', favourId);
+
+        const favourElement = document.getElementById('favour_id');
+
+        // Apply background color based on favourId
+        if (parseInt(favourId) === 1) {
+          favourElement.style.backgroundColor = 'green';
+        } else if (favourId === 2) {
+          favourElement.style.backgroundColor = 'red';
+        } else if (favourId === 3) {
+          favourElement.style.backgroundColor = 'yellow';
+        } else if (favourId === 4) {
+          favourElement.style.backgroundColor = '#0B5ED7';
+        } else if (favourId === 5) {
+          favourElement.style.backgroundColor = '#11b4ff';
+        } else if (favourId === 6) {
+          favourElement.style.backgroundColor = 'palevioletred';
+        } else {
+          favourElement.style.backgroundColor = 'gray';
+        }
+      })
+      .catch(error => console.error('Error fetching data:', error));
+
+
+
+
+    // VG User registration
+    document.addEventListener("DOMContentLoaded", function () {
+      const vgUserButton = document.getElementById("create-vguser-btn");
+      const selectedVotersList = document.getElementById("selectedVotersList");
+      const vgUserForm = document.getElementById("vgUserForm");
+
+      vgUserButton.addEventListener("click", () => {
+        const selectedVoterCheckboxes = document.querySelectorAll(".booth-checkbox:checked");
+        const selectedVoterIds = [];
+        selectedVotersList.innerHTML = "";
+
+        selectedVoterCheckboxes.forEach(checkbox => {
+          // Convert each voter ID to an integer
+          selectedVoterIds.push(parseInt(checkbox.value, 10));
+
+          const voterName = checkbox.closest("tr").querySelector("td:nth-child(3)").innerText;
+          const listItem = document.createElement("li");
+          listItem.className = "list-group-item";
+          listItem.textContent = voterName;
+          selectedVotersList.appendChild(listItem);
+        });
+
+        if (selectedVoterIds.length > 0) {
+          const vgUserModal = new bootstrap.Modal(document.getElementById("vgUserModal"));
+          vgUserModal.show();
+        } else {
+          alert("Please select at least one voter.");
+        }
+
+        vgUserForm.addEventListener("submit", function (e) {
+          e.preventDefault();
+
+          const data = {
+            voter_group_user_name: document.getElementById("vgUserName").value,
+            voter_group_user_contact_number: parseInt(document.getElementById("vgUserContact").value),
+            voter_group_name: document.getElementById("vgGroupName").value,
+            voter_group_user_password: document.getElementById("vgUserPassword").value,
+            voter_ids: selectedVoterIds,
+          };
+          console.log('payload-', data);
+
+          // Make API request
+          fetch('http://192.168.1.38:8000/api/create_voter_group_user/', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+          })
+            .then(response => {
+              if (response.status === 201) {
+                return response.json();
+              } else {
+                throw new Error('Failed to create voter group user.');
+              }
+            })
+            .then(data => {
+              // Display success message
+              alert(data.message);
+
+              // Optionally close the modal
+              bootstrap.Modal.getInstance(document.getElementById('vgUserModal')).hide();
+
+              // Clear form inputs
+              document.getElementById('vgUserForm').reset();
+
+              // Uncheck all selected checkboxes
+              document.querySelectorAll('.booth-checkbox:checked').forEach(checkbox => {
+                checkbox.checked = false;
+              });
+
+              // Reload the page or dynamically update the table, if needed
+              location.reload();
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              alert('An error occurred. Please try again.');
+            });
+        });
+      });
+    });
+
+
+
+
+    // Add Voters in Existing Group
+    document.addEventListener("DOMContentLoaded", function () {
+      const addVotersButton = document.getElementById("add-voters-btn");
+
+      // Get the group ID from the URL path
+      const pathParts = window.location.pathname.split('/'); // Split the path by '/'
+      const groupId = parseInt(pathParts[pathParts.length - 2]); // Directly parse the value
+      // console.log('Group ID from URL:', groupId);
+
+      // If group ID is not found in the URL, show an alert and disable the button
+      if (!groupId) {
+        // alert("Group ID not found in the URL.");
+        addVotersButton.disabled = true;
+        addVotersButton.title = "Group ID not found in URL"; // Optional: Tooltip for the disabled button
+        return; // Stop execution
+      }
+
+      // Event listener for the "Add User" button
+      addVotersButton.addEventListener("click", async function () {
+        // Select checkboxes only when the button is clicked
+        const selectedVotersCheckboxes = document.querySelectorAll(".booth-checkbox:checked");
+
+        // Ensure that at least one voter is selected
+        const selectedVoterIds = [];
+        selectedVotersCheckboxes.forEach(function (checkbox) {
+          // Get the voter_id from the checkbox's value attribute
+          const voterId = checkbox.value;
+
+          if (voterId && !isNaN(voterId)) {
+            selectedVoterIds.push(parseInt(voterId)); // Add to the array after parsing it as an integer
+          } else {
+            console.warn('Invalid voter ID:', checkbox.value);  // Warn if value can't be parsed
+          }
+        });
+
+        console.log('Selected Voter IDs:', selectedVoterIds);
+
+        if (selectedVoterIds.length === 0) {
+          alert('Please select at least one voter.');
+          return;
+        }
+
+        const apiUrl = 'http://192.168.1.38:8000/api/add_voter_to_existing_group/';
+
+        const requestBody = {
+          voter_ids: selectedVoterIds,
+          voter_group_user_id: groupId
+        };
+
+        // console.log('Request Body:', requestBody);
+
+        // Fetch the API
+        try {
+          const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': getCsrfToken() // Include CSRF token in the header
+            },
+            body: JSON.stringify(requestBody),
+          });
+
+          const data = await response.json(); // Wait for the response to resolve
+
+          if (response.ok && data.message) {
+            alert(data.message || 'Voters added successfully.');
+            history.back();
+          } else {
+            alert('Failed to add voters. Please try again.');
+          }
+
+        } catch (error) {
+          console.error('Error adding voters:', error);
+          alert('Failed to add voters. Please try again.');
+        }
+      });
+
+      // Helper function to get CSRF token
+      function getCsrfToken() {
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        return csrfToken;
+      }
+    });
+
+
+
+
+    // Assign multiple Castes
+    document.addEventListener('DOMContentLoaded', function () {
+      // Fetch caste data from the API and populate the caste select options
+      fetch('http://192.168.1.38:8000/api/cast/')
+        .then(response => response.json())
+        .then(data => {
+          const casteSelect = document.getElementById('caste-select-container');
+
+          // Add each caste option to the select dropdown
+          data.forEach(caste => {
+            const option = document.createElement('option');
+            option.value = caste.cast_id;
+            option.textContent = caste.cast_name;
+            casteSelect.appendChild(option);
+          });
+        })
+        .catch(error => console.error('Error fetching caste data:', error));
+
+      // Add event listener to the "Assign" button
+      document.getElementById('update-button').addEventListener('click', function () {
+        const selectedCasteId = document.getElementById('caste-select-container').value;
+        const selectedVoterCheckboxes = document.querySelectorAll('.booth-checkbox:checked');
+        const selectedVoterIds = [];
+
+        // Collect the selected voter IDs
+        selectedVoterCheckboxes.forEach(checkbox => {
+          selectedVoterIds.push(parseInt(checkbox.value));
+        });
+
+        // Ensure that a caste and at least one voter is selected
+        if (!selectedCasteId) {
+          alert('Please select a caste.');
+          return;
+        }
+
+        if (selectedVoterIds.length === 0) {
+          alert('Please select at least one voter.');
+          return;
+        }
+
+        // Show or hide caste select based on the number of selected voters
+        if (selectedVoterIds.length > 0) {
+          // Show caste select and hide location/favor filters
+          document.getElementById('caste-select-container').style.display = 'block';
+          document.getElementById('favour-select').style.display = 'block';
+          // document.getElementById('location-favor-filters').style.display = 'none';
+        } else {
+          // Hide caste select and show location/favor filters
+          document.getElementById('caste-select-container').style.display = 'none';
+          document.getElementById('favour-select').style.display = 'none';
+          // document.getElementById('location-favor-filters').style.display = 'block';
+        }
+
+        // Prepare the payload to send to the API
+        const payload = {
+          "voter_ids": selectedVoterIds,
+          "voter_cast_id": parseInt(selectedCasteId)
+        };
+        // console.log('payload-', payload);
+
+        // Make the PUT request to assign caste to voters
+        fetch('http://192.168.1.38:8000/api/assign_voter_cast/', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCsrfToken() // CSRF token for security
+          },
+          body: JSON.stringify(payload)
+        })
+          .then(response => response.json())
+          .then(data => {
+            if (data.message) {
+              alert(`Successfully updated ${data.message.split(' ')[2]} records.`);
+              location.reload();
+            } else {
+              alert('Failed to assign caste. Please try again.');
+            }
+          })
+          .catch(error => {
+            // console.error('Error assigning caste:', error);
+            alert('An error occurred while assigning the caste.');
+          });
+      });
+
+      // Helper function to get CSRF token from the page
+      const getCsrfToken = () => {
+        return document.querySelector('[name=csrfmiddlewaretoken]').value;
+      };
+    });
+
+
+
+
+
+
+    // Assign multiple Favour
+    document.addEventListener('DOMContentLoaded', function () {
+
+      // Add event listener to the "Assign" button
+      document.getElementById('update-favour-button').addEventListener('click', function () {
+        const selectedFavourId = document.getElementById('favour-select').value;
+        const selectedVoterCheckboxes = document.querySelectorAll('.booth-checkbox:checked');
+        const selectedVoterIds = [];
+
+        // Collect the selected voter IDs
+        selectedVoterCheckboxes.forEach(checkbox => {
+          selectedVoterIds.push(parseInt(checkbox.value));
+        });
+
+        // Ensure that a caste and at least one voter is selected
+        if (!selectedFavourId) {
+          alert('Please select a caste.');
+          return;
+        }
+
+        if (selectedVoterIds.length === 0) {
+          alert('Please select at least one voter.');
+          return;
+        }
+
+        // Prepare the payload to send to the API
+        const payload = {
+          "voter_ids": selectedVoterIds,
+          "voter_favour_id": parseInt(selectedFavourId)
+        };
+        // console.log('payload-', payload);
+        // console.log('json-', JSON.stringify(payload));
+
+
+        // Make the PUT request to assign caste to voters
+        fetch('http://192.168.1.38:8000/api/favour/', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCsrfToken() // CSRF token for security
+          },
+          body: JSON.stringify(payload)
+
+        })
+          .then(response => response.json())
+          .then(data => {
+            if (data.message) {
+              alert(`Successfully updated ${data.message.split(' ')[2]} records.`);
+              location.reload();
+            } else {
+              alert('Failed to assign favour color. Please try again.');
+            }
+          })
+          .catch(error => {
+            console.error('Error assigning favour color:', error);
+            alert('An error occurred while assigning the favour color.');
+          });
+      });
+
+      // Helper function to get CSRF token from the page
+      const getCsrfToken = () => {
+        return document.querySelector('[name=csrfmiddlewaretoken]').value;
+      };
+    });
+
+  </script>
+
+</body>
+
+</html>

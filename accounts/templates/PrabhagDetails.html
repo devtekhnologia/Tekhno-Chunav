@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Techno चुनाव-WardDetails</title>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
+
+    <style>
+        /* scrollbar */
+        body::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        body::-webkit-scrollbar-thumb:hover {
+            background: #838ab6;
+        }
+
+        body::-webkit-scrollbar {
+            background-color: transparent;
+        }
+
+        body::-webkit-scrollbar-thumb {
+            background: #9DA5D5;
+            border-radius: 8px;
+        }
+
+        table th {
+            font-weight: 600;
+            background-color: #DCE1FF !important;
+        }
+
+        .search {
+            position: relative;
+        }
+
+        .btn-close {
+            position: absolute;
+            right: 45px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            background-color: #F8F9FA;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .pagination .page-item.active .page-link {
+            color: #fff;
+            background-color: #3C4CAC;
+            border-color: #DCE1FF;
+        }
+
+        .custom-text-light {
+            color: gray;
+        }
+
+        .breadcrumb {
+            --bs-breadcrumb-margin-bottom: 0;
+        }
+    </style>
+</head>
+
+<body>
+    {% include "navbar.html" %}
+    <div id="contentWrapper">
+        <div class="container mt-3">
+
+            <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item custom-text-light">
+                        <a class="nav-link" href="/dashboard/">Dashboard</a>
+                    </li>
+                    <li class="breadcrumb-item custom-text-light" aria-current="page" style="cursor: default;">Ward
+                    </li>
+                    <li class="breadcrumb-item" aria-current="page" style="cursor: default;">Ward Details</li>
+                </ol>
+            </nav>
+
+            <!-- Search -->
+            <div class="d-flex justify-content-end gap-3 me-4 mb-3">
+                <div class="search" style="width: 260px;">
+                    <form class="d-flex" method="GET">
+                        <div class="input-group">
+                            <input type="text" id="search-input" name="search" class="form-control bg-light"
+                                placeholder="Search by Town" value="{{ request.GET.search }}" />
+                            <button type="button" id="clear-button" class="btn-close" aria-label="Close"></button>
+                            <button class="btn btn-success" type="submit"><i
+                                    class="fa-solid fa-magnifying-glass"></i></button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- <a href="http://192.168.1.38:8000/api/voter_town_count/" class="btn btn-light border me-4">
+                    <i class="fa-solid fa-arrow-up-from-bracket"></i>&nbsp;Export
+                </a> -->
+            </div>
+
+            <div class="row" style="margin-bottom: 30px;">
+                <div class="col-12 mb-3">
+                    <div class="card">
+                        <div class="table-responsive rounded">
+                            <table class="table mb-0 table-striped rounded">
+                                <thead class="text-muted text-uppercase">
+                                    <tr>
+                                        <th class="text-center fw-bolder" style="width: 5%;">Sr. No.</th>
+                                        <th class="fw-bolder" style="width: 10%;">Town Name</th>
+                                        <th class="fw-bolder" style="width: 30%;">Ward Name</th>
+                                        <th class="fw-bolder" style="width: 20%;">Assigned Users</th>
+                                        <th class="fw-bolder" style="width: 10%;">Booth Count</th>
+                                        <th class="fw-bolder" style="width: 10%;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="user-table-body">
+                                    {% if page_obj %}
+                                    {% for prabhag in page_obj %}
+                                    <tr>
+                                        <td class="text-center">{{ forloop.counter|add:page_obj.start_index|add:"-1" }}
+                                        </td>
+                                        <td>{{ prabhag.town_name }}</td>
+                                        <td data-town-id="{{ prabhag.prabhag_id }}"
+                                            data-town-name="{{ prabhag.prabhag_name }}">
+                                            <a class="link-underline-primary text-dark" style="cursor: pointer;">
+                                                {{ prabhag.prabhag_name }}
+                                            </a>
+                                        </td>
+                                        <td>{% if prabhag.prabhag_user_name %}{{ prabhag.prabhag_user_name|safe }}
+                                            {% else %}None{% endif %}</td>
+                                        <td>{{ prabhag.booth_count | default:"None" }}</td>
+                                        <td>
+                                            <a href="/prabhagwisevoterlist/{{ prabhag.prabhag_id }}/"
+                                                class="btn btn-primary btn-sm" data-bs-toggle="tooltip"
+                                                data-bs-placement="top" title="View Voter List">
+                                                <i class="fa-solid fa-users-line"></i>
+                                            </a>&nbsp;
+                                            <button type="button" onclick="deletePrabhag('{{ prabhag.prabhag_id }}')"
+                                                class="btn btn-sm btn-danger m-1"><i class="fa-solid fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Booth Details Modal -->
+                <div class="modal fade" id="boothDetailsModal" tabindex="-1" aria-labelledby="boothDetailsModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-scrollable modal-lg d-none d-md-block">
+                        <!-- Large modal for medium and up -->
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="boothDetailsModalLabel">Booth Details List</h5>
+                            </div>
+                            <div class="modal-body">
+                                <table class="table p-1">
+                                    <thead class="text-muted text-uppercase">
+                                        <tr>
+                                            <th class="text-center fw-bolder">Sr. No.</th>
+                                            <th class="fw-bolder">Booth Name</th>
+                                            <th class="fw-bolder">Voter Count</th>
+                                            <th class="fw-bolder">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="booth-table-body">
+                                        {% if page_obj %}
+                                        {% for booth in page_obj %}
+                                        <tr>
+                                            <td class="text-center">{{ forloop.counter }}</td>
+                                            <td>{{ booth.booth_name }}</td>
+                                            <td>{% if booth.user_names %}{{ booth.user_names|safe }}{% else %}
+                                                N/A {% endif %}</td>
+                                            <td>{{ booth.mycount }}</td>
+                                            <td>
+                                                <a href="townwisevoterlist/{{town.town_id}}/"
+                                                    class="btn btn-primary btn-sm" data-bs-toggle="tooltip"
+                                                    data-bs-placement="right" title="View Voter List">
+                                                    <i class="fa-solid fa-users-line"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                        {% endif %}
+                                    </tbody>
+                                </table>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-dialog modal-dialog-scrollable d-block d-md-none">
+                        <!-- Small modal for small screens -->
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="boothDetailsModalLabel">Booth Details List</h5>
+                            </div>
+                            <div class="modal-body">
+                                <table class="table p-1">
+                                    <thead class="text-muted text-uppercase">
+                                        <tr>
+                                            <th class="text-center fw-bolder">Sr. No.</th>
+                                            <th class="fw-bolder">Booth Name</th>
+                                            <th class="fw-bolder">Voter Count</th>
+                                            <th class="fw-bolder">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="booth-table-body">
+                                        {% if page_obj %}
+                                        {% for booth in page_obj %}
+                                        <tr>
+                                            <td class="text-center">{{ forloop.counter }}</td>
+                                            <td>{{ booth.booth_name }}</td>
+                                            <td>{% if booth.user_names %}{{ booth.user_names|safe }}{% else %}
+                                                N/A {% endif %}</td>
+                                            <td>{{ booth.mycount }}</td>
+                                            <td>
+                                                <a href="townwisevoterlist/{{town.town_id}}/"
+                                                    class="btn btn-primary btn-sm" data-bs-toggle="tooltip"
+                                                    data-bs-placement="right" title="View Voter List">
+                                                    <i class="fa-solid fa-users-line"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                        {% endif %}
+                                    </tbody>
+                                </table>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Toast Msg -->
+                <div class="modal fade" id="messageModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modalLabel">Message</h5>
+                                <!-- <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> -->
+                            </div>
+                            <div class="modal-body" id="modalBody">
+                                <!-- Dynamic message will be inserted here -->
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-danger" id="confirmButton">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Pagination controls -->
+                <div class="d-flex justify-content-center">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center mx-4">
+                            {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link"
+                                    href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}"
+                                    aria-label="First">
+                                    <span aria-hidden="true">&laquo;&laquo;</span>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link"
+                                    href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}"
+                                    aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                            {% else %}
+                            <li class="page-item disabled"><span class="page-link">&laquo;&laquo;</span></li>
+                            <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
+                            {% endif %}
+
+                            <!-- Page Numbers -->
+                            {% for num in page_obj.paginator.page_range %}
+                            {% if num >= page_obj.number|add:'-1' and num <= page_obj.number|add:'1' %} <li
+                                class="page-item {% if page_obj.number == num %}active{% endif %}">
+                                <a class="page-link"
+                                    href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}">
+                                    {{ num }}</a>
+                                </li>
+                                {% endif %}
+                                {% endfor %}
+
+                                <!-- Next Page and Last Page -->
+                                {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link"
+                                        href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}"
+                                        aria-label="Next">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link"
+                                        href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}"
+                                        aria-label="Last">
+                                        <span aria-hidden="true">&raquo;&raquo;</span>
+                                    </a>
+                                </li>
+                                {% else %}
+                                <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
+                                <li class="page-item disabled"><span class="page-link">&raquo;&raquo;</span></li>
+                                {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Initialize the Tooltip
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+                new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+
+            // Event delegation for town names
+            document.getElementById('user-table-body').addEventListener('click', function (event) {
+                const townCell = event.target.closest('td[data-town-id]');
+                if (townCell) {
+                    const townId = townCell.getAttribute('data-town-id');
+                    const townName = townCell.getAttribute('data-town-name'); // Get the town name
+                    fetchBoothDetails(townId, townName); // Pass townName to the function
+                }
+            });
+
+            // Search close button
+            document.getElementById('clear-button').addEventListener('click', function () {
+                document.getElementById('search-input').value = '';
+
+                // Submit the form without the search input to reload the page
+                var form = this.closest('form');
+                var url = new URL(window.location.href);
+                url.searchParams.delete('search'); // Remove the search query parameter from the URL
+                window.location.href = url.toString(); // Reload the page with the updated URL
+            });
+        });
+
+        // Function to fetch booth details from the API
+        function fetchBoothDetails(prabhagId, prabhagName) {
+            fetch(`http://192.168.1.38:8000/api/booth_details_by_prabhag_user/${parseInt(prabhagId)}/`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const boothTableBody = document.getElementById('booth-table-body');
+                    boothTableBody.innerHTML = ''; // Clear previous data
+
+                    // Set the modal title to the town name
+                    const modalTitle = document.getElementById('boothDetailsModalLabel');
+                    modalTitle.textContent = `${prabhagName}'s' Booth Details`; // Update the title
+
+                    // Check if 'data' exists and is an array
+                    if (Array.isArray(data)) {
+                        data.forEach((booth, index) => {
+                            const row = `
+                                <tr>
+                                    <td class="text-center">${index + 1}</td>
+                                    <td>${booth.booth_name}</td>
+                                    <td>${booth.voter_count || '--'}</td>
+                                    <td>
+                                        <a href="/boothwisevoterlist/${parseInt(booth.booth_id)}/" 
+                                        class="btn btn-primary btn-sm" 
+                                        data-bs-toggle="tooltip" 
+                                        data-bs-placement="right" 
+                                        title="View Voter List">
+                                            <i class="fa-solid fa-users-line"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            `;
+                            boothTableBody.innerHTML += row;
+                        });
+                    }
+
+                    // Show the modal
+                    const boothDetailsModal = new bootstrap.Modal(document.getElementById('boothDetailsModal'));
+                    boothDetailsModal.show();
+                })
+                .catch(error => {
+                    console.error('Error fetching booth details:', error);
+                });
+        }
+
+        // Function to show a message in the modal
+        function showMessage(title, message, callback) {
+            document.getElementById('modalLabel').innerText = title;
+            document.getElementById('modalBody').innerText = message;
+
+            // Show the modal
+            const modal = new bootstrap.Modal(document.getElementById('messageModal'));
+            modal.show();
+
+            // Handle the OK button
+            document.getElementById('confirmButton').onclick = function () {
+                modal.hide(); // Hide the modal
+                if (callback) callback(); // Call the callback if provided
+            };
+        }
+
+        // Delete Prabhag
+        function deletePrabhag(prabhagId) {
+            showMessage('Confirmation', 'Are you sure you want to delete this prabhag?', function () {
+                fetch(`http://192.168.1.38:8000/api/delete_prabhag/${prabhagId}/`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRFToken': getCsrfToken(),
+                    },
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.text().then(text => {
+                                throw new Error(`HTTP error! status: ${response.status}, body: ${text}`);
+                            });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.status === 'success') {
+                            showMessage('Success', data.message, () => {
+                                location.reload();  // Reload the page to reflect the changes
+                            });
+                        } else {
+                            throw new Error(data.message || 'Unknown error occurred');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showMessage('Error', 'An error occurred while deleting the prabhag: ' + error.message);
+                    });
+            });
+        }
+
+        // Function to get CSRF token
+        function getCsrfToken() {
+            return document.querySelector('[name=csrfmiddlewaretoken]').value;
+        }
+
+    </script>
+</body>
+
+</html>
