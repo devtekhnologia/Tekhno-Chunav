@@ -325,8 +325,6 @@
                                         const nonVotedCountParcent = ((nonVotedCount / totalVoters) * 100).toFixed(2);
                                         // console.log(votedCountParcent);
 
-
-
                                         // Update counts in the DOM
                                         document.getElementById("voterCount").textContent = totalVoters;
                                         document.getElementById("votedCount").textContent = votedCount;
@@ -395,7 +393,7 @@
                     row.appendChild(srNoCell);
 
                     const nameCell = document.createElement("td");
-                    nameCell.textContent = capitalizeWords(voter.voter_name); // Capitalization handled in the function
+                    nameCell.textContent = capitalizeWords(voter.voter_name);
                     row.appendChild(nameCell);
 
                     const contactCell = document.createElement("td");
@@ -406,11 +404,11 @@
                     row.appendChild(contactCell);
 
                     const religionCell = document.createElement("td");
-                    religionCell.textContent = capitalizeWords(voter.voter_religion_name); // Capitalization handled in the function
+                    religionCell.textContent = capitalizeWords(voter.voter_religion_name);
                     row.appendChild(religionCell);
 
                     const casteCell = document.createElement("td");
-                    casteCell.textContent = capitalizeWords(voter.voter_cast_name); // Capitalization handled in the function
+                    casteCell.textContent = capitalizeWords(voter.voter_cast_name);
                     row.appendChild(casteCell);
 
                     // Actions Cell
@@ -432,13 +430,9 @@
                         voteConfirmationButton.innerHTML = '<i class="fa-solid fa-thumbs-up"></i>'; // Icon for "Undo Confirmation"
                     }
 
-
-
-
                     // Add event listener for toggling vote confirmation
                     voteConfirmationButton.addEventListener('click', async () => {
                         const newConfirmationStatus = voter.voter_vote_confirmation_id === null ? 1 : null; // Toggle logic
-                        console.log("ffff", voter.voter_id);
 
                         try {
                             const response = await fetch(`http://192.168.1.38:8000/api/voter_confirmation/${voter.voter_id}/`, {
@@ -455,12 +449,6 @@
 
                             // Update the button icon and voter object
                             voter.voter_vote_confirmation_id = newConfirmationStatus; // Update the current status
-                            // voteConfirmationButton.innerHTML = newConfirmationStatus === null
-                            //     ? '<i class="fa-regular fa-thumbs-up"></i>' // Icon for "Confirm Vote"
-                            //     : '<i class="fa-solid fa-thumbs-up"></i>'; // Icon for "Undo Confirmation"
-                            // Set the button icon based on the current confirmation status
-                            console.log('After status', newConfirmationStatus);
-
                             if (newConfirmationStatus === null) {
                                 voteConfirmationButton.className = 'btn btn-secondary btn-sm m-1';
                                 voteConfirmationButton.innerHTML = '<i class="fa-regular fa-thumbs-up"></i>'; // Icon for "Confirm Vote"
@@ -711,9 +699,7 @@
 
 
 
-
-        // chekbox to assign favour 
-
+        // chekbox to assign favour
         document.addEventListener('DOMContentLoaded', function () {
 
             // Add event listener to handle voter row selection
@@ -805,7 +791,7 @@
                     "voter_ids": selectedVoters.map(voterId => parseInt(voterId)), // Ensure voter IDs are integers
                     "voter_favour_id": parseInt(selectedfavourId) // Ensure favour ID is an integer
                 };
-                console.log('Payload:', JSON.stringify(payload));
+                // console.log('Payload:', JSON.stringify(payload));
 
                 // Make the PUT request to assign favour to voters
                 fetch('http://192.168.1.38:8000/api/favour/', {

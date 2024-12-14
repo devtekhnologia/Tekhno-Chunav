@@ -216,19 +216,14 @@
                         <i class="fa-brands fa-whatsapp"></i>
                       </button>
                     </td>
-                    <!-- <td id="favour_id"
-                      class="{% if voter.voter_favour_id == 1 %}bg-success{% elif voter.voter_favour_id == 2 %}bg-danger{% elif voter.voter_favour_id == 3 %}bg-warning{% elif voter.voter_favour_id == 4 %}bg-primary{% elif voter.voter_favour_id == 5 %}bg-light-primary{% elif voter.voter_favour_id == 6 %}bg-pink{% elif voter.voter_favour_id == 7 %}bg-purple{% elif voter.voter_favour_id == null %}bg-custom-table-light{% endif %}">
-                    </td> -->
-                    <td class="
-                      {% if voter.voter_favour_id == 1 %}bg-success
-                      {% elif voter.voter_favour_id == 2 %}bg-danger
-                      {% elif voter.voter_favour_id == 3 %}bg-warning
-                      {% elif voter.voter_favour_id == 4 %}bg-primary
-                      {% elif voter.voter_favour_id == 5 %}bg-light-primary
-                      {% elif voter.voter_favour_id == 6 %}bg-pink
-                      {% elif voter.voter_favour_id == 7 %}bg-purple
-                      {% else %}bg-custom-table-light
-                      {% endif %}">
+                    <td {% if voter.voter_favour_id==1 %} style="background-color: #2d8c61;" {% elif
+                      voter.voter_favour_id==2 %} style="background-color: #dc3545;" {% elif voter.voter_favour_id==3 %}
+                      style="background-color: #ffc107;" {% elif voter.voter_favour_id==4 %}
+                      style="background-color: #3683fd;" {% elif voter.voter_favour_id==5 %}
+                      style="background-color: #35befd;" {% elif voter.voter_favour_id==6 %}
+                      style="background-color: #dc7093;" {% elif voter.voter_favour_id==7 %}
+                      style="background-color: #8f0080;" {% else %} style="background-color: rgb(218, 217, 217);" {%
+                      endif %}>
                     </td>
                   </tr>
                   {% endfor %}

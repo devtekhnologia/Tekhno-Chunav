@@ -82,18 +82,18 @@
                   </div>
                   <div class="row justify-content-center text-center">
                     <div class="col-4">
-                      <h5 class="mt-1" style="cursor: default;"><strong>Total Voters:</strong> <span
-                          id="voterCount">0</span></h5>
+                      <h6 class="mt-1" style="cursor: default;"><strong>Total Voters:</strong> <span
+                          id="voterCount">0</span></h6>
                     </div>
                     <div class="col-4">
-                      <h5 class="mt-1" style="cursor: default;"><strong>Voted Voters:</strong> <span
-                          id="votedCount">0</span></h5>
-                      <p id="votedCountParcent"><i><b>percent:</b></i></p>
+                      <h6 class="mt-1" style="cursor: default;"><strong>Voted Voters:</strong> <span
+                          id="votedCount">0</span></h6>
+                      <p id="votedCountParcent"><i>percent: 0%</i></p>
                     </div>
                     <div class="col-4">
-                      <h5 class="mt-1" style="cursor: default;"><strong>Non-voted Voters:</strong> <span
-                          id="non-votedCount">0</span></h5>
-                      <p id="non-votedCountParcent"><i><b>percent:</b></i></p>
+                      <h6 class="mt-1" style="cursor: default;"><strong>Non-voted Voters:</strong> <span
+                          id="non-votedCount">0</span></h6>
+                      <p id="non-votedCountParcent"><i>percent: 0%</i></p>
                     </div>
                   </div>
                 </div>
@@ -453,10 +453,10 @@
         document.getElementById('votedCountParcent').textContent = votedVotersParc;
         document.getElementById('non-votedCountParcent').textContent = nonVotedVotersParc;
 
-        document.getElementById('votedCountParcent').innerHTML = "<b>percent:</b> <i>" + votedVotersParc + "%</i>";
+        document.getElementById('votedCountParcent').innerHTML = "percent: <i>" + votedVotersParc + "%</i>";
         document.getElementById('votedCountParcent').style.fontStyle = "italic"; // Optional for the overall style
 
-        document.getElementById('non-votedCountParcent').innerHTML = "<b>percent:</b> <i>" + nonVotedVotersParc + "%</i>";
+        document.getElementById('non-votedCountParcent').innerHTML = "percent: <i>" + nonVotedVotersParc + "%</i>";
         document.getElementById('non-votedCountParcent').style.fontStyle = "italic"; // Optional for the overall style
 
         // Sort voters alphabetically by voter_name
