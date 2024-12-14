@@ -3239,7 +3239,7 @@ def get_voters_by_town_user_and_cast(request, user_town_id, cast_id):
             cursor.callproc('sp_GetVoterListByTownUserAndCast', [user_town_id, cast_id])
             rows = cursor.fetchall()
         
-        columns = ['voter_id', 'voter_name', 'voter_contact_number', 'cast_name']
+        columns = ['voter_id', 'voter_name', 'voter_contact_number', 'cast_name', 'voter_serial_number', 'voter_id_card_number', 'voter_favour_id']
 
         results = [dict(zip(columns, row)) for row in rows]
         
@@ -3562,7 +3562,9 @@ class VoterByTownUserConfirmationView(APIView):
                     'voter_name': row[1],
                     'voter_vote_confirmation_id': row[2],
                     'voter_name_mar': row[3],
-                    'voter_favour_id': row[4]
+                    'voter_favour_id': row[4],
+                    'voter_serial_number': row[5],
+                    'voter_id_card_number': row[6]
                 }
                 for row in rows
             ]
@@ -3625,74 +3627,181 @@ def get_family_groups_by_user(request, booth_user_id):
 
 logging.basicConfig(level=logging.DEBUG)
 
+# @csrf_exempt
+# def manage_family_group(request):
+#     if request.method == 'POST':
+#         data = json.loads(request.body)
+        
+#         voter_ids = data.get('voter_ids', [])
+#         single_voter_id = data.get('single_voter_id')
+#         login_user_id = data.get('login_user_id')
+        
+#         if not voter_ids or not single_voter_id or login_user_id is None:
+#             logging.debug('Returning error: Invalid input')
+#             return JsonResponse({'error': 'Invalid input'}, status=400)
+
+#         with connection.cursor() as cursor:
+#             cursor.execute("SELECT voter_name, voter_contact_number, voter_group_id FROM tbl_voter WHERE voter_id = %s", [single_voter_id])
+#             single_voter = cursor.fetchone()
+        
+#         if not single_voter:
+#             logging.debug('Returning error: Single voter not found')
+#             return JsonResponse({'error': 'Single voter not found'}, status=404)
+
+#         single_voter_name, single_voter_contact, single_voter_group_id = single_voter
+        
+#         with connection.cursor() as cursor:
+#             cursor.execute("SELECT voter_id, voter_group_id FROM tbl_voter WHERE voter_id IN %s", [tuple(voter_ids)])
+#             voter_groups = cursor.fetchall()
+
+#         group_ids = {voter_group_id for _, voter_group_id in voter_groups}
+#         print(group_ids)
+        
+#         if not group_ids or None in group_ids:
+#             logging.debug('No groups assigned; creating a new family group')
+#             return create_family_group(single_voter_name, single_voter_contact, login_user_id, voter_ids)
+
+#         if len(group_ids) == 1:
+#             assigned_group_id = group_ids.pop()
+#             if assigned_group_id != single_voter_group_id:
+#                 logging.debug('Different group assigned; creating a new family group')
+#                 return create_family_group(single_voter_name, single_voter_contact, login_user_id, voter_ids)
+
+#         # If the condition above isn't met, create a new family group
+#         # logging.debug('Conditions not met for existing group; creating a new family group')
+#         # return create_family_group(single_voter_name, single_voter_contact, login_user_id, voter_ids)
+
+#     logging.debug('Returning error: Invalid method')
+#     return JsonResponse({'error': 'the group in already created'}, status=405)
+
+# def create_family_group(voter_name, voter_contact, login_user_id, voter_ids):
+#     with connection.cursor() as cursor:
+#         cursor.execute(
+#             """
+#             INSERT INTO tbl_family_group (family_group_name, family_group_head_name, family_group_contact_no, family_group_booth_user_id)
+#             VALUES (%s, %s, %s, %s)
+#             """,
+#             [voter_name, voter_name, voter_contact, login_user_id]
+#         )
+        
+#         cursor.execute("SELECT LAST_INSERT_ID()")
+#         family_group_id = cursor.fetchone()[0]
+
+#     with connection.cursor() as cursor:
+#         cursor.execute(
+#             "UPDATE tbl_voter SET voter_group_id = %s WHERE voter_id IN %s",
+#             [family_group_id, tuple(voter_ids)]
+#         )
+
+#     return JsonResponse({'message': 'Family group created and voters updated', 'family_group_id': family_group_id}, status=201)
+
 @csrf_exempt
 def manage_family_group(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-        
-        voter_ids = data.get('voter_ids', [])
-        single_voter_id = data.get('single_voter_id')
-        login_user_id = data.get('login_user_id')
-        
+       
+        voter_ids = data.get('voter_ids', [])  # List of voters to include in the group
+        single_voter_id = data.get('single_voter_id')  # ID of the head of the family group
+        login_user_id = data.get('login_user_id')  # ID of the user creating the group
+       
         if not voter_ids or not single_voter_id or login_user_id is None:
             logging.debug('Returning error: Invalid input')
             return JsonResponse({'error': 'Invalid input'}, status=400)
-
+ 
         with connection.cursor() as cursor:
             cursor.execute("SELECT voter_name, voter_contact_number, voter_group_id FROM tbl_voter WHERE voter_id = %s", [single_voter_id])
             single_voter = cursor.fetchone()
-        
+       
         if not single_voter:
             logging.debug('Returning error: Single voter not found')
             return JsonResponse({'error': 'Single voter not found'}, status=404)
-
+ 
         single_voter_name, single_voter_contact, single_voter_group_id = single_voter
-        
+       
+        # Check if any voter has a contact number or the head has one
+        if not single_voter_contact:
+            logging.debug('Head of the family group does not have a contact number')
+ 
+            # Check if any other voter has a contact number
+            with connection.cursor() as cursor:
+                cursor.execute("SELECT voter_contact_number FROM tbl_voter WHERE voter_id IN %s", [tuple(voter_ids)])
+                voters_contact_numbers = cursor.fetchall()
+ 
+            # Look for a valid contact number from the other voters
+            valid_contact_number = None
+            for contact in voters_contact_numbers:
+                if contact[0]:  # If contact number is not None or empty
+                    valid_contact_number = contact[0]
+                    break  # Stop once we find the first valid contact number
+ 
+            # If a valid contact number is found, use it
+            if valid_contact_number:
+                logging.debug('Assigned contact number %s from another voter in the group', valid_contact_number)
+                single_voter_contact = valid_contact_number
+            else:
+                # If no contact number is found, leave it as None
+                logging.debug('No valid contact number found for the family group')
+                single_voter_contact = None
+ 
+        # Check if a family group already exists for this set of voters
         with connection.cursor() as cursor:
-            cursor.execute("SELECT voter_id, voter_group_id FROM tbl_voter WHERE voter_id IN %s", [tuple(voter_ids)])
-            voter_groups = cursor.fetchall()
-
-        group_ids = {voter_group_id for _, voter_group_id in voter_groups}
-        print(group_ids)
-        
-        if not group_ids or None in group_ids:
-            logging.debug('No groups assigned; creating a new family group')
-            return create_family_group(single_voter_name, single_voter_contact, login_user_id, voter_ids)
-
-        if len(group_ids) == 1:
-            assigned_group_id = group_ids.pop()
-            if assigned_group_id != single_voter_group_id:
-                logging.debug('Different group assigned; creating a new family group')
-                return create_family_group(single_voter_name, single_voter_contact, login_user_id, voter_ids)
-
-        # If the condition above isn't met, create a new family group
-        # logging.debug('Conditions not met for existing group; creating a new family group')
-        # return create_family_group(single_voter_name, single_voter_contact, login_user_id, voter_ids)
-
-    logging.debug('Returning error: Invalid method')
-    return JsonResponse({'error': 'the group in already created'}, status=405)
-
-def create_family_group(voter_name, voter_contact, login_user_id, voter_ids):
-    with connection.cursor() as cursor:
-        cursor.execute(
-            """
-            INSERT INTO tbl_family_group (family_group_name, family_group_head_name, family_group_contact_no, family_group_booth_user_id)
-            VALUES (%s, %s, %s, %s)
-            """,
-            [voter_name, voter_name, voter_contact, login_user_id]
-        )
-        
-        cursor.execute("SELECT LAST_INSERT_ID()")
-        family_group_id = cursor.fetchone()[0]
-
-    with connection.cursor() as cursor:
-        cursor.execute(
-            "UPDATE tbl_voter SET voter_group_id = %s WHERE voter_id IN %s",
-            [family_group_id, tuple(voter_ids)]
-        )
-
-    return JsonResponse({'message': 'Family group created and voters updated', 'family_group_id': family_group_id}, status=201)
-
+            cursor.execute(
+                """
+                SELECT family_group_id FROM tbl_family_group
+                WHERE family_group_id IN (SELECT DISTINCT voter_group_id FROM tbl_voter WHERE voter_id IN %s)
+                """, [tuple(voter_ids)]
+            )
+            existing_group = cursor.fetchone()
+ 
+        if existing_group:
+            # If an existing group is found, update the contact number for all members and overwrite the group
+            existing_family_group_id = existing_group[0]
+            logging.debug('Existing family group found. Updating contact number and voters.')
+ 
+            # Update the contact number for the group and all its members
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    """
+                    UPDATE tbl_family_group
+                    SET family_group_contact_no = %s
+                    WHERE family_group_id = %s
+                    """,
+                    [single_voter_contact or None, existing_family_group_id]
+                )
+ 
+                cursor.execute(
+                    """
+                    UPDATE tbl_voter
+                    SET voter_group_id = %s, voter_contact_number = %s
+                    WHERE voter_id IN %s
+                    """,
+                    [existing_family_group_id, single_voter_contact or None, tuple(voter_ids)]
+                )
+ 
+            return JsonResponse({'message': 'Family group updated successfully', 'family_group_id': existing_family_group_id}, status=200)
+       
+        else:
+            # If no existing group is found, create a new family group
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    """
+                    INSERT INTO tbl_family_group (family_group_name, family_group_head_name, family_group_contact_no, family_group_booth_user_id)
+                    VALUES (%s, %s, %s, %s)
+                    """,
+                    [single_voter_name, single_voter_name, single_voter_contact or None, login_user_id]
+                )
+               
+                cursor.execute("SELECT LAST_INSERT_ID()")
+                family_group_id = cursor.fetchone()[0]
+ 
+            # Update the voters with the new group ID and assign the contact number (if available)
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "UPDATE tbl_voter SET voter_group_id = %s, voter_contact_number = %s WHERE voter_id IN %s",
+                    [family_group_id, single_voter_contact or None, tuple(voter_ids)]
+                )
+ 
+            return JsonResponse({'message': 'Family group created and voters updated', 'family_group_id': family_group_id}, status=200)
 
 
 @csrf_exempt
@@ -5785,42 +5894,114 @@ class VotedVotersListByTownUser(View):
 
 # voted non voted voter details and count by booth user wise
     
+# class VotedVotersListByBoothUser(View):
+#     def get(self, request, user_booth_user_id, voter_vote_confirmation_id):
+#         if voter_vote_confirmation_id not in [1, 2]:
+#             return JsonResponse({'error': 'Invalid voter_vote_confirmation_id'}, status=400)
+ 
+#         try:
+#             with connection.cursor() as cursor:
+#                 # Call the procedure to fetch voters
+#                 cursor.callproc('GetVotersByBoothUser', [user_booth_user_id, voter_vote_confirmation_id])
+#                 voters = cursor.fetchall()  # Consume all results from the procedure
+               
+#                 # Clear the cursor results to avoid "out of sync" error
+#                 cursor.nextset()
+ 
+#                 # Call the procedure to fetch the voter count
+#                 cursor.callproc('CountVotersByBoothUser', [user_booth_user_id, voter_vote_confirmation_id, 0])
+#                 count = cursor.fetchone()[0]  # Consume the result for count
+ 
+#         except Exception as e:
+#             return JsonResponse({'error': str(e)}, status=500)
+ 
+#         voters_list = [
+#             {
+#                 'voter_id': row[0],
+#                 'voter_name': row[1],
+#                 'voter_name_mar': row[2],
+#                 'voter_vote_confirmation_id': row[3],
+#                 'voter_favour_id': row[4],
+#                 'voter_serial_number': row[5],
+#                 'voter_id_card_number': row[6]
+#             }
+#             for row in voters
+#         ]
+ 
+#         return JsonResponse({'count': count, 'voters': voters_list})
+
+
 class VotedVotersListByBoothUser(View):
     def get(self, request, user_booth_user_id, voter_vote_confirmation_id):
         if voter_vote_confirmation_id not in [1, 2]:
             return JsonResponse({'error': 'Invalid voter_vote_confirmation_id'}, status=400)
  
-        try:
-            with connection.cursor() as cursor:
-                # Call the procedure to fetch voters
-                cursor.callproc('GetVotersByBoothUser', [user_booth_user_id, voter_vote_confirmation_id])
-                voters = cursor.fetchall()  # Consume all results from the procedure
-               
-                # Clear the cursor results to avoid "out of sync" error
-                cursor.nextset()
+        if voter_vote_confirmation_id == 2:
+            query_voters = """
+                SELECT voter_id, voter_name, voter_name_mar, voter_vote_confirmation_id, voter_favour_id
+                FROM tbl_voter
+                WHERE voter_booth_id IN (
+                    SELECT user_booth_booth_id
+                    FROM tbl_user_booth
+                    WHERE user_booth_user_id = %s
+                )
+                AND voter_vote_confirmation_id IS NULL;
+            """
  
-                # Call the procedure to fetch the voter count
-                cursor.callproc('CountVotersByBoothUser', [user_booth_user_id, voter_vote_confirmation_id, 0])
-                count = cursor.fetchone()[0]  # Consume the result for count
+            query_count = """
+                SELECT count(*)
+                FROM tbl_voter
+                WHERE voter_booth_id IN (
+                    SELECT user_booth_booth_id
+                    FROM tbl_user_booth
+                    WHERE user_booth_user_id = %s
+                )
+                AND voter_vote_confirmation_id IS NULL;
+            """
+        else:
+            query_voters = """
+                SELECT voter_id, voter_name, voter_name_mar, voter_vote_confirmation_id, voter_favour_id
+                FROM tbl_voter
+                WHERE voter_booth_id IN (
+                    SELECT user_booth_booth_id
+                    FROM tbl_user_booth
+                    WHERE user_booth_user_id = %s
+                )
+                AND voter_vote_confirmation_id = 1;
+            """
  
-        except Exception as e:
-            return JsonResponse({'error': str(e)}, status=500)
+            query_count = """
+                SELECT count(*)
+                FROM tbl_voter
+                WHERE voter_booth_id IN (
+                    SELECT user_booth_booth_id
+                    FROM tbl_user_booth
+                    WHERE user_booth_user_id = %s
+                )
+                AND voter_vote_confirmation_id = 1;
+            """
+ 
+        with connection.cursor() as cursor:
+            cursor.execute(query_voters, [user_booth_user_id])
+            voters = cursor.fetchall()
+            cursor.execute(query_count, [user_booth_user_id])
+            count = cursor.fetchone()[0]
  
         voters_list = [
             {
                 'voter_id': row[0],
                 'voter_name': row[1],
-                'voter_name_mar': row[2],
+                'voter_name_mar': row[2],  # Include voter_name_mar in the response
                 'voter_vote_confirmation_id': row[3],
-                'voter_favour_id': row[4],
-                'voter_serial_number': row[5],
-                'voter_id_card_number': row[6]
+                'voter_favour_id': row[4]  # Include voter_favour_id in the response
             }
             for row in voters
         ]
  
-        return JsonResponse({'count': count, 'voters': voters_list})
- 
+        return JsonResponse({
+            'count': count,
+            'voters': voters_list
+        })
 
 
 from rest_framework.views import APIView
@@ -7306,7 +7487,7 @@ class GetVoterDetailsByConfirmationView(APIView):
                 results = cursor.fetchall()
 
                 response_data = [
-                    {'voter_id': row[0], 'voter_name': row[1], 'voter_name_mar' : row[2], 'voter_favour_id' : row[3]}
+                    {'voter_id': row[0], 'voter_name': row[1], 'voter_name_mar' : row[2], 'voter_favour_id' : row[3], 'voter_serial_number': row[4], 'voter_id_card_number': row[5]}
                     for row in results
                 ]
 
@@ -8682,16 +8863,28 @@ def create_voter_group_user(request):
             voter_group_name = data.get('voter_group_name')
             voter_ids = data.get('voter_ids')
             voter_group_user_password = data.get('voter_group_user_password')  # New field for password
-
+ 
             if not voter_group_user_name or not voter_group_user_contact_number:
                 return JsonResponse({'error': 'voter_group_user_name and voter_group_user_contact_number are required'}, status=400)
             if not voter_group_name or not voter_ids:
                 return JsonResponse({'error': 'voter_group_name and voter_ids are required'}, status=400)
             if not voter_group_user_password:
                 return JsonResponse({'error': 'voter_group_user_password is required'}, status=400)
-
+ 
+ 
+            # Check if the contact number already exists
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    """
+                    SELECT 1 FROM tbl_voter_group_user WHERE voter_group_user_contact_number = %s
+                    """, [voter_group_user_contact_number]
+                )
+                existing_contact = cursor.fetchone()
+                if existing_contact:
+                    return JsonResponse({'error': 'Contact number already in use'}, status=400)
+ 
             hashed_password = make_password(voter_group_user_password)
-
+ 
             with transaction.atomic():
                 with connection.cursor() as cursor:
                     cursor.execute(
@@ -8702,7 +8895,7 @@ def create_voter_group_user(request):
                     )
                     cursor.execute("SELECT LAST_INSERT_ID()")
                     voter_group_user_id = cursor.fetchone()[0]
-
+ 
                 with connection.cursor() as cursor:
                     cursor.execute(
                         """
@@ -8712,24 +8905,41 @@ def create_voter_group_user(request):
                     )
                     cursor.execute("SELECT LAST_INSERT_ID()")
                     voter_group_id = cursor.fetchone()[0]
-
-                with connection.cursor() as cursor:
-                    cursor.execute(
-                        "UPDATE tbl_voter SET voter_voter_group_id = %s WHERE voter_id IN %s",
-                        [voter_group_id, tuple(voter_ids)]
-                    )
-
+ 
+                #Updating voter_voter_group_id tbl_voter
+                # with connection.cursor() as cursor:
+                #     cursor.execute(
+                #         "UPDATE tbl_voter SET voter_voter_group_id = %s WHERE voter_id IN %s",
+                #         [voter_group_id, tuple(voter_ids)]
+                #     )
+ 
+                #Deleting if the voter_ids already exist in tbl_user_voter_group
+                # with connection.cursor() as cursor:
+                #     cursor.execute(
+                #         """
+                #         DELETE FROM tbl_user_voter_group where user_voter_group_voter_id IN %s
+                #         """, [tuple(voter_ids)]
+                #     )
+ 
+                for voter_id in voter_ids:
+                    with connection.cursor() as cursor:
+                        cursor.execute(
+                            """INSERT INTO tbl_user_voter_group (user_voter_group_voter_id, user_voter_group_voter_group_id)
+                            VALUES (%s,%s)
+                            """, [voter_id, voter_group_id]
+                        )
+ 
             return JsonResponse({
                 'message': 'Voter group user created, voter group created, and voters updated successfully!',
-                'voter_group_user_id': voter_group_user_id,
-                'voter_group_name': voter_group_name,
-                'voter_ids': voter_ids
+                # 'voter_group_user_id': voter_group_user_id,
+                # 'voter_group_name': voter_group_name,
+                # 'voter_ids': voter_ids
             }, status=201)
-
+ 
         except Exception as e:
             logging.error(f"Error creating voter group user: {str(e)}")
             return JsonResponse({'error': str(e)}, status=500)
-
+ 
     return JsonResponse({'error': 'Invalid request method'}, status=405)
 
 
@@ -8773,7 +8983,6 @@ def get_voters_by_voter_group_user(request, voter_group_user_id):
             return JsonResponse({'error': str(e)}, status=500)
  
     return JsonResponse({'error': 'Invalid request method'}, status=405)
- 
 
 # voter group user login and logout
 
