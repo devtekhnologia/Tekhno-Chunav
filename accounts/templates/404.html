@@ -1,0 +1,76 @@
+{% load static %}
+<!-- templates/404.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Techno चुनाव-404 Error</title>
+    <!-- Include Bootstrap or your preferred CSS framework -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .hmb-btn {
+            background-color: #9DA5D5;
+            color: #3C4CAC;
+        }
+
+        .hmb-btn:hover {
+            background-color: #7884ca;
+            color: #3C4CAC;
+        }
+
+        /* body {
+            height: 100vh;
+            background-image: linear-gradient(45deg,
+                    hsl(181deg 70% 69%) 0%,
+                    hsl(183deg 63% 73%) 10%,
+                    hsl(187deg 55% 77%) 17%,
+                    hsl(194deg 45% 80%) 23%,
+                    hsl(211deg 32% 83%) 29%,
+                    hsl(260deg 22% 84%) 34%,
+                    hsl(308deg 30% 83%) 39%,
+                    hsl(325deg 57% 85%) 44%,
+                    hsl(331deg 89% 86%) 49%,
+                    hsl(334deg 86% 87%) 54%,
+                    hsl(339deg 83% 89%) 60%,
+                    hsl(344deg 79% 90%) 65%,
+                    hsl(351deg 75% 91%) 71%,
+                    hsl(1deg 69% 92%) 77%,
+                    hsl(13deg 67% 92%) 84%,
+                    hsl(25deg 66% 91%) 91%,
+                    hsl(36deg 64% 91%) 100%);
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            position: relative;
+        } */
+    </style>
+</head>
+
+<body>
+    <nav class="navbar sticky-top navbar-expand-lg border-bottom  z-5">
+        <div class="d-flex align-items-center">
+            <button type="button" class="btn hmb-btn ms-3"><i class="fa-solid fa-bars"></i></button>
+            <span class="h4 title-color align-content-center ms-2 mb-0" style="color: #3C4CAC; cursor: default;">DEV
+                Constituency</span>
+        </div>
+    </nav>
+    <div id="body">
+        <div class="container text-center mt-5">
+            <!-- <img src="../static/images/404_error.png" alt="404 error"> -->
+            <!-- <img src="{% static '../static/images/404.png' %}" alt="404 error"> -->
+            <h1 class="display-4 text-danger fw-bolder" style="cursor: default;">Page Not Found (404)</h1>
+            <p class="lead fst-italic" style="cursor: default;">The page you're looking for doesn't exist.</p>
+            <div class="flex align-items-center text-center">
+                <a href="{% url 'dashboard' %}" class="btn btn-primary">Go to Dashboard</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Optionally, include JavaScript for Bootstrap or other libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

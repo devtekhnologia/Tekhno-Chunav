@@ -1,0 +1,287 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Techno चुनाव-Activity Log</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .overview-card {
+            text-align: center;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .overview-card h4 {
+            margin-bottom: 10px;
+            font-size: 1.5rem;
+            color: #6c757d;
+        }
+
+        .overview-card h2 {
+            font-size: 2.5rem;
+            margin-bottom: 5px;
+        }
+
+        table th {
+            font-weight: 600;
+            background-color: #DCE1FF !important;
+        }
+
+        td {
+            word-wrap: break-word;
+            max-width: 1px;
+        }
+
+        .badge {
+            --bs-badge-font-size: 0.82em;
+            --bs-badge-font-weight: 600;
+        }
+
+        .breadcrumb {
+            --bs-breadcrumb-margin-bottom: 0;
+        }
+
+        .pagination {
+            justify-content: center;
+        }
+
+        .totalTownUsers-card-custom {
+            background-color: #E7FCFF;
+        }
+
+        .activeUsers-card-custom {
+            background-color: #F2ECFF;
+        }
+
+        .newUser-card-custom {
+            background-color: #E2FFF3;
+        }
+    </style>
+</head>
+
+<body>
+    {% include "navbar.html" %}
+    <div id="contentWrapper">
+        <div class="container mt-3">
+            <div class="h4 mb-4">Activity Log</div>
+            <div class="row d-flex mb-3">
+                <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-2">
+                    <div class="card border-0 rounded">
+                        <div class="row totalTownUsers-card-custom rounded g-0 p-3 align-items-center">
+                            <div class="col-7">
+                                <div class="">
+                                    <div class="mb-3">
+                                        <h6 class="card-title mb-0 d-flex align-items-center">
+                                            <img src="{% static 'images/actLog-totalTownUsers-icon.svg' %}"
+                                                alt="Users Icon" class="me-2">
+                                            Total Booth Users
+                                        </h6>
+                                    </div>
+                                    <div class="row align-items-center d-flex">
+                                        <div class="col-12">
+                                            <h4 id="totalBoothUser" class="placeholder-glow"><span
+                                                    class="placeholder col-3"></span></h4>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-5">
+                                <img src="{% static 'images/actLog-totalTownUsers-lineChart.svg' %}" class="img-fluid"
+                                    alt="Line Chart">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-2">
+                    <div class="card border-0 rounded">
+                        <div class="row activeUsers-card-custom rounded g-0 p-3 align-items-center">
+                            <div class="col-7">
+                                <div class="">
+                                    <div class="mb-3">
+                                        <h6 class="card-title mb-0 d-flex align-items-center">
+                                            <img src="{% static '../static/images/actLog-activeUsers-icon.svg' %}"
+                                                alt="Users Icon" class="me-2">
+                                            Voters Updated Count
+                                        </h6>
+                                    </div>
+                                    <div class="row align-items-center d-flex">
+                                        <div class="col-12">
+                                            <h4 id="active-users" class="placeholder-glow"><span
+                                                    class="placeholder col-3"></span></h4>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-5">
+                                <img src="{% static 'images/actLog-activeUsers-lineChart.svg' %}" class="img-fluid"
+                                    alt="Line Chart">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-2">
+                    <div class="card border-0 rounded">
+                        <div class="row newUser-card-custom rounded g-0 p-3 align-items-center">
+                            <div class="col-7">
+                                <div class="">
+                                    <div class="mb-3">
+                                        <h6 class="card-title mb-0 d-flex align-items-center">
+                                            <img src="{% static '../static/images/actLog-newUser-icon.svg' %}"
+                                                alt="Users Icon" class="me-2">
+                                            Remaining Voters
+                                        </h6>
+                                    </div>
+                                    <div class="row align-items-center d-flex">
+                                        <div class="col-12">
+                                            <h4 id="new-user" class="placeholder-glow"><span
+                                                    class="placeholder col-3"></span></h4>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-5">
+                                <img src="{% static 'images/actLog-newUser-lineChart.svg' %}" class="img-fluid"
+                                    alt="Line Chart">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr class="border border-dark border-1 opacity-30">
+
+            <div class="d-flex justify-content-between align-items-center mx-4 mb-3">
+                <!-- <div class="p">400 Booth User List</div> -->
+                <div class="p" id="user-count">Loading Booth User List...</div>
+
+                <div class="d-flex align-items-center gap-2">
+                    <div class="me-2">
+                        <select class="form-select bg-light">
+                            <option selected>Select User</option>
+                            <option value="1">Town</option>
+                            <option value="2">Booth</option>
+                        </select>
+                    </div>
+
+                    <!-- Search form -->
+                    <form class="d-flex" method="GET">
+                        <div class="input-group">
+                            <input type="text" name="search" class="form-control bg-light"
+                                placeholder="Search by Booth" />
+                            <button class="btn btn-success" type="submit">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+
+            <div class="card">
+                <table class="table table-hover">
+                    <thead class="text-uppercase">
+                        <tr>
+                            <th class="text-center fw-bolder">Sr. No.</th>
+                            <th class="fw-bolder">Users Name</th>
+                            <th class="fw-bolder">Contact Number</th>
+                            <th class="fw-bolder">Town Name</th>
+                        </tr>
+                    </thead>
+                    <tbody id="TableBody">
+                        <!-- Data will be inserted here -->
+                    </tbody>
+                </table>
+
+                <nav>
+                    <ul class="pagination">
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" tabindex="-1">&laquo;</a>
+                        </li>
+                        <li class="page-item"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item"><a class="page-link" href="#">4</a></li>
+                        <li class="page-item"><a class="page-link" href="#">5</a></li>
+                        <li class="page-item"><a class="page-link" href="#">»</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Booth user count
+        function fetchBoothUserCount() {
+            fetch('http://192.168.1.38:8000/api/register_user/')
+                .then((res) => res.json())
+                .then(data => {
+                    if (data) {
+                        document.getElementById('totalBoothUser').innerHTML = data.length;
+                        // console.log(data.length);
+                    } else {
+                        console.error('Unexpected data format:', data);
+                    }
+                })
+                .catch((err) => {
+                    console.error('Fetch error:', err);
+                });
+        }
+        fetchBoothUserCount();
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('http://192.168.1.38:8000/api/booth_user_info/')
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.getElementById('TableBody');
+                    const userCountElement = document.getElementById('user-count');
+
+                    // Update user count display
+                    const numberOfUsers = data.length;
+                    userCountElement.textContent = `${numberOfUsers} Booth User List`;
+
+
+                    data.forEach((user, index) => {
+                        const row = document.createElement('tr');
+
+                        const srNoCell = document.createElement('td');
+                        srNoCell.style.textAlign = 'center';
+                        srNoCell.textContent = index + 1;
+                        row.appendChild(srNoCell);
+
+                        const nameCell = document.createElement('td');
+                        // nameCell.style.textAlign = 'center';
+                        nameCell.textContent = user.user_name;
+                        row.appendChild(nameCell);
+
+                        const contactCell = document.createElement('td');
+                        // contactCell.style.textAlign = 'center';
+                        contactCell.textContent = user.user_phone;
+                        row.appendChild(contactCell);
+
+                        const townCell = document.createElement('td');
+                        // townCell.style.textAlign = 'center';
+                        townCell.textContent = user.town_name;
+                        row.appendChild(townCell);
+
+                        // const boothNameCell = document.createElement('td');
+                        // const boothNamesArray = user.booth_names.split(',').map((boothName, idx) => `${idx + 1}) ${boothName.trim()}`);
+                        // boothNameCell.innerHTML = boothNamesArray.join('<br>');
+                        // row.appendChild(boothNameCell);
+
+                        tableBody.appendChild(row);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                });
+        });
+    </script>
+</body>
+
+</html>

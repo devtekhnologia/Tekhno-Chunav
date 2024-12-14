@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Techno चुनाव-ReligionWiseTownVotersList</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
+
+    <style>
+        /* scrollbar */
+        body::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        body::-webkit-scrollbar-thumb:hover {
+            background: #838ab6;
+        }
+
+        body::-webkit-scrollbar {
+            background-color: transparent;
+        }
+
+        body::-webkit-scrollbar-thumb {
+            background: #9DA5D5;
+            border-radius: 8px;
+        }
+
+        table th {
+            font-weight: 600;
+            background-color: #DCE1FF !important;
+        }
+
+        .search {
+            position: relative;
+        }
+
+        .btn-close {
+            position: absolute;
+            right: 45px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .custom-text-light {
+            color: gray;
+        }
+    </style>
+</head>
+
+<body>
+    {% include "navbar.html" %}
+    <div id="contentWrapper">
+        <div style="flex: 1">
+            <div class="container mt-3">
+                <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item custom-text-light"><a class="nav-link"
+                                href="/dashboard/">Dashboard</a></li>
+                        <li class="breadcrumb-item custom-text-light" aria-current="page" style="cursor: default;">
+                            Religion</li>
+                        <li class="breadcrumb-item" aria-current="page" style="cursor: default;">Religion Wise Town
+                            Voters List</li>
+                    </ol>
+                </nav>
+                <div class="row">
+                    <div class="col-12">
+                        <div class="overflow-hidden card table-nowrap bg-light rounded table-card mb-3">
+                            <div class="row" style="margin-bottom: 30px;">
+                                <div class="col mx-5">
+                                    <br><br>
+                                    <div class="d-flex col-12 flex-row justify-content-center gap-3 mb-4">
+                                        <!-- Town Select -->
+                                        <select id="townSelect" class="form-select" aria-label="Default select example">
+                                            <option selected>Select Town</option>
+                                        </select>
+
+                                        <!-- Religion Select -->
+                                        <select id="religionSelect" class="form-select"
+                                            aria-label="Default select example" disabled>
+                                            <option selected>Select Religion</option>
+                                        </select>
+                                    </div>
+                                    <div class="row justify-content-center text-center">
+                                        <div class="col-4">
+                                            <h6 class="mt-1" style="cursor: default;"><strong>Total Voters:</strong>
+                                                <span id="totalCount">0</span>
+                                            </h6>
+                                        </div>
+                                        <div class="col-4">
+                                            <h6 class="mt-1" style="cursor: default;"><strong>Voted Voters:</strong>
+                                                <span id="votedCount">0</span>
+                                            </h6>
+                                            <p id="votedCountParcent"><i>percent: 0%</i></p>
+                                        </div>
+                                        <div class="col-4">
+                                            <h6 class="mt-1" style="cursor: default;"><strong>Non-voted Voters:</strong>
+                                                <span id="non-votedCount">0</span>
+                                            </h6>
+                                            <p id="non-votedCountParcent"><i>percent: 0%</i></p>
+                                        </div>
+                                    </div>
+                                    <!-- <div class="row justify-content-center text-center">
+                                        <p class="col-4 mt-2"><strong>Total Voters:</strong> <span
+                                                id="voterCount"></span></p>
+                                        <p class="col-4 mt-2"><strong>Voted Voters:</strong> <span
+                                                id="votedCount"></span></p>
+                                        <p class="col-4 mt-2"><strong>Non-voted Voters:</strong> <span
+                                                id="non-votedCount"></span></p>
+                                    </div> -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search -->
+                <div class="d-flex justify-content-end gap-3 me-4 mb-3">
+                    <div class="mb-3" style="display: none;" id="favour-select-container">
+                        <div class="row">
+                            <div class="col-md-12 mb-6">
+                                <div class="input-group mb-3" style="width: 100%;">
+                                    <select id="favour-type-select" class="form-select bg-light"
+                                        aria-label="Small select example">
+                                        <option selected>Select Favour </option>
+                                        <option class="text-success" value="1">Green</option>
+                                        <option class="text-danger" value="2">Red</option>
+                                        <option class="text-warning" value="3">Yellow</option>
+                                        <option class="text-primary" value="4">Blue</option>
+                                        <option style="color: rgb(17, 180, 255);" value="5">Light Blue</option>
+                                        <option style="color: palevioletred;" value="6">Pink</option>
+                                        <option style="color: purple;" value="7">Purple</option>
+                                    </select>
+                                    <button id="fav-update-button"
+                                        class="btn btn-primary input-group-append">Update</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-end gap-3 me-1 mb-3">
+                        <div class="input-group" id="location-favor-filters">
+                            <select id="town-type-select" class="form-select bg-light"
+                                aria-label="Small select example">
+                                <option selected>Select Favour Type</option>
+                                <option class="text-success" value="1">Green</option>
+                                <option class="text-danger" value="2">Red</option>
+                                <option class="text-warning" value="3">Yellow</option>
+                                <option class="text-primary" value="4">Blue</option>
+                                <option style="color: rgb(17, 180, 255);" value="5">Light Blue</option>
+                                <option style="color: palevioletred;" value="6">Pink</option>
+                                <option style="color: purple;" value="7">Purple</option>
+                            </select>
+                            <!-- <button id="update-button" class="btn btn-primary input-group-append">Update</button> -->
+                        </div>
+                    </div>
+
+                    <div class="search" style="width: 300px;">
+                        <div class="input-group">
+                            <input type="text" id="search-input" name="search" class="form-control bg-light"
+                                placeholder="Search by Name" value="{{ request.GET.search }}" />
+                            <button type="button" id="clear-button" class="btn-close" aria-label="Close"></button>
+                            <button class="btn btn-success" type="submit">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <a href="#" class="btn btn-light border me-4 mb-3" id="exportButton">
+                        <i class="fa-solid fa-arrow-up-from-bracket"></i>&nbsp;Export
+                    </a>
+                </div>
+                <div class="col-12 mb-3 mb-lg-5">
+                    <div class="overflow-hidden card table-nowrap rounded table-card">
+                        <div class="table-responsive">
+                            <table class="table mb-0 table-striped">
+                                <thead class="text-muted text-uppercase">
+                                    <tr>
+                                        <th><input class="form-check-input" type="checkbox" value=""
+                                                id="select-all-checkbox"></th>
+                                        <th class="text-center fw-bolder" style="width: 15%;">Sr. No.</th>
+                                        <th class="fw-bolder" style="width: 40%;">Voter Name</th>
+                                        <th class="fw-bolder" style="width: 30%;">Contact No.</th>
+                                        <th class="fw-bolder" style="width: 15%;">Actions</th>
+                                        <th class="fw-bolder"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="votersTableBody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <!-- Voter Details Modal -->
+                <div class="modal fade" id="voterDetailsModal" tabindex="-1" aria-labelledby="voterDetailsModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header thd">
+                                <h5 class="modal-title" id="voterDetailsModalLabel">Voter Details</h5>
+                                <div class="ms-auto">
+                                    <a type="button" id="edit-button" class="btn btn-outline-danger me-2">
+                                        <i class="fa-solid fa-user-pen"></i> Edit
+                                    </a>
+                                    <a type="button" id="family-button" class="btn btn-outline-primary"><i
+                                            class="fa-solid fa-users"></i> Family</a>
+                                </div>
+                            </div>
+                            <div class="modal-body">
+                                <table class="table p-1">
+                                    <tbody>
+                                        <tr>
+                                            <th class="bg-light fw-semibold">Voter Name</th>
+                                            <td id="voter_name"></td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light fw-semibold">Parent Name</th>
+                                            <td id="voter_parent_name"></td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light fw-semibold">Date of Birth</th>
+                                            <td id="voter_dob"></td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light fw-semibold">Live Status</th>
+                                            <td id="voter_live_status"></td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light fw-semibold">Gender</th>
+                                            <td id="voter_gender"></td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light fw-semibold">Contact Number</th>
+                                            <td id="voter_contact_number"></td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light fw-semibold">Age</th>
+                                            <td id="voter_age"></td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light fw-semibold">Marital Status</th>
+                                            <td id="marital_status"></td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light fw-semibold">Cast</th>
+                                            <td id="voter_cast_name"></td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light fw-semibold">Location Type</th>
+                                            <td id="voter_in_city"></td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light fw-semibold">Current Location</th>
+                                            <td id="current_location"></td>
+                                        </tr>
+
+                                        <tr>
+                                            <th class="bg-light fw-semibold">Town Name</th>
+                                            <td id="town_name"></td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light fw-semibold">Booth Name</th>
+                                            <td id="booth_name"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-light m-1" id="export-pdf-button">
+                                        <i class="fa-solid fa-arrow-up-from-bracket"></i>&nbsp;Export
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+    <script>
+        // Function to capitalize first letter of each word
+        function capitalizeWords(str) {
+            return str.replace(/\w\S*/g, function (txt) {
+                return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const townSelect = document.getElementById('townSelect');
+            const religionSelect = document.getElementById('religionSelect');
+            const exportButton = document.getElementById('exportButton');
+            const votersTableBody = document.getElementById('votersTableBody');
+            let votersData = []; // Store fetched voters data
+
+            // Fetch towns data
+            fetch('http://192.168.1.38:8000/api/towns/')
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(town => {
+                        const option = document.createElement('option');
+                        option.value = town.town_id;
+                        option.textContent = town.town_name;
+                        townSelect.appendChild(option);
+                    });
+
+                    // Enable religion select when town is selected
+                    townSelect.addEventListener('change', function () {
+                        const selectedTownId = townSelect.value;
+                        if (selectedTownId) {
+                            religionSelect.disabled = false;
+                            fetch('http://192.168.1.38:8000/api/get_all_religion/')
+                                .then(response => response.json())
+                                .then(data => {
+                                    religionSelect.innerHTML = '<option selected>Select Religion</option>';
+                                    data.forEach(religion => {
+                                        const option = document.createElement('option');
+                                        option.value = religion.religion_id;
+                                        option.textContent = religion.religion_name;
+                                        religionSelect.appendChild(option);
+                                    });
+                                })
+                                .catch(error => console.error('Error fetching religions:', error));
+                        }
+                    });
+
+                    // Fetch voters data when both town and religion are selected
+                    religionSelect.addEventListener('change', function () {
+                        const selectedTownId = townSelect.value;
+                        // console.log("selectedTownId", selectedTownId);
+
+                        const selectedReligionId = religionSelect.value;
+
+                        if (selectedTownId && selectedReligionId) {
+                            fetch(`http://192.168.1.38:8000/api/town/${selectedTownId}/religion/${selectedReligionId}/`)
+                                .then(response => response.json())
+                                .then(data => {
+                                    votersData = data; // Store the original data
+                                    // console.log(votersData);
+                                    populateTable(votersData); // Populate the table
+                                })
+                                .catch(error => console.error('Error fetching voters data:', error));
+                        }
+                    });
+                })
+                .catch(error => console.error('Error fetching towns data:', error));
+
+            // // Function to update the voter counts
+            // function updateCounts(data) {
+            //     const totalCount = data.length;                
+            //     const votedCount = data.filter(voter => voter.voter_vote_confirmation_id === 1).length;
+            //     const nonVotedCount = totalCount - votedCount;
+
+            //     // Display counts
+            //     document.getElementById('voterCount').textContent = totalCount || '0';
+            //     document.getElementById('votedCount').textContent = votedCount || '0';
+            //     document.getElementById('non-votedCount').textContent = nonVotedCount || '0';
+            // }
+
+            // Populate the table
+            function populateTable(data) {
+                const votersTableBody = document.getElementById('votersTableBody');
+                votersTableBody.innerHTML = ''; // Clear previous voters
+
+                if (data.length === 0) {
+                    const row = document.createElement('tr');
+                    const cell = document.createElement('td');
+                    cell.colSpan = 5;
+                    cell.textContent = 'Record Not Found';
+                    cell.className = 'text-center';
+                    row.appendChild(cell);
+                    votersTableBody.appendChild(row);
+                    return;
+                }
+
+                data.sort((a, b) => a.voter_name.localeCompare(b.voter_name));
+
+                if (data.length > 0) {
+                    // Update voter counts
+                    const totalCount = data.length || ' ';
+                    const votedCount = data.filter(voter => voter.voter_vote_confirmation_id === 1).length || ' ';
+                    const nonVotedCount = (totalCount - votedCount) || ' ';
+
+                    const votedCountParcent = ((votedCount / totalCount) * 100).toFixed(2);
+                    const nonVotedCountParcent = ((nonVotedCount / totalCount) * 100).toFixed(2);
+
+                    // Display counts
+                    document.getElementById('totalCount').textContent = totalCount;
+                    document.getElementById('votedCount').textContent = votedCount;
+                    document.getElementById('non-votedCount').textContent = nonVotedCount;
+                    document.getElementById('votedCountParcent').innerHTML = "percent: <i>" + votedCountParcent + "%</i>";
+                    document.getElementById('votedCountParcent').style.fontStyle = "italic"; // Optional for the overall style
+                    document.getElementById('non-votedCountParcent').innerHTML = "percent: <i>" + nonVotedCountParcent + "%</i>";
+                    document.getElementById('non-votedCountParcent').style.fontStyle = "italic"; // Optional for the overall style
+                } else {
+                    // Display counts
+                    document.getElementById('totalCount').innerHTML = '';
+                    document.getElementById('votedCount').innerHTML = '';
+                    document.getElementById('non-votedCount').innerHTML = '';
+                }
+                data.forEach((voter, index) => {
+                    const row = document.createElement('tr');
+
+                    const checkboxCell = document.createElement('td');
+                    checkboxCell.style.textAlign = 'center';
+                    const checkbox = document.createElement('input');
+                    checkbox.classList.add('form-check-input'); // Add Bootstrap class for the checkbox
+                    checkbox.type = 'checkbox'; // Set the checkbox type
+                    checkbox.id = `voterCheck_${voter.voter_id}`; // Set the checkbox ID to the voter ID
+                    checkbox.value = voter.voter_id;
+                    checkboxCell.appendChild(checkbox);
+                    row.appendChild(checkboxCell);
+
+                    const srNoCell = document.createElement('td');
+                    srNoCell.style.textAlign = 'center';
+                    srNoCell.textContent = index + 1;
+                    row.appendChild(srNoCell);
+
+                    const nameCell = document.createElement('td');
+                    nameCell.textContent = capitalizeWords(voter.voter_name);
+                    row.appendChild(nameCell);
+
+                    const contactCell = document.createElement('td');
+                    contactCell.style.textAlign = 'start';
+                    contactCell.textContent = voter.voter_contact_number ? voter.voter_contact_number : 'None';
+                    row.appendChild(contactCell);
+
+                    // Actions Cell
+                    const actionsCell = document.createElement('td');
+                    let detailsButton;
+                    detailsButton = document.createElement('button');
+                    detailsButton.className = 'btn voter-detail-link btn-light btn-sm m-1';
+                    detailsButton.innerHTML = '<i class="fa-solid fa-circle-info"></i>';
+
+                    // Create a toggle button for vote confirmation
+                    const voteConfirmationButton = document.createElement('button');
+                    // console.log("sssdddddddddds",voter.voter_vote_confirmation_id);
+
+                    // Set the button icon based on the current confirmation status
+                    if (voter.voter_vote_confirmation_id === null) {
+                        voteConfirmationButton.className = 'btn btn-secondary btn-sm m-1';
+                        voteConfirmationButton.innerHTML = '<i class="fa-regular fa-thumbs-up"></i>'; // Icon for "Confirm Vote"
+                    } else {
+                        voteConfirmationButton.className = 'btn btn-primary btn-sm m-1';
+                        voteConfirmationButton.innerHTML = '<i class="fa-solid fa-thumbs-up"></i>'; // Icon for "Undo Confirmation"
+                    }
+
+
+
+
+                    // Add event listener for toggling vote confirmation
+                    voteConfirmationButton.addEventListener('click', async () => {
+                        // console.log('before vote stat-', voter.voter_vote_confirmation_id);
+
+                        const newConfirmationStatus = voter.voter_vote_confirmation_id === null ? 1 : null; // Toggle logic
+                        // console.log('after toggle-', newConfirmationStatus);
+                        // console.log('b vid-', voter.voter_id);
+
+
+
+
+                        try {
+                            const response = await fetch(`http://192.168.1.38:8000/api/voter_confirmation/${voter.voter_id}/`, {
+                                method: 'PUT',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({ voter_vote_confirmation_id: newConfirmationStatus })
+                            });
+
+                            // console.log("response-", response);
+
+                            if (!response.ok) {
+                                throw new Error('Failed to update vote confirmation status');
+                            }
+
+                            // Update the button icon and voter object
+                            voter.voter_vote_confirmation_id = newConfirmationStatus; // Update the current status
+                            // voteConfirmationButton.innerHTML = newConfirmationStatus === null
+                            //     ? '<i class="fa-regular fa-thumbs-up"></i>' // Icon for "Confirm Vote"
+                            //     : '<i class="fa-solid fa-thumbs-up"></i>'; // Icon for "Undo Confirmation"
+                            // Set the button icon based on the current confirmation status
+                            // console.log('After status', newConfirmationStatus);
+
+
+                            if (newConfirmationStatus === null) {
+                                voteConfirmationButton.className = 'btn btn-secondary btn-sm m-1';
+                                voteConfirmationButton.innerHTML = '<i class="fa-regular fa-thumbs-up"></i>'; // Icon for "Confirm Vote"
+                            } else {
+                                voteConfirmationButton.className = 'btn btn-primary btn-sm m-1';
+                                voteConfirmationButton.innerHTML = '<i class="fa-solid fa-thumbs-up"></i>'; // Icon for "Undo Confirmation"
+                            }
+
+                        } catch (error) {
+                            console.error('Error toggling vote confirmation:', error);
+                            alert('Error toggling vote confirmation. Please try again.');
+                        }
+                    });
+                    actionsCell.appendChild(voteConfirmationButton);
+
+                    detailsButton.onclick = function () {
+                        currentVoterId = voter.voter_id;
+                        // Fetch voter details from the API
+                        fetch(`http://192.168.1.38:8000/api/voters/${voter.voter_id}/`)
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error('Network response was not ok');
+                                }
+                                return response.json();
+                            })
+                            .then(voterDetails => {
+                                // Populate the modal with voter details
+                                document.getElementById('voter_name').textContent = capitalizeWords(voterDetails.voter_name) || '--';
+                                document.getElementById('voter_parent_name').textContent = capitalizeWords(voterDetails.voter_parent_name) || '--';
+                                document.getElementById('voter_dob').textContent = voterDetails.voter_dob || '--';
+                                document.getElementById('voter_gender').textContent = voterDetails.voter_gender || '--';
+                                document.getElementById('voter_contact_number').textContent = voterDetails.voter_contact_number || '--';
+                                document.getElementById('voter_age').textContent = voterDetails.voter_age || '--';
+                                document.getElementById('voter_cast_name').textContent = voterDetails.voter_cast_name || '--';
+                                document.getElementById('town_name').textContent = voterDetails.town_name || '--';
+                                document.getElementById('booth_name').textContent = voterDetails.booth_name || '--';
+
+                                document.getElementById('voter_in_city').textContent = (voterDetails.voter_in_city_id === 1) ? 'In City' : (voterDetails.voter_in_city_id === 2 ? 'Near City' : (voterDetails.voter_in_city_id === 3 ? 'Out of City' : '--'));
+                                document.getElementById('voter_live_status').textContent = (voterDetails.voter_live_status_id === 1) ? 'Alive' : (voterDetails.voter_live_status_id === 2 ? 'Dead' : '--');
+                                document.getElementById('marital_status').textContent = voterDetails.voter_marital_status_id || '--';
+                                document.getElementById('current_location').textContent = voterDetails.voter_current_location || '--';
+
+                                // Update the Family button with the voter ID
+                                document.getElementById('family-button').href = `/familydetails/${voter.voter_id}`;
+
+                                // Update the Edit button with the voter ID
+                                document.getElementById('edit-button').href = `/editvoter/${voter.voter_id}/`;
+
+                                // Change the background color of elements with class 'thd' based on voter_favour_id
+                                const thdElements = document.querySelectorAll('.thd');
+                                thdElements.forEach(element => {
+                                    element.style.backgroundColor = ''; // Clear previous colors
+                                });
+
+                                // Set Voter Details background color based on favour_id
+                                switch (parseInt(voterDetails.voter_favour_id)) {
+                                    case 1:
+                                        thdElements.forEach(element => {
+                                            element.style.backgroundColor = '#D1E7DD'; // Light Green
+                                        });
+                                        break;
+                                    case 2:
+                                        thdElements.forEach(element => {
+                                            element.style.backgroundColor = '#F8D7DA'; // Light Red
+                                        });
+                                        break;
+                                    case 3:
+                                        thdElements.forEach(element => {
+                                            element.style.backgroundColor = '#fff3cd'; // Light Yellow
+                                        });
+                                        break;
+                                    case 4:
+                                        thdElements.forEach(element => {
+                                            element.style.backgroundColor = '#DCE1FF'; // Light Blue
+                                        });
+                                        break;
+                                    case 5:
+                                        thdElements.forEach(element => {
+                                            element.style.backgroundColor = '#d1faff'; // Light Sky Blue
+                                        });
+                                        break;
+                                    case 6:
+                                        thdElements.forEach(element => {
+                                            element.style.backgroundColor = '#fed6ff'; // Light Pink
+                                        });
+                                        break;
+                                    case 7:
+                                        thdElements.forEach(element => {
+                                            element.style.backgroundColor = '#ebd1ff'; // Light Purple
+                                        });
+                                        break;
+                                    default:
+                                        thdElements.forEach(element => {
+                                            element.style.backgroundColor = '#D3D3D3'; // Default blue
+                                        });
+                                }
+                                // Show the modal
+                                const voterDetailsModal = new bootstrap.Modal(document.getElementById('voterDetailsModal'));
+                                voterDetailsModal.show();
+                            })
+                    };
+
+                    actionsCell.appendChild(detailsButton);
+                    row.appendChild(actionsCell);
+
+                    // New column for voter_favour_id (optional display)
+                    const favourCell = document.createElement('td');
+                    switch (voter.favour_id) {
+                        case 1:
+                            favourCell.style.backgroundColor = 'Green'; // Green
+                            break;
+                        case 2:
+                            favourCell.style.backgroundColor = 'Red'; // Red
+                            break;
+                        case 3:
+                            favourCell.style.backgroundColor = 'Yellow'; // Yellow
+                            break;
+                        case 4:
+                            favourCell.style.backgroundColor = '#0B5ED7'; // Blue
+                            break;
+                        case 5:
+                            favourCell.style.backgroundColor = '#11b4ff'; // Sky Blue
+                            break;
+                        case 6:
+                            favourCell.style.backgroundColor = 'palevioletred'; // Pink
+                            break;
+                        case 7:
+                            favourCell.style.backgroundColor = 'purple'; // Purple
+                            break;
+                        default:
+                            favourCell.style.backgroundColor = '#D3D3D3'; // Default Grey
+                    }
+
+                    row.appendChild(favourCell);
+                    votersTableBody.appendChild(row);
+                });
+            }
+            // Add event listener for the export button in Voter Details
+            document.getElementById('export-pdf-button').addEventListener('click', function () {
+                if (currentVoterId) {
+                    const pdfUrl = `http://192.168.1.38:8000/api/generate_voter_pdf/${currentVoterId}/`;
+                    fetch(pdfUrl)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            return response.blob(); // Get the response as a Blob
+                        })
+                        .then(blob => {
+                            const url = window.URL.createObjectURL(blob); // Create a URL for the Blob
+                            const a = document.createElement('a'); // Create a link element
+                            a.href = url;
+                            a.download = `voterDetails.pdf`; // Set the desired file name
+                            document.body.appendChild(a); // Append the link to the body
+                            a.click(); // Programmatically click the link to trigger the download
+                            a.remove(); // Remove the link from the document
+                            window.URL.revokeObjectURL(url); // Revoke the Object URL
+                        })
+                        .catch(error => console.error('Error generating PDF:', error));
+                } else {
+                    console.warn('No voter ID available for export.');
+                }
+            });
+
+            // Page List Export pdf
+            exportButton.addEventListener('click', function (event) {
+                event.preventDefault(); // Prevent default anchor behavior
+
+                if (votersData.length === 0) {
+                    alert('Please load data first by selecting a town and religion.');
+                    return; // Exit the function
+                }
+
+                const selectedTownId = townSelect.value;
+                const selectedReligionId = religionSelect.value;
+
+                if (selectedTownId && selectedReligionId) {
+                    const pdfUrl = `http://192.168.1.38:8000/api/town_pdf/${selectedTownId}/religion/${selectedReligionId}/`;
+                    window.open(pdfUrl, '_blank');
+                } else {
+                    alert('Please select both town and religion before exporting.');
+                }
+            });
+
+            // Favor type filter
+            document.getElementById('town-type-select').addEventListener('change', function () {
+                const selectedFavourId = parseInt(this.value);
+                let filteredVoters;
+
+                // Check if the selected value is a number
+                if (!isNaN(selectedFavourId)) {
+                    // Filter the voters based on the selected favor ID
+                    filteredVoters = votersData.filter(voter => voter.favour_id === selectedFavourId);
+                } else {
+                    filteredVoters = votersData; // Show all voters if no selection
+                }
+
+                // Populate the table with filtered voters
+                populateTable(filteredVoters);
+            });
+
+
+
+            // Filter voters based on search input
+            document.getElementById('search-input').addEventListener('input', function () {
+                const input = this.value.toLowerCase();
+                const filteredData = votersData.filter(voter =>
+                    voter.voter_name.toLowerCase().includes(input)
+                );
+                populateTable(filteredData); // Repopulate the table with filtered data
+            });
+
+            // Clear button functionality
+            document.getElementById('clear-button').addEventListener('click', function () {
+                document.getElementById('search-input').value = ''; // Clear search input
+                populateTable(votersData); // Reset to show all voters
+            });
+        });
+
+
+        // chekbox to assign favour 
+
+        document.addEventListener('DOMContentLoaded', function () {
+
+            // Add event listener to handle voter row selection
+            let selectedVoters = [];
+            const tableBody = document.getElementById('votersTableBody');
+
+            tableBody.addEventListener('click', function (event) {
+                // Check if the clicked element is a checkbox
+                if (event.target.type === 'checkbox') {
+                    const checkbox = event.target;
+                    const row = checkbox.closest('tr'); // Get the row that contains the checkbox
+                    const voterId = checkbox.value; // Get voter ID from the checkbox value
+
+                    // Toggle the "selected" class to indicate voter selection
+                    row.classList.toggle('selected', checkbox.checked);
+
+                    // Add or remove the voter from the selectedVoters array
+                    if (checkbox.checked) {
+                        // Add voter ID to selectedVoters if checkbox is checked
+                        selectedVoters.push(voterId);
+                    } else {
+                        // Remove voter ID from selectedVoters if checkbox is unchecked
+                        selectedVoters = selectedVoters.filter(id => id !== voterId);
+                    }
+
+                    // Show or hide caste select based on the number of selected voters
+                    if (selectedVoters.length > 0) {
+                        // Show caste select and hide location/favor filters
+                        document.getElementById('favour-select-container').style.display = 'block';
+                        document.getElementById('location-favor-filters').style.display = 'none';
+                    } else {
+                        // Hide caste select and show location/favor filters
+                        document.getElementById('favour-select-container').style.display = 'none';
+                        document.getElementById('location-favor-filters').style.display = 'block';
+                    }
+                }
+            });
+
+            // Handle the "Select All" checkbox click event
+            const selectAllCheckbox = document.getElementById('select-all-checkbox');
+
+            selectAllCheckbox.addEventListener('change', function () {
+                const isChecked = selectAllCheckbox.checked;
+                selectedVoters = []; // Reset selected voters array
+
+                // Loop through each row and toggle its checkbox
+                const checkboxes = tableBody.querySelectorAll('input[type="checkbox"]');
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = isChecked; // Check/uncheck the checkbox
+                    const row = checkbox.closest('tr');
+                    row.classList.toggle('selected', isChecked); // Add/remove selected class
+
+                    const voterId = checkbox.value;
+                    if (isChecked) {
+                        // Add voter ID to selectedVoters if checkbox is checked
+                        selectedVoters.push(voterId);
+                    }
+                });
+
+                // Show or hide caste select based on the number of selected voters
+                if (selectedVoters.length > 0) {
+                    // Show caste select and hide location/favor filters
+                    document.getElementById('favour-select-container').style.display = 'block';
+                    document.getElementById('location-favor-filters').style.display = 'none';
+                } else {
+                    // Hide caste select and show location/favor filters
+                    document.getElementById('favour-select-container').style.display = 'none';
+                    document.getElementById('location-favor-filters').style.display = 'block';
+                }
+            });
+
+            // Add event listener to the "Assign" button
+            document.getElementById('fav-update-button').addEventListener('click', function () {
+                const selectedfavourId = document.getElementById('favour-type-select').value;
+
+                // Ensure that a favour and at least one voter are selected
+                if (!selectedfavourId || selectedfavourId === "Select Favour Type") {
+                    alert('Please select a favour.');
+                    return;
+                }
+
+                if (selectedVoters.length === 0) {
+                    alert('Please select at least one voter.');
+                    return;
+                }
+
+                // Prepare the payload to send to the API
+                const payload = {
+                    "voter_ids": selectedVoters.map(voterId => parseInt(voterId)), // Ensure voter IDs are integers
+                    "voter_favour_id": parseInt(selectedfavourId) // Ensure favour ID is an integer
+                };
+                // console.log('Payload:', JSON.stringify(payload));
+
+                // Make the PUT request to assign favour to voters
+                fetch('http://192.168.1.38:8000/api/favour/', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCsrfToken() // CSRF token for security
+                    },
+                    body: JSON.stringify(payload)
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.message) {
+                            alert(`Successfully updated ${data.message.split(' ')[2]} records.`);
+                            location.reload(); // Reload the page to refresh the table and reset selections
+
+                            // Initialize and Show Toasts
+                            const toastElList = [].slice.call(document.querySelectorAll('.toast'));
+                            const toastList = toastElList.map(function (toastEl) {
+                                return new bootstrap.Toast(toastEl);
+                            });
+                            toastList.forEach(toast => toast.show());
+                        } else {
+                            alert('Failed to assign favour. Please try again.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error assigning favour:', error);
+                        alert('An error occurred while assigning the favour.');
+                    });
+            });
+            // Helper function to get CSRF token from the page
+            const getCsrfToken = () => {
+                const csrfTokenElement = document.querySelector('[name=csrfmiddlewaretoken]');
+                return csrfTokenElement ? csrfTokenElement.value : ''; // Ensure CSRF token is returned if available
+            };
+        });
+
+        // Select All checkbox logic
+        const selectAllCheckbox = document.getElementById('select-all-checkbox');
+        selectAllCheckbox.addEventListener('change', function () {
+            const checkboxes = document.querySelectorAll('.form-check-input');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = selectAllCheckbox.checked;
+            });
+        });
+
+        // Update Select All checkbox based on individual checkboxes
+        const checkboxes = document.querySelectorAll('.form-check-input');
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function () {
+                if (![...checkboxes].some(cb => !cb.checked)) {
+                    selectAllCheckbox.checked = true;
+                } else {
+                    selectAllCheckbox.checked = false;
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
