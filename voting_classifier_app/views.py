@@ -448,7 +448,7 @@ def upload_file(request):
                 regex_parent_name = r"(?:Father's|Fathers|Fathors|Husband's|Husbands|Mother's|Mothers) (?:Name|NName)[: ]+([\w\s]+)|Others[: ]+([\w\s]+)"
                 parent_names = [name.strip().split('House')[0].split('Houso')[0] for match in re.findall(regex_parent_name, result_text) for name in match if name]
 
-                pattern_house_till_available = r"H[oa0]us[e3o]? [Nn]um[b8][eo]r.*?[Aa4]va[il]l[ao]b[il][oe]"
+                pattern_house_till_available = r"(H[oa0]us[e3o]? [Nn]um[b8][eo]r.*?)?[Aa4]va[il]l[ao]b[il][oe]"
 
                 house_till_available = re.findall(pattern_house_till_available, result_text, re.DOTALL)
 
