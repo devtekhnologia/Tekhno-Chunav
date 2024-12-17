@@ -510,6 +510,7 @@ def upload_file(request):
                     and len(re.findall(r'[A-Za-z]', voter_id)) <= 5  # Max 3 alphabets
                     and len(re.findall(r'\d', voter_id)) > 4 # Min 5 digits
                     and not re.match(r'NO\s+\d+', voter_id)  # Skip "NO <number>"
+                    and '\n' not in voter_id                 
                 ]
 
                 # Extracting serial numbers and voter IDs
