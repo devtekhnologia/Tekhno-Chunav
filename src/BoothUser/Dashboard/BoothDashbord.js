@@ -25,13 +25,17 @@ const BoothDashbord = ({ navigation, toggleSidebar }) => {
   const fetchVoterData = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`http://192.168.1.24:8000/api/get_voters_by_user_wise/${buserId}/`);
+      const response = await axios.get(`http://192.168.1.38:8000/api/get_voters_by_user_wise/${buserId}/`);
       const voters = response.data.voters || [];
       const totalVoters = voters.length;
       const ours = voters.filter(voter => voter.voter_favour_id === 1).length;
       const against = voters.filter(voter => voter.voter_favour_id === 2).length;
       const doubted = voters.filter(voter => voter.voter_favour_id === 3).length;
-      const pending = totalVoters - (ours + against + doubted);
+      const proo = voters.filter(voter => voter.voter_favour_id === 4).length;
+      const pro = voters.filter(voter => voter.voter_favour_id === 5).length;
+      const pink = voters.filter(voter => voter.voter_favour_id === 6).length;
+      const purple = voters.filter(voter => voter.voter_favour_id === 7).length;
+      const pending = totalVoters - (ours + against + doubted + proo + pro + pink + purple);
 
       setVoterCounts({
         total: totalVoters,
@@ -42,7 +46,7 @@ const BoothDashbord = ({ navigation, toggleSidebar }) => {
       });
 
       const voteCountResponse = await axios.get(
-        `http://192.168.1.24:8000/api/get_voted_and_non_voted_count_by_booth_user/${buserId}/`
+        `http://192.168.1.38:8000/api/get_voted_and_non_voted_count_by_booth_user/${buserId}/`
       );
 
       setTotalVoted(voteCountResponse.data.voted_count.toString());
@@ -91,7 +95,7 @@ const BoothDashbord = ({ navigation, toggleSidebar }) => {
       <View style={styles.container}>
         <View style={styles.infoContainer}>
           <Text style={styles.constituencyText}>
-            {language === 'en' ? 'Washim Constituency' : 'वाशिम मतदारसंघ'}
+          {language === 'en' ? 'Washim Nagar Parishad' : 'वाशिम नगर परिषद'}
           </Text>
           <Text style={styles.userIdText}>
             {language === 'en' ? 'User Id: ' : 'वापरकर्ता आयडी: '} : {buserId}

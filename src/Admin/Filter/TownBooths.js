@@ -47,7 +47,7 @@ const TownBooths = ({ route }) => {
 
     const fetchData = async () => {
         try {
-            const response = await axios.get(`http://192.168.1.24:8000/api/get_booth_details_by_town_id/${town_id}`);
+            const response = await axios.get(`http://192.168.1.38:8000/api/get_booth_details_by_town_id/${town_id}`);
             const formattedTowns = response.data.data;
             console.log(formattedTowns);
 
@@ -89,7 +89,7 @@ const TownBooths = ({ route }) => {
 
         setPdfLoading(true);
         try {
-            const response = await axios.get('http://192.168.1.24:8000/api/generate_pdf/', {
+            const response = await axios.get('http://192.168.1.38:8000/api/generate_pdf/', {
                 responseType: 'arraybuffer',
             });
 
@@ -133,7 +133,7 @@ const TownBooths = ({ route }) => {
                     <TextInput
                         value={searchedValue}
                         onChangeText={text => setSearchValue(text)}
-                        placeholder={language === 'en' ? "search booth by name or ID" : 'नाव किंवा आयडीद्वारे बूथ शोधा'}
+                        placeholder={language === 'en' ? "Search booth by name or ID" : 'नाव किंवा आयडीद्वारे बूथ शोधा'}
                         style={styles.searchInput}
                     />
                 </View>
@@ -141,7 +141,7 @@ const TownBooths = ({ route }) => {
                 <FlatList
                     data={searchedBooth}
                     keyExtractor={item => item.booth_id.toString()}
-                    showsVerticalScrollIndicator={false}
+                    showsVerticalScrollIndicator={true}
                     renderItem={({ item }) => (
                         <Pressable
                             style={styles.voterItem}

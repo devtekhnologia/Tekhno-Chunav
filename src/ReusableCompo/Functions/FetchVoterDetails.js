@@ -3,7 +3,7 @@ import { Alert } from "react-native";
 
 export const fetchVoterDetails = (voter_id) => {
     try {
-        const response = axios.get(`http://192.168.1.24:8000/api/voters/${voter_id}`)
+        const response = axios.get(`http://192.168.1.38:8000/api/voters/${voter_id}`)
         return response;
     } catch (error) {
         // console.error('Error fetching voter details:',);

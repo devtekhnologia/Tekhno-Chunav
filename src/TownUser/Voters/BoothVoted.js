@@ -12,7 +12,7 @@ import { TouchableOpacity } from 'react-native';
 
 const { width, height } = Dimensions.get('screen');
 
-const BoothVoters = ({ route }) => {
+const BoothVoted = ({ route }) => {
     const { boothId } = route.params;
     const [voters, setVoters] = useState([]);
     const { language } = useContext(LanguageContext);
@@ -60,7 +60,7 @@ const BoothVoters = ({ route }) => {
 
     const getBoothVoters = async () => {
         setRefreshing(true)
-        axios.get(`http://192.168.1.38:8000/api/get_voters_by_booth/${boothId}/`)
+        axios.get(`http://192.168.1.38:8000/api/get_voted_data_by_booth/${boothId}/1/`)
             .then(response => {
                 if (response.data && Array.isArray(response.data)) {
                     setVoters(response.data);
@@ -191,7 +191,7 @@ const BoothVoters = ({ route }) => {
     )
 }
 
-export default BoothVoters
+export default BoothVoted
 
 const styles = StyleSheet.create({
     container: {

@@ -21,7 +21,7 @@ const AgewiseVoters = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
 
     const fetchVoterDetails = (voter_id) => {
-        axios.get(`http://192.168.1.24:8000/api/voters/${voter_id}`)
+        axios.get(`http://192.168.1.38:8000/api/voters/${voter_id}`)
             .then(response => {
                 setSelectedVoter(response.data);
                 setIsModalVisible(true);
@@ -65,7 +65,7 @@ const AgewiseVoters = () => {
         try {
             setLoading(true);
             const [minAge, maxAge] = ageValue.split(',').map(Number);
-            const response = await axios.get(`http://192.168.1.24:8000/api/age_wise_voter/${minAge}/${maxAge}/`);
+            const response = await axios.get(`http://192.168.1.38:8000/api/age_wise_voter/${minAge}/${maxAge}/`);
             setFilteredVoters(response.data);
             setLoading(false);
         } catch (error) {
@@ -99,15 +99,25 @@ const AgewiseVoters = () => {
                     <FlatList
                         data={filteredVoters}
                         keyExtractor={item => item.voter_id.toString()}
-                        showsVerticalScrollIndicator={false}
+                        showsVerticalScrollIndicator={true}
                         scrollEnabled={!openAge}
                         renderItem={({ item }) => (
                             <Pressable style={styles.voterItem} onPress={() => { handleVoterPress(item.voter_id) }}>
                                 <View style={styles.voterDetails}>
-                                    <View style={styles.voterIdContainer}>
-                                        <Text>{item.voter_id}</Text>
+                                    <View style={styles.topSection}>
+                                        <Text>
+                                            Sr. No: <Text style={styles.label}>{item.voter_serial_number}</Text>
+                                        </Text>
+                                        <Text>
+                                            Voter Id: <Text style={styles.label}>{item.voter_id_card_number}</Text>
+                                        </Text>
                                     </View>
-                                    <Text style={{ flex: 1 }}>{language === 'en' ? toTitleCase(item.voter_name) : item.voter_name_mar}</Text>
+                                    <View style={styles.divider} />
+                                    <View style={styles.bottomSection}>
+                                        <Text style={styles.voterName}>
+                                            {language === 'en' ? toTitleCase(item.voter_name) : item.voter_name_mar}
+                                        </Text>
+                                    </View>
                                 </View>
                             </Pressable>
                         )}
@@ -172,16 +182,42 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
     },
     voterDetails: {
-        flexDirection: 'row',
-        alignItems: 'center',
+        flexDirection: 'column',
+        flex: 1,
+        padding: 10,
+        backgroundColor: '#f9f9f9',
+        borderRadius: 8,
+        // marginVertical: 8,
+        shadowColor: '#000',
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 2,
     },
-    voterIdContainer: {
-        borderRightWidth: 1,
-        borderColor: '#D9D9D9',
-        paddingRight: 10,
-        marginRight: 10,
-        width: 60,
+    topSection: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
         alignItems: 'center',
+        marginBottom: 8,
+    },
+    label: {
+        fontWeight: '500',
+        fontSize: 16,
+    },
+    divider: {
+        borderBottomWidth: 1,
+        borderBottomColor: '#ccc',
+        borderStyle: 'dotted',
+        marginVertical: 8,
+    },
+    bottomSection: {
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    voterName: {
+        fontSize: 18,
+        fontWeight: '900',
+        color: '#333',
+        textAlign: 'center',
     },
     noDataText: {
         textAlign: 'center',

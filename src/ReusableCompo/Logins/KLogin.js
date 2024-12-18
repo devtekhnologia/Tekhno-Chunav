@@ -10,8 +10,8 @@ import { KaryakartaContext } from '../../ContextApi/KaryakartaContext';
 export default function KLogin() {
     const navigation = useNavigation();
     const { setUserId } = useContext(KaryakartaContext);
-    const [username, setUsername] = useState(""); 
-    const [password, setPassword] = useState(""); 
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
     const [isTextSecure, setTextSecure] = useState(true);
     const [isLoading, setLoading] = useState(false);
     const [passwordError, setPasswordError] = useState('');
@@ -54,7 +54,7 @@ export default function KLogin() {
             Vibration.vibrate(100);
 
             try {
-                const response = await axios.post('http://192.168.1.24:8000/api/voter_group_login/', {
+                const response = await axios.post('http://192.168.1.38:8000/api/voter_group_login/', {
                     voter_group_user_contact_number: username,
                     voter_group_user_password: password
                 });

@@ -5,7 +5,7 @@ import * as Sharing from 'expo-sharing';
 
 export const downloadVoterPdf = async (voterId) => {
     try {
-        const response = await axios.get(`http://192.168.1.24:8000/api/generate_voter_pdf/${voterId}`, {
+        const response = await axios.get(`http://192.168.1.38:8000/api/generate_voter_pdf/${voterId}`, {
             params: { voter_id: voterId },
             responseType: 'arraybuffer',
         });

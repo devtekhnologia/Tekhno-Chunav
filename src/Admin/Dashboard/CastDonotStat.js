@@ -7,28 +7,28 @@ import { LanguageContext } from '../../ContextApi/LanguageContext';
 
 const { height, width } = Dimensions.get('screen');
 
-const CastDonutStat = () => {
+const CastDonutStat = ({ series }) => {
     const widthAndHeight = width * 0.34;
-    const [series, setSeries] = useState([0, 0, 1]);
+    // const [series, setSeries] = useState([0, 0, 1]);
     const sliceColor = ['orange', 'green', '#545454'];
     const { language } = useContext(LanguageContext);
 
-    const getReligionwiseData = async () => {
-        try {
-            const result = await axios.get('http://192.168.1.24:8000/api/religion_count/');
-            setSeries([
-                result.data.Hindu || 0,
-                result.data.Muslim || 0,
-                result.data['Not Defined'] || 1
-            ]);
-        } catch (error) {
-            Alert.alert('Error fetching religion-wise data:', error.toString ? error.toString() : 'Unknown error');
-        }
-    };
+    // const getReligionwiseData = async () => {
+    //     try {
+    //         const result = await axios.get('http://192.168.1.38:8000/api/religion_count/');
+    //         setSeries([
+    //             result.data.Hindu || 0,
+    //             result.data.Muslim || 0,
+    //             result.data['Not Defined'] || 1
+    //         ]);
+    //     } catch (error) {
+    //         Alert.alert('Error fetching religion-wise data:', error.toString ? error.toString() : 'Unknown error');
+    //     }
+    // };
 
-    useEffect(() => {
-        getReligionwiseData();
-    }, []);
+    // useEffect(() => {
+    //     getReligionwiseData();
+    // }, []);
 
     return (
         <View style={styles.container}>
@@ -49,7 +49,7 @@ const CastDonutStat = () => {
                 <View style={styles.legendColumn}>
                     <View style={styles.legendItem}>
                         <View style={[styles.legendColor, { backgroundColor: '#F8700F' }]} />
-                        <Text style={styles.legendLabel}>{language === 'en' ? 'Hinduu' : 'हिंदू '} : {series[0]}</Text>
+                        <Text style={styles.legendLabel}>{language === 'en' ? 'Hindu' : 'हिंदू '} : {series[0]}</Text>
                     </View>
                     <View style={styles.legendItem}>
                         <View style={[styles.legendColor, { backgroundColor: 'green' }]} />

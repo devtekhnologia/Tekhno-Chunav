@@ -7,6 +7,7 @@ import VoterDetailsPopUp from '../../ReusableCompo/VoterDetailsPopUp';
 import { LanguageContext } from '../../ContextApi/LanguageContext';
 import LoadingListComponent from '../../ReusableCompo/LoadingListComponent';
 import EmptyListComponent from '../../ReusableCompo/EmptyListComponent';
+import { toTitleCase } from '../../ReusableCompo/Functions/toTitleCaseConvertor';
 const { width, height } = Dimensions.get('screen');
 
 
@@ -28,14 +29,9 @@ const TotalNonVoted = () => {
         return boothId.includes(searchValueLower) || boothName.includes(searchValueLower);
     });
 
-
-    const convertToCamel = (name) => {
-        return newName = name.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')
-    }
-
     const fetchData = async () => {
         try {
-            const response = await axios.get(`http://192.168.1.24:8000/api/town_user_id/${userId}/confirmation/2/`);
+            const response = await axios.get(`http://192.168.1.38:8000/api/town_user_id/${userId}/confirmation/2/`);
             setVoters(response.data);
         } catch (error) {
             const message = error.response ? error.response.data.message : 'Error fetching data';
@@ -47,7 +43,7 @@ const TotalNonVoted = () => {
 
     const fetchVoterDetails = async (voter_id) => {
         try {
-            const response = await axios.get(`http://192.168.1.24:8000/api/voters/${voter_id}`);
+            const response = await axios.get(`http://192.168.1.38:8000/api/voters/${voter_id}`);
             setSelectedVoter(response.data);
             setIsModalVisible(true);
         } catch (error) {
@@ -67,13 +63,48 @@ const TotalNonVoted = () => {
             </View>
         );
     }
+    const renderItem = ({ item, onPress, index }) => {
+        let backgroundColor = 'white';
 
-    const VoterItem = memo(({ item, index, onPress }) => (
-        <Pressable style={styles.voterItem} onPress={onPress}>
-            <Text style={styles.voterIdText}>{index}</Text>
-            <Text style={{ flex: 1 }}>{language === 'en' ? convertToCamel(item.voter_name) : item.voter_name_mar}</Text>
-        </Pressable>
-    ));
+        if (item.voter_favour_id === 1) {
+            backgroundColor = '#d3f5d3';
+        } else if (item.voter_favour_id === 2) {
+            backgroundColor = '#f5d3d3';
+        } else if (item.voter_favour_id === 3) {
+            backgroundColor = '#f5f2d3';
+        } else if (item.voter_favour_id === 4) {
+            backgroundColor = '#c9daff';
+        } else if (item.voter_favour_id === 5) {
+            backgroundColor = 'skyblue';
+        } else if (item.voter_favour_id === 6) {
+            backgroundColor = '#fcacec';
+        } else if (item.voter_favour_id === 7) {
+            backgroundColor = '#dcacfa';
+        }
+
+        return (
+            <Pressable style={[styles.voterItem, { backgroundColor }]}
+                onPress={() => fetchVoterDetails(item.voter_id)}>
+                <View style={styles.voterDetails}>
+                                            <View style={styles.topSection}>
+                                                <Text>
+                                                    Sr. No: <Text style={styles.label}>{item.voter_serial_number}</Text>
+                                                </Text>
+                                                <Text>
+                                                    Voter Id: <Text style={styles.label}>{item.voter_id_card_number}</Text>
+                                                </Text>
+                                            </View>
+                                            <View style={styles.divider} />
+                                            <View style={styles.bottomSection}>
+                                                <Text style={styles.voterName}>
+                                                    {language === 'en' ? toTitleCase(item.voter_name) : item.voter_name_mar}
+                                                </Text>
+                                            </View>
+                                        </View>
+            </Pressable >
+        )
+    }
+
 
     return (
         <View style={styles.container}>
@@ -82,34 +113,27 @@ const TotalNonVoted = () => {
                 <TextInput
                     value={searchedValue}
                     onChangeText={setSearchValue}
-                    placeholder={language === 'en' ? 'search by voter’s name or ID' : 'मतदाराचे नाव किंवा आयडी द्वारे शोधा'}
+                    placeholder={language === 'en' ? 'Search by voter’s name or Id' : 'मतदाराचे नाव किंवा आयडी द्वारे शोधा'}
                     style={styles.searchInput}
                 />
             </View>
 
 
             <View style={styles.listContainer}>
-                <>
-                    <FlatList
-                        data={searchedVoter}
-                        keyExtractor={item => item.voter_id.toString()}
-                        showsVerticalScrollIndicator={false}
-                        renderItem={({ item, index }) => (
-                            <VoterItem
-                                item={item}
-                                index={index + 1}
-                                onPress={() => fetchVoterDetails(item.voter_id)}
-                            />
-                        )}
-                        ListHeaderComponent={loading && <LoadingListComponent />}
-                        ListEmptyComponent={!loading && <EmptyListComponent />}
-                    />
-                    <VoterDetailsPopUp
-                        isModalVisible={isModalVisible}
-                        selectedVoter={selectedVoter}
-                        setIsModalVisible={setIsModalVisible}
-                    />
-                </>
+                <FlatList
+                    data={searchedVoter}
+                    keyExtractor={item => item.voter_id.toString()}
+                    showsVerticalScrollIndicator={true}
+                    renderItem={renderItem}
+                    ListHeaderComponent={loading && <LoadingListComponent />}
+                    ListEmptyComponent={!loading && <EmptyListComponent />}
+                />
+
+                <VoterDetailsPopUp
+                    isModalVisible={isModalVisible}
+                    selectedVoter={selectedVoter}
+                    setIsModalVisible={setIsModalVisible}
+                />
 
             </View>
 
@@ -121,7 +145,7 @@ export default TotalNonVoted;
 
 const styles = StyleSheet.create({
     container: {
-        paddingHorizontal: 20,
+        paddingHorizontal: 15,
         height: height * 0.86,
         backgroundColor: 'white',
     },
@@ -153,15 +177,43 @@ const styles = StyleSheet.create({
         borderRadius: 1,
         columnGap: width * 0.03
     },
-    voterIdText: {
-        borderWidth: 1,
-        borderColor: 'blue',
-        // width: 50,
-        paddingVertical: 2,
-        paddingHorizontal: 5,
+    voterDetails: {
+        flexDirection: 'column',
+        flex: 1,
+        padding: 10,
+        backgroundColor: '#f9f9f9',
+        borderRadius: 8,
+        // marginVertical: 8,
+        shadowColor: '#000',
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 2,
+    },
+    topSection: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 8,
+    },
+    label: {
+        fontWeight: '500',
+        fontSize: 16,
+    },
+    divider: {
+        borderBottomWidth: 1,
+        borderBottomColor: '#ccc',
+        borderStyle: 'dotted',
+        marginVertical: 8,
+    },
+    bottomSection: {
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    voterName: {
+        fontSize: 18,
+        fontWeight:'900',
+        color: '#333',
         textAlign: 'center',
-        borderRadius: 3,
-        fontWeight: '700',
     },
     noDataText: {
         textAlign: 'center',

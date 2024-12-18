@@ -31,7 +31,7 @@ export default function Family({ navigation }) {
         const fetchVoters = async () => {
             setLoading(true);
             try {
-                const response = await axios.get(`http://192.168.1.24:8000/api/get_voters_by_user_wise/${buserId}/`);
+                const response = await axios.get(`http://192.168.1.38:8000/api/get_voters_by_user_wise/${buserId}/`);
                 if (Array.isArray(response.data.voters)) {
                     setVoters(response.data.voters);
                 } else {
@@ -97,7 +97,7 @@ export default function Family({ navigation }) {
 
         try {
             const response = await axios.post(
-                'http://192.168.1.24:8000/api/create_family_group_by_booth_user/',
+                'http://192.168.1.38:8000/api/create_family_group_by_booth_user/',
                 payload
             );
             console.log('Response:', response.data);
@@ -110,7 +110,6 @@ export default function Family({ navigation }) {
             setSearchValue('');
             setIsSelectionMode(false);
         } catch (error) {
-            // console.error('Error saving family group:', error);
             Alert.alert('Error', 'Member are already exists in other family group. \nFailed to save family group !!!.');
         }
     };
@@ -122,13 +121,8 @@ export default function Family({ navigation }) {
         (voter.voter_id && voter.voter_id.toString().includes(searchedValue))
     );
 
-    const handleGoBack = () => {
-        navigation.goBack();
-    };
-
     return (
         <View style={styles.container}>
-
             <View style={styles.buttoncontainer}>
                 <Pressable style={styles.bigButton} onPress={openFamilyModal}>
                     <Text style={styles.bigButtonText}>
@@ -148,7 +142,7 @@ export default function Family({ navigation }) {
                 <TextInput
                     value={searchedValue}
                     onChangeText={text => setSearchValue(text)}
-                    placeholder={language === 'en' ? "Search by voter’s name or ID" : 'मतदाराचे नाव किंवा ओळखपत्राने शोधा'}
+                    placeholder={language === 'en' ? "Search by voter’s name" : 'मतदाराचे नाव किंवा ओळखपत्राने शोधा'}
                     style={styles.searchInput}
                 />
             </View>
@@ -165,7 +159,7 @@ export default function Family({ navigation }) {
                 <FlatList
                     data={searchedVoters}
                     keyExtractor={item => item.voter_id.toString()}
-                    showsVerticalScrollIndicator={false}
+                    showsVerticalScrollIndicator={true}
                     ListHeaderComponent={loading && <LoadingListComponent />}
                     ListEmptyComponent={!loading && <EmptyListComponent />}
                     renderItem={({ item }) => (

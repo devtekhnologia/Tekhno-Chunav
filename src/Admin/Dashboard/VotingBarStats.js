@@ -10,10 +10,10 @@ const VotingBarStats = ({ TotalVoters = 0, Favorable = 0, Non_Favorable = 0, Dou
     const { language } = useContext(LanguageContext);
 
     const data = [
-        { label: 'Favorable', value: Math.round(Favorable / perPercent) },
-        { label: 'Non Favorable', value: Math.round(Non_Favorable / perPercent) },
-        { label: 'Doubted', value: Math.round(Doubted / perPercent) },
-        { label: 'Non Voted', value: Math.round(Non_Voted / perPercent) },
+        { label: 'Favorable', value: parseFloat((Favorable / perPercent).toFixed(1)) },
+        { label: 'Non Favorable', value: parseFloat((Non_Favorable / perPercent).toFixed(1)) },
+        { label: 'Doubted', value: parseFloat((Doubted / perPercent).toFixed(1)) },
+        { label: 'Non Voted', value: parseFloat((Non_Voted / perPercent).toFixed(1)) },
     ];
 
     const colorData = [
@@ -63,7 +63,7 @@ const VotingBarStats = ({ TotalVoters = 0, Favorable = 0, Non_Favorable = 0, Dou
                     <View style={styles.legendColumn}>
                         <View style={styles.legendItem}>
                             <View style={[styles.legendColor, { backgroundColor: '#FBBC04' }]} />
-                            <Text style={styles.legendLabel}>{language === 'en' ? 'Doubted' : 'निश्चित नाही' }</Text>
+                            <Text style={styles.legendLabel}>{language === 'en' ? 'Doubted' : 'निश्चित नाही'}</Text>
                         </View>
                         <View style={styles.legendItem}>
                             <View style={[styles.legendColor, { backgroundColor: '#545454' }]} />

@@ -21,7 +21,7 @@ const UrbanTowns = () => {
     const getUrbanTownList = async () => {
         setLoading(true);
         try {
-            const response = await axios.get('http://192.168.1.24:8000/api/town_voter_count/');
+            const response = await axios.get('http://192.168.1.38:8000/api/town_voter_count/');
             if (response.status === 200) {
                 const filteredData = response.data.filter(town => town.town_type === 1);
                 setUrbanTowns(filteredData);

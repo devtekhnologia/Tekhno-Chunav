@@ -32,7 +32,7 @@ const Totalvoters = () => {
 
     const fetchVoterDetails = async (voter_id) => {
         try {
-            const response = await axios.get(`http://192.168.1.24:8000/api/voters/${voter_id}`);
+            const response = await axios.get(`http://192.168.1.38:8000/api/voters/${voter_id}`);
             setSelectedVoter(response.data);
         } catch (error) {
             Alert.alert('Error', 'Failed to fetch voter details. Please try again.');
@@ -41,28 +41,29 @@ const Totalvoters = () => {
 
     const handleSearch = (text) => {
         setSearchText(text);
-
+    
         const searchTerms = text.toLowerCase().trim().split(/\s+/);
-
+    
         const filtered = voters.filter(voter => {
             const searchFields = [
                 voter.voter_id.toString(),
                 voter.voter_name ? voter.voter_name.toLowerCase() : '',
-                voter.voter_name_mar ? voter.voter_name_mar.toLowerCase() : ''
+                voter.voter_name_mar ? voter.voter_name_mar.toLowerCase() : '',
+                voter.voter_serial_number ? voter.voter_serial_number.toString() : '',
+                voter.voter_id_card_number ? voter.voter_id_card_number.toLowerCase() : ''
             ];
-
+    
             return searchTerms.every(term =>
                 searchFields.some(field => field.includes(term))
             );
         });
-
+    
         setFilteredVoters(filtered);
-
+    
         if (selectAllActive) {
             setSelectedVoters(filtered.map(voter => voter.voter_id));
         }
     };
-
 
     const handleVoterEditForm = (voter_id) => {
         if (isSelectionMode) {
@@ -95,8 +96,8 @@ const Totalvoters = () => {
     const fetchVoterData = async () => {
         setLoading(true);
         try {
-            // const response = await axios.get(`http://192.168.1.24:8000/api/town_wise_voter_list/139/`);
-            const response = await axios.get(`http://192.168.1.24:8000/api/total_voters/`);
+            // const response = await axios.get(`http://192.168.1.38:8000/api/town_wise_voter_list/139/`);
+            const response = await axios.get(`http://192.168.1.38:8000/api/total_voters/`);
             const votersData = response.data;
             setVoters(votersData);
             setFilteredVoters(votersData);
@@ -109,7 +110,7 @@ const Totalvoters = () => {
     };
     const fetchCastData = async () => {
         try {
-            const response = await axios.get('http://192.168.1.24:8000/api/cast/');
+            const response = await axios.get('http://192.168.1.38:8000/api/cast/');
             setCastes(response.data);
         } catch (error) {
             Alert.alert('Error', 'Failed to fetch caste data.');
@@ -118,7 +119,7 @@ const Totalvoters = () => {
 
     const fetchVoterCounts = async () => {
         try {
-            const response = await axios.get('http://192.168.1.24:8000/api/voter_updated_counts/');
+            const response = await axios.get('http://192.168.1.38:8000/api/voter_updated_counts/');
             const { updated_count, remaining_count } = response.data;
             setUpdatedVoters(updated_count);
             setRemainingVoters(remaining_count);
@@ -179,7 +180,7 @@ const Totalvoters = () => {
                 voter_favour_id: colorId,
             };
 
-            const response = await axios.put('http://192.168.1.24:8000/api/favour/', payload);
+            const response = await axios.put('http://192.168.1.38:8000/api/favour/', payload);
             if (response.status === 200) {
                 const updatedVoters = filteredVoters.map(voter =>
                     selectedVoters.includes(voter.voter_id)
@@ -234,12 +235,22 @@ const Totalvoters = () => {
                 onPress={() => handleVoterEditForm(item.voter_id)}
                 onLongPress={() => handleLongPress(item.voter_id)}
             >
-                <View style={styles.idSection}>
-                    <Text style={styles.itemText}>{item.voter_id}</Text>
-                </View>
-                <View style={styles.nameSection}>
-                    <Text style={styles.itemText}>{language === 'en' ? toTitleCase(item.voter_name) : item.voter_name_mar}</Text>
-                </View>
+                <View style={styles.voterDetails}>
+                                    <View style={styles.topSection}>
+                                        <Text>
+                                            Sr. No: <Text style={styles.label}>{item.voter_serial_number}</Text>
+                                        </Text>
+                                        <Text>
+                                            Voter Id: <Text style={styles.label}>{item.voter_id_card_number}</Text>
+                                        </Text>
+                                    </View>
+                                    <View style={styles.divider} />
+                                    <View style={styles.bottomSection}>
+                                        <Text style={styles.voterName}>
+                                            {language === 'en' ? toTitleCase(item.voter_name) : item.voter_name_mar}
+                                        </Text>
+                                    </View>
+                                </View>
             </TouchableOpacity>
         );
     };
@@ -262,7 +273,7 @@ const Totalvoters = () => {
                 voter_cast_id: selectedCasteId,
             };
 
-            const response = await axios.post('http://192.168.1.24:8000/api/assign_voter_cast/', payload);
+            const response = await axios.post('http://192.168.1.38:8000/api/assign_voter_cast/', payload);
             if (response.status === 200) {
                 Alert.alert('Success', 'Caste assigned successfully!');
                 setCasteModalVisible(false);
@@ -284,7 +295,7 @@ const Totalvoters = () => {
             <LinearGradient colors={['#3C4CAC', '#F04393']} locations={[0.3, 1]} style={styles.gradient}>
                 <TextInput
                     style={styles.searchBar}
-                    placeholder={language === 'en' ? 'search by voter’s name or ID' : 'मतदाराचे नाव किंवा आयडी द्वारे शोधा'}
+                    placeholder={language === 'en' ? 'Search by voter’s name' : 'मतदाराचे नाव किंवा आयडी द्वारे शोधा'}
                     value={searchText}
                     onChangeText={handleSearch}
                 />
@@ -463,19 +474,43 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#ccc',
     },
-    idSection: {
-        width: '20%',
-        borderRightWidth: 1,
-        borderRightColor: 'black',
-        paddingRight: 10,
+    voterDetails: {
+        flexDirection: 'column',
+        flex: 1,
+        padding: 10,
+        backgroundColor: '#f9f9f9',
+        borderRadius: 8,
+        // marginVertical: 8,
+        shadowColor: '#000',
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 2,
+    },
+    topSection: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
         alignItems: 'center',
+        marginBottom: 8,
     },
-    nameSection: {
-        width: '80%',
-        paddingLeft: 10,
+    label: {
+        fontWeight: '500',
+        fontSize: 16,
     },
-    itemText: {
-        fontSize: height * 0.018,
+    divider: {
+        borderBottomWidth: 1,
+        borderBottomColor: '#ccc',
+        borderStyle: 'dotted',
+        marginVertical: 8,
+    },
+    bottomSection: {
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    voterName: {
+        fontSize: 18,
+        fontWeight:'900',
+        color: '#333',
+        textAlign: 'center',
     },
     flatListContent: {
         flexGrow: 1,

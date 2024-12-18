@@ -58,7 +58,7 @@ export default function TotalVoters({ route, navigation }) {
   useEffect(() => {
     const fetchVoters = async () => {
       try {
-        const response = await axios.get(`http://192.168.1.24:8000/api/voters_by_group_user/${KuserId}/`);
+        const response = await axios.get(`http://192.168.1.38:8000/api/voters_by_group_user/${KuserId}/`);
         if (response.data && response.data.voters && Array.isArray(response.data.voters)) {
           const votersWithIndex = response.data.voters.map((voter, index) => ({
             ...voter,
@@ -126,7 +126,7 @@ export default function TotalVoters({ route, navigation }) {
   };
 
   const fetchVoterDetails = (voter_id) => {
-    axios.get(`http://192.168.1.24:8000/api/voters/${voter_id}`)
+    axios.get(`http://192.168.1.38:8000/api/voters/${voter_id}`)
       .then(response => {
         setSelectedVoter(response.data);
         setIsModalVisible(true);
@@ -140,7 +140,7 @@ export default function TotalVoters({ route, navigation }) {
   // Update voter thumb status in the backend
   const updateVoterThumbStatus = async (voterId, thumbStatus) => {
     try {
-      const apiUrl = `http://192.168.1.24:8000/api/voter_confirmation/${voterId}/`;
+      const apiUrl = `http://192.168.1.38:8000/api/voter_confirmation/${voterId}/`;
 
       const response = await axios.put(apiUrl, {
         voter_id: voterId,
@@ -246,7 +246,7 @@ export default function TotalVoters({ route, navigation }) {
         <TextInput
           value={search}
           onChangeText={setSearch}
-          placeholder={language === 'en' ? 'Search by voter’s name or ID' : 'मतदाराचे नाव किंवा ओळखपत्राने शोधा'}
+          placeholder={language === 'en' ? 'Search by voter’s name' : 'मतदाराचे नाव किंवा ओळखपत्राने शोधा'}
           style={styles.searchInput}
         />
       </View>
@@ -254,7 +254,7 @@ export default function TotalVoters({ route, navigation }) {
       <FlatList
         data={filteredVoters}
         keyExtractor={item => item.voter_id.toString()}
-        showsVerticalScrollIndicator={false}
+        showsVerticalScrollIndicator={true}
         contentContainerStyle={styles.listContent}
         renderItem={renderItem}
         ListHeaderComponent={loading && <LoadingListComponent />}

@@ -16,10 +16,10 @@ const LaunchScreen = () => {
                 // Determine swipe direction
                 if (Math.abs(gestureState.dx) > Math.abs(gestureState.dy)) {
                     // Horizontal swipe
-                    navigation.navigate('ProfileChooser');
+                    navigation.navigate('AdminLogin');
                 } else {
                     // Vertical swipe
-                    navigation.navigate('ProfileChooser');
+                    navigation.navigate('AdminLogin');
                 }
             },
         })
@@ -27,7 +27,7 @@ const LaunchScreen = () => {
 
     useEffect(() => {
         const timer = setTimeout(() => {
-            navigation.navigate('ProfileChooser');
+            navigation.navigate('AdminLogin');
         }, 3000);
 
         return () => clearTimeout(timer);

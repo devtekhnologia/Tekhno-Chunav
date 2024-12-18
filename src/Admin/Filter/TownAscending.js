@@ -16,7 +16,7 @@ export default function TownAscending() {
       fetchTownData();
     }, 60000);
 
-    return () => clearInterval(intervalId); 
+    return () => clearInterval(intervalId);
   }, []);
 
   const toTitleCase = (str) => {
@@ -28,7 +28,7 @@ export default function TownAscending() {
 
   const fetchTownData = () => {
     setLoading(true);
-    axios.get('http://192.168.1.24:8000/api/town_voting_percentage/')
+    axios.get('http://192.168.1.38:8000/api/town_voting_percentage/')
       .then(response => {
         const sortedData = response.data.sort((a, b) => a.voted_percentage - b.voted_percentage);
         setData(sortedData);
@@ -71,7 +71,7 @@ export default function TownAscending() {
 
     const borderColor = animatedValue.interpolate({
       inputRange: [0, 1],
-      outputRange: ['#fff', color], 
+      outputRange: ['#fff', color],
     });
 
     return (
@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4,
     elevation: 4,
-    borderBottomWidth: 4, 
+    borderBottomWidth: 4,
   },
   leftSection: {
     flex: 1,

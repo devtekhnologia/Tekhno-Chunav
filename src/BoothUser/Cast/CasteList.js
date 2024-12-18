@@ -1,7 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Pressable, Alert, Modal, Dimensions } from 'react-native';
-// import Icon from 'react-native-vector-icons/FontAwesome5';
-import { MaterialIcons } from '@expo/vector-icons';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, Modal, Dimensions, TouchableWithoutFeedback } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import DropDownPicker from 'react-native-dropdown-picker';
 import axios from 'axios';
@@ -10,12 +8,11 @@ import { BoothUserContext } from '../../ContextApi/BuserContext';
 import LoadingListComponent from '../../ReusableCompo/LoadingListComponent';
 import EmptyListComponent from '../../ReusableCompo/EmptyListComponent';
 
-
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 const scaleFontSize = (size) => Math.round(size * width * 0.0025);
 
 export default function CasteList({ navigation }) {
-  const { language, toggleLanguage } = useContext(LanguageContext);
+  const { language } = useContext(LanguageContext);
   const { buserId } = useContext(BoothUserContext);
   const [voters, setVoters] = useState([]);
   const [selectedCast, setSelectedCast] = useState(null);
@@ -28,7 +25,7 @@ export default function CasteList({ navigation }) {
   useEffect(() => {
     const fetchCasteData = async () => {
       try {
-        const response = await axios.get('http://192.168.1.24:8000/api/cast/');
+        const response = await axios.get('http://192.168.1.38:8000/api/cast/');
         const casteData = response.data.map(cast => ({
           label: `${cast.cast_id} - ${cast.cast_name}`,
           value: cast.cast_id,
@@ -44,32 +41,15 @@ export default function CasteList({ navigation }) {
 
   const fetchVotersByCaste = async (castId) => {
     try {
-      const response = await axios.get(`http://192.168.1.24:8000/api/get_voters_by_booth_user_and_cast/${buserId}/${castId}/`, {
-        params: { buserId, castId }
-      });
-      if (response.status === 200) {
-        // console.log(response.data);
-        setVoters(response.data);
-      } else {
-        Alert.alert('Error', 'Failed to load voters. Please try again later.');
-      }
+      setLoading(true);
+      const response = await axios.get(`http://192.168.1.38:8000/api/get_voters_by_booth_user_and_cast/${buserId}/${castId}/`);
+      setVoters(response.data);
     } catch (error) {
-      if (error.response) {
-        const { status, data } = error.response;
-
-        if (status >= 400 && status < 500) {
-          Alert.alert('Error', data.message || 'Client error occurred. Please check your input.');
-        } else if (status >= 500) {
-          Alert.alert('Error', 'Server error occurred. Please try again later.');
-        }
-      } else if (error.request) {
-        Alert.alert('Error', 'Network error. Please check your connection and try again.');
-      } else {
-        Alert.alert('Error', 'An unexpected error occurred. Please try again later.');
-      }
+      Alert.alert('Error', 'Failed to load voters. Please try again later.');
+    } finally {
+      setLoading(false);
     }
   };
-
 
   useEffect(() => {
     if (selectedCast) {
@@ -77,11 +57,7 @@ export default function CasteList({ navigation }) {
     }
   }, [selectedCast]);
 
-  const handleGoBack = () => {
-    navigation.goBack();
-  };
-
-  const openColorLegendModal = (voterId = null) => {
+  const openColorLegendModal = (voterId) => {
     setSelectedVoterId(voterId);
     setColorLegendModalVisible(true);
   };
@@ -91,86 +67,74 @@ export default function CasteList({ navigation }) {
     setColorLegendModalVisible(false);
   };
 
-  const updateVoterColor = async (selectedVoterId, selectedColor) => {
-    if (!selectedVoterId) {
-        Alert.alert('Error', 'No voter selected.');
-        return;
-    }
-    let voterFavourId;
-    let backgroundColor;
-
-    switch (selectedColor) {
-        case '#FF3030': 
-            voterFavourId = 2;
-            backgroundColor = '#FFE4E4'; 
-            break;
-        case '#FBBE17': 
-            voterFavourId = 3;
-            backgroundColor = '#FFF5D7'; 
-            break;
-        case '#188357': 
-            voterFavourId = 1;
-            backgroundColor = '#E4F8E4'; 
-            break;
-        default:
-            Alert.alert('Error', 'Invalid color selection.');
-            return;
-    }
-
-    // Prepare payload for API request
-    const payload = {
-        voter_id: selectedVoterId,
-        voter_favour_id: voterFavourId,
+  const handleColorSelection = async (selectedColor) => {
+    if (!selectedVoterId) return; // Ensure that a voter is selected
+  
+    const colorMapping = {
+      '#188357': { voterFavourId: 1, backgroundColor: '#E4F8E4' }, // Green
+      '#FF3030': { voterFavourId: 2, backgroundColor: '#FFE4E4' }, // Red
+      '#FBBE17': { voterFavourId: 3, backgroundColor: '#FFF5D7' }, // Yellow
+      '#1E90FF': { voterFavourId: 4, backgroundColor: '#D8E9FF' }, // Blue
     };
-
-    try {
-        const response = await axios.put('http://192.168.1.24:8000/api/favour/', payload);
-
-        if (response.status === 200) {
-            setVoters((prevVoters) =>
-                prevVoters.map((voter) =>
-                    voter.voter_id === selectedVoterId
-                        ? { ...voter, color: backgroundColor }
-                        : voter
-                )
-            );
-            Alert.alert('Success', 'Color updated successfully.');
-        } else {
-            throw new Error('Failed to update color. Please try again later.');
-        }
-    } catch (error) {
-        console.error('Error updating voter color:', error);
-
-        if (error.response) {
-            const { status, data } = error.response;
-
-            if (status >= 400 && status < 500) {
-                Alert.alert('Error', data.message || 'Client error occurred. Please check your input.');
-            } else if (status >= 500) {
-                Alert.alert('Error', 'Server error occurred. Please try again later.');
-            }
-        } else if (error.request) {
-            Alert.alert('Error', 'Network error. Please check your connection and try again.');
-        } else {
-            Alert.alert('Error', `An unexpected error occurred: ${error.message}`);
-        }
+  
+    const { voterFavourId, backgroundColor } = colorMapping[selectedColor] || {};
+  
+    if (!voterFavourId) {
+      Alert.alert('Error', 'Invalid color selection.');
+      return;
     }
-};
-
-
-
-
+  
+    try {
+      const response = await axios.put(`http://192.168.1.38:8000/api/favour/`, {
+        voter_ids: [selectedVoterId], 
+        voter_favour_id: voterFavourId,
+      });
+  
+      if (response.status === 200) {
+        setVoters((prevVoters) =>
+          prevVoters.map((voter) =>
+            voter.voter_id === selectedVoterId
+              ? { ...voter, color: backgroundColor } 
+              : voter
+          )
+        );
+        Alert.alert('Success', 'Color updated successfully.');
+      } else {
+        Alert.alert('Error', 'Failed to update color. Please try again later.');
+      }
+    } catch (error) {
+      console.error('Error updating color:', error.message);
+      Alert.alert('Error', 'An error occurred while updating the color.');
+    }
+  
+    closeColorLegendModal();
+  };
+  
 
   const renderVoterItem = ({ item }) => (
     <View style={[styles.voterItem, { backgroundColor: item.color || '#FFFFFF' }]}>
-      <Text style={styles.voterText}>{item.voter_id} - {language === 'en' ? toTitleCase(item.voter_name) : item.voter_name_mar}</Text>
-      <TouchableOpacity style={styles.closeCircle} onPress={() => openColorLegendModal(item.voter_id)}>
+      <View style={styles.voterDetails}>
+                          <View style={styles.topSection}>
+                              <Text>
+                                  Sr. No: <Text style={styles.label}>{item.voter_serial_number}</Text>
+                              </Text>
+                              <Text>
+                                  Voter Id: <Text style={styles.label}>{item.voter_id_card_number}</Text>
+                              </Text>
+                          </View>
+                          <View style={styles.divider} />
+                          <View style={styles.bottomSection}>
+                              <Text style={styles.voterName}>
+                                  {language === 'en' ? toTitleCase(item.voter_name) : item.voter_name_mar}
+                              </Text>
+                          </View>
+                      </View>
+      <TouchableOpacity style={styles.colorCircleContainer} onPress={() => openColorLegendModal(item.voter_id)}>
         <View style={styles.circle}></View>
       </TouchableOpacity>
     </View>
   );
-
-
+  
 
   const toTitleCase = (str) => {
     return str
@@ -178,7 +142,6 @@ export default function CasteList({ navigation }) {
       .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
       .join(' ');
   };
-
 
   return (
     <View style={styles.container}>
@@ -213,24 +176,30 @@ export default function CasteList({ navigation }) {
         transparent={true}
         onRequestClose={closeColorLegendModal}
       >
+        <TouchableWithoutFeedback onPress={closeColorLegendModal}>
         <View style={styles.overlay}>
           <View style={styles.colorLegendModalContainer}>
             {[
               { color: '#188357', label: 'Favourable' },
               { color: '#FF3030', label: 'Non-Favourable' },
               { color: '#FBBE17', label: 'Doubted' },
+              { color: '#1E90FF', label: 'Pro' },
             ].map((item, index) => (
-              <TouchableOpacity key={index} style={styles.legendItem} onPress={() => updateVoterColor(item.color)}>
+              <TouchableOpacity key={index} style={styles.legendItem} onPress={() => handleColorSelection(item.color)}>
                 <View style={[styles.colorCircle, { backgroundColor: item.color }]} />
                 <Text style={styles.label}>{item.label}</Text>
               </TouchableOpacity>
             ))}
           </View>
         </View>
+        </TouchableWithoutFeedback>
       </Modal>
     </View>
   );
 }
+
+
+
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 20,
@@ -238,7 +207,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'white'
   },
-
   closeCircle: {
     width: 35,
     height: 35,
@@ -246,10 +214,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  colorCircleContainer:{
+    // backgroundColor:'red',
+    marginLeft:'3%'
+  },
   circle: {
     width: 25,
     height: 25,
-    backgroundColor: 'black',
+    backgroundColor: '#737373',
     borderRadius: 50,
   },
   picker: {
@@ -259,7 +231,6 @@ const styles = StyleSheet.create({
   },
   selectedCastContainer: {
     flex: 1,
-
   },
   selectedCastText: {
     fontSize: 24,
@@ -284,13 +255,44 @@ const styles = StyleSheet.create({
     borderColor: '#D9D9D9',
 
   },
-  voterText: {
+  voterDetails: {
+    flexDirection: 'column',
     flex: 1,
-    fontSize: 16,
-  },
-  headerContain: {
+    padding: 10,
+    backgroundColor: '#f9f9f9',
+    borderRadius: 8,
+    // marginVertical: 8,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+},
+topSection: {
     flexDirection: 'row',
-  },
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+},
+label: {
+    fontWeight: '500',
+    fontSize: 16,
+},
+divider: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+    borderStyle: 'dotted',
+    marginVertical: 8,
+},
+bottomSection: {
+    alignItems: 'center',
+    justifyContent: 'center',
+},
+voterName: {
+    fontSize: 18,
+    fontWeight:'900',
+    color: '#333',
+    textAlign: 'center',
+},
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',

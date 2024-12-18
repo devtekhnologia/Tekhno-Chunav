@@ -22,7 +22,7 @@ export default function ResponsivePoll() {
 
     const fetchVoterData = async () => {
         try {
-            const response = await axios.get(`http://192.168.1.24:8000/api/get_voters_by_user_wise/${buserId}/`);
+            const response = await axios.get(`http://192.168.1.38:8000/api/get_voters_by_user_wise/${buserId}/`);
             const voters = response.data.voters;
 
             const counts = {
@@ -60,19 +60,19 @@ export default function ResponsivePoll() {
             <View style={styles.barChart}>
                 <View style={styles.barItem}>
                     <Animated.View style={[styles.bar, { height: totalVoterHeight }]} />
-                    <Text style={styles.barLabel}>{voterCounts.Total > 0 ? `${((voterCounts.Total / voterCounts.Total).toFixed(5) * 100)}%` : " 0%"}</Text>
+                    <Text style={styles.barLabel}>{voterCounts.Total > 0 ? `${((voterCounts.Total / voterCounts.Total) * 100)}%` : " 0%"}</Text>
                 </View>
                 <View style={styles.barItem}>
                     <Animated.View style={[styles.bar, { height: favorableHeight }]} />
-                    <Text style={styles.barLabel}>{voterCounts.Favorable > 0 ? `${((voterCounts.Favorable / voterCounts.Total).toFixed(5) * 100)}%` : "0 %"}</Text>
+                    <Text style={styles.barLabel}>{voterCounts.Favorable > 0 ? `${((voterCounts.Favorable / voterCounts.Total) * 100).toFixed(2)}%` : "0 %"}</Text>
                 </View>
                 <View style={styles.barItem}>
                     <Animated.View style={[styles.bar, { height: nonFavorableHeight }]} />
-                    <Text style={styles.barLabel}>{voterCounts.Non_Favorable > 0 ? `${((voterCounts.Non_Favorable / voterCounts.Total).toFixed(5) * 100)}%` : "0 %"}</Text>
+                    <Text style={styles.barLabel}>{voterCounts.Non_Favorable > 0 ? `${((voterCounts.Non_Favorable / voterCounts.Total) * 100).toFixed(2)}%` : "0 %"}</Text>
                 </View>
                 <View style={styles.barItem}>
                     <Animated.View style={[styles.bar, { height: doubtedHeight }]} />
-                    <Text style={styles.barLabel}>{voterCounts.Doubted > 0 ? `${((voterCounts.Doubted / voterCounts.Total).toFixed(5) * 100)}%` : "0 %"}</Text>
+                    <Text style={styles.barLabel}>{voterCounts.Doubted > 0 ? `${((voterCounts.Doubted / voterCounts.Total) * 100).toFixed(2)}%` : "0 %"}</Text>
                 </View>
             </View>
             <View style={styles.barLabels}>
@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
         // marginRight: '8%',
     },
     graphTitle: {
-        fontSize: height * 0.03,
+        fontSize: height * 0.0255,
         fontWeight: 'bold',
         marginBottom: 20,
     },

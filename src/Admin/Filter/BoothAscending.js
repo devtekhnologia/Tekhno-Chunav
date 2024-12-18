@@ -29,7 +29,7 @@ export default function BoothAscending() {
 
   const fetchBoothData = () => {
     setLoading(true);
-    axios.get('http://192.168.1.24:8000/api/booth_voting_percentage/')
+    axios.get('http://192.168.1.38:8000/api/booth_voting_percentage/')
       .then(response => {
 
         const sortedData = response.data.sort((a, b) => a.voted_percentage - b.voted_percentage);

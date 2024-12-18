@@ -28,7 +28,7 @@ export default function Wsignup({ navigation }) {
 
     useEffect(() => {
         // Fetch booth data from API
-        axios.get(`http://192.168.1.24:8000/api/booth_details_by_prabhag_user/${wardUserId}/`)
+        axios.get(`http://192.168.1.38:8000/api/booth_details_by_prabhag_user/${wardUserId}/`)
             .then(response => {
                 const boothsData = response.data.map(booth => ({
                     label: `${booth.booth_id} - ${language === 'en' ? booth.booth_name : booth.booth_name_mar}`,
@@ -91,7 +91,7 @@ export default function Wsignup({ navigation }) {
             setLoading(true);
             try {
 
-                const response = await axios.post('http://192.168.1.24:8000/api/register_booth_user_by_prabhag/', {
+                const response = await axios.post('http://192.168.1.38:8000/api/register_booth_user_by_prabhag/', {
                     user_name: name,
                     user_phone: contact,
                     user_password: password,

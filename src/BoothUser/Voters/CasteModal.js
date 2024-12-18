@@ -3,9 +3,8 @@ import { Modal, View, Text, TouchableOpacity, Alert, StyleSheet, Dimensions } fr
 import RNPickerSelect from 'react-native-picker-select';
 const { width, height } = Dimensions.get('window');
 
-// A utility function to scale font sizes
 const scaleFontSize = (size) => {
-    const scale = width / 375; // Assuming 375 is the base width
+    const scale = width / 375; 
     return Math.round(size * scale);
 };
 const CasteModal = ({

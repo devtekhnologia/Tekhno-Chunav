@@ -30,11 +30,15 @@ export default function BoothVotedList({ route, navigation }) {
   useEffect(() => {
     const fetchVoters = async () => {
       try {
-        const response = await axios.get(`http://192.168.1.24:8000/api/voted_voters_list_By_booth_user/${buserId}/1/?lang=${language === 'en' ? 'en' : 'mr'}/`);
+        const response = await axios.get(`http://192.168.1.38:8000/api/voted_voters_list_By_booth_user/${buserId}/1/?lang=${language === 'en' ? 'en' : 'mr'}/`);
+
         if (response.data.voters && Array.isArray(response.data.voters)) {
-          console.log(response.data.voters);
-          setVoters(response.data.voters);
-          setFilteredVoters(response.data);
+          // Sort voters alphabetically by name (assuming the field is `voter_name`)
+          const sortedVoters = response.data.voters.sort((a, b) => a.voter_name.localeCompare(b.voter_name));
+
+          console.log(sortedVoters);
+          setVoters(sortedVoters);
+          setFilteredVoters(sortedVoters);
         } else {
           setError('Unexpected API response format.');
         }
@@ -46,18 +50,21 @@ export default function BoothVotedList({ route, navigation }) {
     };
 
     fetchVoters();
-  }, [buserId, language]); // Trigger the useEffect hook whenever the buserId or language changes
+  }, [buserId, language]);
+
 
 
   useEffect(() => {
     const filtered = voters.filter(voter =>
-      voter.voter_id.toString().includes(search) ||
-      voter.voter_name.toLowerCase().includes(search.toLowerCase()) ||
-      voter.voter_name_mar.toLowerCase().includes(search.toLowerCase())
-
+        voter.voter_id?.toString().includes(search) ||
+        (voter.voter_name?.toLowerCase() || '').includes(search.toLowerCase()) ||
+        (voter.voter_name_mar?.toLowerCase() || '').includes(search.toLowerCase()) ||
+        (voter.voter_serial_number?.toString() || '').includes(search.toLowerCase()) ||
+        (voter.voter_id_card_number?.toLowerCase() || '').includes(search.toLowerCase())
     );
     setFilteredVoters(filtered);
-  }, [search, voters]);
+}, [search, voters]);
+
 
   if (error) {
     return <Text style={styles.errorText}>{error}</Text>;
@@ -110,13 +117,20 @@ export default function BoothVotedList({ route, navigation }) {
           ]}
         >
           <View style={styles.voterDetails}>
-            <View style={{
-              borderRightWidth: 1, borderColor: '#D9D9D9',
-              width: 60, alignItems: 'center',
-            }}>
-              <Text>{item.voter_id}</Text>
+            <View style={styles.topSection}>
+              <Text>
+                Sr. No: <Text style={styles.label}>{item.voter_serial_number}</Text>
+              </Text>
+              <Text>
+                Voter Id: <Text style={styles.label}>{item.voter_id_card_number}</Text>
+              </Text>
             </View>
-            <Text>{language === 'en' ? toTitleCase(item.voter_name) : item.voter_name_mar}</Text>
+            <View style={styles.divider} />
+            <View style={styles.bottomSection}>
+              <Text style={styles.voterName}>
+                {language === 'en' ? toTitleCase(item.voter_name) : item.voter_name_mar}
+              </Text>
+            </View>
           </View>
         </Animated.View>
       </Pressable>
@@ -130,7 +144,7 @@ export default function BoothVotedList({ route, navigation }) {
         <TextInput
           value={search}
           onChangeText={setSearch}
-          placeholder={language === 'en' ? 'Search by voter’s name or ID' : 'मतदाराचे नाव किंवा ओळखपत्राने शोधा'}
+          placeholder={language === 'en' ? 'Search by voter’s name' : 'मतदाराचे नाव किंवा ओळखपत्राने शोधा'}
           style={styles.searchInput}
         />
       </View>
@@ -138,7 +152,7 @@ export default function BoothVotedList({ route, navigation }) {
       <FlatList
         data={filteredVoters}
         keyExtractor={item => item.voter_id.toString()}
-        showsVerticalScrollIndicator={false}
+        showsVerticalScrollIndicator={true}
         contentContainerStyle={styles.listContent}
         renderItem={renderItem}
         ListHeaderComponent={loading && <LoadingListComponent />}
@@ -191,18 +205,51 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
   },
   voterItem: {
-    borderRadius: 5,
-    paddingVertical: 12,
-    marginVertical: 5,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    borderWidth: 0.8,
-    borderColor: '#919090',
+    padding: 10,
+    marginVertical: 5,
+    borderRadius: 5,
+    borderWidth: 2,
+    borderColor: '#e0e0e0',
   },
   voterDetails: {
+    flexDirection: 'column',
+    flex: 1,
+    padding: 10,
+    backgroundColor: '#f9f9f9',
+    borderRadius: 8,
+    // marginVertical: 8,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  topSection: {
     flexDirection: 'row',
-    gap: 10,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  label: {
+    fontWeight: '500',
+    fontSize: 16,
+  },
+  divider: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+    borderStyle: 'dotted',
+    marginVertical: 8,
+  },
+  bottomSection: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  voterName: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: '#333',
+    textAlign: 'center',
   },
   noDataText: {
     textAlign: 'center',

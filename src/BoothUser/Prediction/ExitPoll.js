@@ -26,43 +26,40 @@ export default function ExitPoll() {
     const [supportNonVotedPercentage, setSupportNonVotedPercentage] = useState(0);
     console.log(supportNonVotedPercentage, supportVotedPercentage);
 
+
     const getFevourVotedPercentage = async () => {
         try {
-            // Ensure we don't divide by zero
             if (!votersCounter || votersCounter.TotalVoters === 0) {
                 Alert.alert("Invalid data", "Total Voters count is zero or undefined.");
                 return;
             }
 
             // First API request for Support Voted Percentage
-            const result = await axios.get(`http://192.168.1.24:8000/api/get_voter_info_by_booth_user/user_booth_user_id/${buserId}/voter_favour_id/1/voter_vote_confirmation_id/1/`);
+            const result = await axios.get(`http://192.168.1.38:8000/api/get_voter_info_by_booth_user/user_booth_user_id/${buserId}/voter_favour_id/1/voter_vote_confirmation_id/1/`);
 
             if (result && result.data && Array.isArray(result.data)) {
                 const supportVotedPercentage = (result.data.length / votersCounter.TotalVoters);
-                setSupportVotedPercentage(supportVotedPercentage);
+                setSupportVotedPercentage(Number(supportVotedPercentage)); // Ensure it's a number
             } else {
                 console.warn("Unexpected response structure for Support Voted Percentage:", result);
                 Alert.alert("Data Error", "Failed to load Support Voted Percentage data.");
-                return; // Early exit if the response is invalid
+                return;
             }
 
             // Second API request for Non-Support Voted Percentage
-            const result2 = await axios.get(`http://192.168.1.24:8000/api/get_voter_info_by_booth_user/user_booth_user_id/${buserId}/voter_favour_id/1/voter_vote_confirmation_id/2/`);
+            const result2 = await axios.get(`http://192.168.1.38:8000/api/get_voter_info_by_booth_user/user_booth_user_id/${buserId}/voter_favour_id/1/voter_vote_confirmation_id/2/`);
 
             if (result2 && result2.data && Array.isArray(result2.data)) {
-                const supportNonVotedPercentage = (result2.data.length / votersCounter.TotalVoters)
-                setSupportNonVotedPercentage(supportNonVotedPercentage);
+                const supportNonVotedPercentage = (result2.data.length / votersCounter.TotalVoters);
+                setSupportNonVotedPercentage(Number(supportNonVotedPercentage)); // Ensure it's a number
             } else {
                 console.warn("Unexpected response structure for Non-Support Voted Percentage:", result2);
                 Alert.alert("Data Error", "Failed to load Non-Support Voted Percentage data.");
-                return; // Early exit if the response is invalid
+                return;
             }
 
         } catch (error) {
-            // Log the error to the console for debugging
             console.error("Error fetching data: ", error);
-
-            // Show a user-friendly alert
             const errorMessage = error.response?.data?.message || error.message || "An unknown error occurred.";
             Alert.alert("Failed to fetch data", errorMessage);
         }
@@ -73,7 +70,7 @@ export default function ExitPoll() {
 
     const getVotersByUserwise = async () => {
         try {
-            const result = await axios.get(`http://192.168.1.24:8000/api/get_voters_by_user_wise/${buserId}/`);
+            const result = await axios.get(`http://192.168.1.38:8000/api/get_voters_by_user_wise/${buserId}/`);
             const totalVoterDetails = result.data.voters;
 
             const totalVoterCount = totalVoterDetails.length;
@@ -105,11 +102,14 @@ export default function ExitPoll() {
     useEffect(() => {
         if (buserId) {
             getVotersByUserwise();
-            if (votersCounter.TotalVoters !== null) {
-                getFevourVotedPercentage()
-            }
         }
     }, [buserId]);
+
+    useEffect(() => {
+        if (votersCounter.TotalVoters !== null) {
+            getFevourVotedPercentage()
+        }
+    }, [votersCounter]);
 
     return (
         <ScrollView style={styles.container}
@@ -172,7 +172,7 @@ const styles = StyleSheet.create({
         // backgroundColor: 'red'
     },
     statisticsTitle: {
-        fontSize: height * 0.03,
+        fontSize: height * 0.0255,
         fontWeight: 'bold',
         textAlign: 'center'
     },

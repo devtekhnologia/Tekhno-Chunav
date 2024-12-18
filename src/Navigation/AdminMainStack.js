@@ -36,6 +36,8 @@ import WardUserRegistration from '../Admin/Filter/WardUserRegistration'
 import TownBooths from '../Admin/Filter/TownBooths'
 import Favours from '../Admin/Filter/Favours'
 import Surname from '../Admin/Filter/Surname'
+import TownVoted from '../Admin/Towns/TownVoted'
+import BoothVoted from '../Admin/Booth/BoothVoted'
 
 
 
@@ -102,6 +104,19 @@ const AdminMainStack = () => {
                 })}
             />
 
+            
+<Stack.Screen name='Town Voted' component={TownVoted}
+                options={({ route }) => ({
+                    headerShown: false,
+                    headerTitleAlign: 'center', headerShadowVisible: false,
+                    headerTitle: route.params.townName ? `Voters in Town : ${route.params.townName}  ` : 'Town Voted',
+                    headerLeft: () => (
+                        <MaterialIcons name="menu" size={30} color="black"
+                            onPress={() => navigation.toggleDrawer()} />
+                    ),
+                })}
+            />
+
             <Stack.Screen name='Booths' component={Booths}
                 options={{
                     headerShown: false, headerTitleAlign: 'center', headerShadowVisible: false,
@@ -127,6 +142,19 @@ const AdminMainStack = () => {
                     headerShown: false,
                     headerTitleAlign: 'center', headerShadowVisible: false,
                     headerTitle: route.params.boothId ? `Voters in Booth : ${route.params.boothId}  ` : 'Booth Voters',
+                    headerLeft: () => (
+                        <MaterialIcons name="menu" size={30} color="black"
+                            onPress={() => navigation.toggleDrawer()} />
+                    ),
+                })}
+            />
+
+            
+           <Stack.Screen name='Booth Voted' component={BoothVoted}
+                options={({ route }) => ({
+                    headerShown: false,
+                    headerTitleAlign: 'center', headerShadowVisible: false,
+                    headerTitle: route.params.boothId ? `Voters in Booth : ${route.params.boothId}  ` : 'Booth Voted',
                     headerLeft: () => (
                         <MaterialIcons name="menu" size={30} color="black"
                             onPress={() => navigation.toggleDrawer()} />

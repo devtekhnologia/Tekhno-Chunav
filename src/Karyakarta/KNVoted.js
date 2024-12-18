@@ -28,7 +28,7 @@ export default function KNVoted({ route, navigation }) {
   useEffect(() => {
     const fetchVoters = async () => {
       try {
-        const response = await axios.get(`http://192.168.1.24:8000/api/voter_status/${KuserId}/2/`);
+        const response = await axios.get(`http://192.168.1.38:8000/api/voter_status/${KuserId}/2/`);
         if (response.data && Array.isArray(response.data)) {
           setVoters(response.data);
           setFilteredVoters(response.data);
@@ -80,7 +80,7 @@ export default function KNVoted({ route, navigation }) {
   };
 
   const fetchVoterDetails = (voter_id) => {
-    axios.get(`http://192.168.1.24:8000/api/voters/${voter_id}`)
+    axios.get(`http://192.168.1.38:8000/api/voters/${voter_id}`)
       .then(response => {
         setSelectedVoter(response.data); // Set selected voter details
         setIsModalVisible(true); // Show the modal
@@ -149,7 +149,7 @@ export default function KNVoted({ route, navigation }) {
         <TextInput
           value={search}
           onChangeText={setSearch}
-          placeholder={language === 'en' ? 'Search by voter’s name or ID' : 'मतदाराचे नाव किंवा ओळखपत्राने शोधा'}
+          placeholder={language === 'en' ? 'Search by voter’s name' : 'मतदाराचे नाव किंवा ओळखपत्राने शोधा'}
           style={styles.searchInput}
         />
       </View>
@@ -157,7 +157,7 @@ export default function KNVoted({ route, navigation }) {
       <FlatList
         data={filteredVoters}
         keyExtractor={item => item.voter_id.toString()}
-        showsVerticalScrollIndicator={false}
+        showsVerticalScrollIndicator={true}
         contentContainerStyle={styles.listContent}
         renderItem={renderItem}
         ListHeaderComponent={loading && <LoadingListComponent />}

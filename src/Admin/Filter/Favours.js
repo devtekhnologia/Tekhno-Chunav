@@ -6,7 +6,7 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import { LanguageContext } from '../../ContextApi/LanguageContext';
 
 const { width, height } = Dimensions.get('screen');
-const API_BASE_URL = 'http://192.168.1.24:8000/api/';
+const API_BASE_URL = 'http://192.168.1.38:8000/api/';
 
 const menuItems = [
     { label: 'Favour', value: '1' },
@@ -24,6 +24,7 @@ const Favours = () => {
     const [selectedMenu, setSelectedMenu] = useState(null);
     const [openDropdown, setOpenDropdown] = useState(false);
     const [voters, setVoters] = useState([]);
+    const [filteredVoters, setFilteredVoters] = useState([]);
     const [loading, setLoading] = useState(false);
 
     const fetchVoterData = async (menuId) => {
@@ -46,11 +47,41 @@ const Favours = () => {
         }
     }, [selectedMenu]);
 
-    const filteredVoters = voters.filter(voter =>
-        (voter.voter_id && voter.voter_id.toString().includes(searchValue)) ||
-        (voter.voter_name && voter.voter_name.toLowerCase().includes(searchValue.toLowerCase())) ||
-        (voter.voter_name_mar && voter.voter_name_mar.toLowerCase().includes(searchValue.toLowerCase()))
-    );
+    useEffect(() => {
+        const searchTerms = searchValue.toLowerCase().trim().split(/\s+/);
+
+        const filtered = voters.filter(voter => {
+            const voterName = voter.voter_name ? voter.voter_name.toLowerCase() : '';
+            const voterNameMar = voter.voter_name_mar ? voter.voter_name_mar.toLowerCase() : '';
+            const voterId = voter.voter_id ? voter.voter_id.toString() : '';
+            const voterSerialNumber = voter.voter_serial_number ? voter.voter_serial_number.toString() : '';
+            const voterIdCardNumber = voter.voter_id_card_number ? voter.voter_id_card_number.toLowerCase() : '';
+
+            const voterNameParts = voterName.split(/\s+/);
+            const voterNameMarParts = voterNameMar.split(/\s+/);
+
+            return searchTerms.every(term =>
+                voterId.includes(term) ||
+                voterSerialNumber.includes(term) ||
+                voterIdCardNumber.includes(term) ||
+                voterName.includes(term) ||
+                voterNameMar.includes(term) ||
+                voterNameParts.some(part => part.includes(term)) ||
+                voterNameMarParts.some(part => part.includes(term)) ||
+                voterName.startsWith(searchTerms.join(' ')) ||
+                voterNameMar.startsWith(searchTerms.join(' '))
+            );
+        });
+
+        setFilteredVoters(filtered);
+    }, [searchValue, voters]);
+
+    const toTitleCase = (str) => {
+        return str
+            .split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+            .join(' ');
+    };
 
     return (
         <View style={styles.container}>
@@ -58,7 +89,7 @@ const Favours = () => {
                 <Ionicons name="search" size={20} color="grey" />
                 <TextInput
                     value={searchValue}
-                    onChangeText={setSearchValue}
+                    onChangeText={text => setSearchValue(text)}
                     placeholder={language === 'en' ? 'Search Voter by ID, Name, or Marathi Name' : 'ओळखपत्र, नाव किंवा मराठी नावाने मतदार शोधा'}
                     style={styles.searchInput}
                 />
@@ -82,14 +113,23 @@ const Favours = () => {
                     <FlatList
                         data={filteredVoters}
                         keyExtractor={(item) => item.voter_id.toString()}
-                        showsVerticalScrollIndicator={false}
+                        showsVerticalScrollIndicator={true}
                         renderItem={({ item, index }) => (
                             <View style={styles.voterItem}>
                                 <View style={styles.voterDetails}>
-                                    <Text style={styles.index}>{index + 1}</Text>
-                                    <View>
-                                        <Text style={styles.voterName}>{item.voter_name}</Text>
-                                        <Text style={styles.voterMarathiName}>{item.voter_name_mar}</Text>
+                                    <View style={styles.topSection}>
+                                        <Text>
+                                            Sr. No: <Text style={styles.label}>{item.voter_serial_number}</Text>
+                                        </Text>
+                                        <Text>
+                                            Voter Id: <Text style={styles.label}>{item.voter_id_card_number}</Text>
+                                        </Text>
+                                    </View>
+                                    <View style={styles.divider} />
+                                    <View style={styles.bottomSection}>
+                                        <Text style={styles.voterName}>
+                                            {language === 'en' ? toTitleCase(item.voter_name) : item.voter_name_mar}
+                                        </Text>
                                     </View>
                                 </View>
                             </View>
@@ -143,25 +183,42 @@ const styles = StyleSheet.create({
         backgroundColor: '#f9f9f9',
     },
     voterDetails: {
-        flexDirection: 'row',
-        gap: 10,
-        alignItems: 'center',
+        flexDirection: 'column',
+        flex: 1,
+        padding: 10,
+        backgroundColor: '#f9f9f9',
+        borderRadius: 8,
+        // marginVertical: 8,
+        shadowColor: '#000',
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 2,
     },
-    index: {
-        borderWidth: 1,
-        borderColor: 'blue',
-        width: 30,
-        textAlign: 'center',
-        borderRadius: 3,
-        fontWeight: '700',
+    topSection: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 8,
+    },
+    label: {
+        fontWeight: '500',
+        fontSize: 16,
+    },
+    divider: {
+        borderBottomWidth: 1,
+        borderBottomColor: '#ccc',
+        borderStyle: 'dotted',
+        marginVertical: 8,
+    },
+    bottomSection: {
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     voterName: {
-        fontSize: 16,
-        fontWeight: '500',
-    },
-    voterMarathiName: {
-        fontSize: 14,
-        color: 'grey',
+        fontSize: 18,
+        fontWeight:'900',
+        color: '#333',
+        textAlign: 'center',
     },
     voterId: {
         fontSize: 12,

@@ -22,7 +22,7 @@ export default function Voted({ route }) {
     const [isModalVisible, setIsModalVisible] = useState(false);
 
     const fetchVoterDetails = (voter_id) => {
-        axios.get(`http://192.168.1.24:8000/api/voters/${voter_id}`)
+        axios.get(`http://192.168.1.38:8000/api/voters/${voter_id}`)
             .then(response => {
 
                 setSelectedVoter(response.data);
@@ -45,34 +45,38 @@ export default function Voted({ route }) {
     };
 
 
+     useEffect(() => {
+            const searchTerms = searchedValue.toLowerCase().trim().split(/\s+/);
+        
+            const filtered = voters.filter(voter => {
+                const voterName = voter.voter_name ? voter.voter_name.toLowerCase() : '';
+                const voterNameMar = voter.voter_name_mar ? voter.voter_name_mar.toLowerCase() : '';
+                const voterId = voter.voter_id ? voter.voter_id.toString() : '';
+                const voterSerialNumber = voter.voter_serial_number ? voter.voter_serial_number.toString() : '';
+                const voterIdCardNumber = voter.voter_id_card_number ? voter.voter_id_card_number.toLowerCase() : '';
+        
+                const voterNameParts = voterName.split(/\s+/);
+                const voterNameMarParts = voterNameMar.split(/\s+/);
+        
+                return searchTerms.every(term =>
+                    voterId.includes(term) ||
+                    voterSerialNumber.includes(term) ||
+                    voterIdCardNumber.includes(term) ||
+                    voterName.includes(term) ||
+                    voterNameMar.includes(term) ||
+                    voterNameParts.some(part => part.includes(term)) ||
+                    voterNameMarParts.some(part => part.includes(term)) ||
+                    voterName.startsWith(searchTerms.join(' ')) ||
+                    voterNameMar.startsWith(searchTerms.join(' '))
+                );
+            });
+        
+            setFilteredVoters(filtered);
+        }, [searchedValue, voters]);
+
+
     useEffect(() => {
-        const searchTerms = searchedValue.toLowerCase().trim().split(/\s+/); 
-
-        const filtered = voters.filter(voter => {
-            const voterName = voter.voter_name ? voter.voter_name.toLowerCase() : '';
-            const voterNameMar = voter.voter_name_mar ? voter.voter_name_mar.toLowerCase() : '';
-            const voterId = voter.voter_id ? voter.voter_id.toString() : '';
-
-            const voterNameParts = voterName.split(/\s+/); 
-            const voterNameMarParts = voterNameMar.split(/\s+/);
-
-            return searchTerms.every(term =>
-                voterId.includes(term) || 
-                voterName.includes(term) ||
-                voterNameMar.includes(term) ||
-                voterNameParts.some(part => part.includes(term)) ||
-                voterNameMarParts.some(part => part.includes(term)) || 
-                voterName.startsWith(searchTerms.join(' ')) || 
-                voterNameMar.startsWith(searchTerms.join(' ')) 
-            );
-        });
-
-        setFilteredVoters(filtered);
-    }, [searchedValue, voters]);
-
-
-    useEffect(() => {
-        axios.get(`http://192.168.1.24:8000/api/vote_confirmation/1/`)
+        axios.get(`http://192.168.1.38:8000/api/vote_confirmation/1/`)
             .then(response => {
 
                 if (response.data && Array.isArray(response.data)) {
@@ -119,7 +123,7 @@ export default function Voted({ route }) {
                     <TextInput
                         value={searchedValue}
                         onChangeText={text => setSearchValue(text)}
-                        placeholder={language === 'en' ? "Search by voter’s name or ID" : "मतदाराचे नाव किंवा आयडी द्वारे शोधा"}
+                        placeholder={language === 'en' ? "Search by voter’s name" : "मतदाराचे नाव किंवा आयडी द्वारे शोधा"}
                         style={styles.searchInput}
                     />
                 </View>
@@ -128,23 +132,27 @@ export default function Voted({ route }) {
                     <FlatList
                         data={filteredVoters}
                         keyExtractor={item => item.voter_id.toString()}
-                        showsVerticalScrollIndicator={false}
+                        showsVerticalScrollIndicator={true}
                         renderItem={({ item, index }) => (
                             <Pressable style={[styles.voterItem, styles.selectedVoterItem,
                             { backgroundColor: getBackgroundColor(item.voter_favour_id) }]}
                                 onPress={() => { handleVoterPress(item.voter_id) }}>
                                 <View style={styles.voterDetails}>
-                                    <View style={styles.indexBox}>
-                                        {/* <Text style={styles.indexText}>{index + 1}</Text> */}
-                                    </View>
-                                    <View style={{
-                                        borderRightWidth: 1, borderColor: '#D9D9D9',
-                                        width: 60, alignItems: 'center',
-                                    }}>
-                                        <Text style={{}}>{index + 1}</Text>
-                                    </View>
-                                    <Text>{language === 'en' ? toTitleCase(item.voter_name) : item.voter_name_mar}</Text>
-                                </View>
+                                                    <View style={styles.topSection}>
+                                                        <Text>
+                                                            Sr. No: <Text style={styles.label}>{item.voter_serial_number}</Text>
+                                                        </Text>
+                                                        <Text>
+                                                            Voter Id: <Text style={styles.label}>{item.voter_id_card_number}</Text>
+                                                        </Text>
+                                                    </View>
+                                                    <View style={styles.divider} />
+                                                    <View style={styles.bottomSection}>
+                                                        <Text style={styles.voterName}>
+                                                            {language === 'en' ? toTitleCase(item.voter_name) : item.voter_name_mar}
+                                                        </Text>
+                                                    </View>
+                                                </View>
                             </Pressable>
                         )}
                         ListHeaderComponent={loading && <LoadingListComponent />}
@@ -187,6 +195,7 @@ const styles = StyleSheet.create({
     },
     listContainer: {
         // flex: 1,
+        marginBottom: '25%'
     },
     voterItem: {
         // flex: 1,
@@ -198,10 +207,45 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         borderWidth: 0.2,
+        marginBottom: 10
     },
     voterDetails: {
+        flexDirection: 'column',
+        flex: 1,
+        padding: 10,
+        backgroundColor: '#f9f9f9',
+        borderRadius: 8,
+        // marginVertical: 8,
+        shadowColor: '#000',
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 2,
+    },
+    topSection: {
         flexDirection: 'row',
-        gap: 10
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 8,
+    },
+    label: {
+        fontWeight: '500',
+        fontSize: 16,
+    },
+    divider: {
+        borderBottomWidth: 1,
+        borderBottomColor: '#ccc',
+        borderStyle: 'dotted',
+        marginVertical: 8,
+    },
+    bottomSection: {
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    voterName: {
+        fontSize: 18,
+        fontWeight:'900',
+        color: '#333',
+        textAlign: 'center',
     },
     noDataText: {
         textAlign: 'center',

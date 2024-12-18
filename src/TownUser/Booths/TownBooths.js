@@ -31,7 +31,7 @@ const TownBooths = ({ route }) => {
     const fetchData = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`http://192.168.1.24:8000/api/get_booth_names_by_town_user/${userId}`);
+            const response = await axios.get(`http://192.168.1.38:8000/api/get_booth_names_by_town_user/${userId}`);
             const formattedTowns = response.data;
 
             if (Array.isArray(formattedTowns)) {
@@ -59,7 +59,7 @@ const TownBooths = ({ route }) => {
                 <TextInput
                     value={searchedValue}
                     onChangeText={text => setSearchValue(text)}
-                    placeholder={language === 'en' ? "search booth by name or ID" : 'नाव किंवा आयडीद्वारे बूथ शोधा'}
+                    placeholder={language === 'en' ? "Search booth by name or ID" : 'नाव किंवा आयडीद्वारे बूथ शोधा'}
                     style={styles.searchInput}
                 />
             </View>
@@ -67,29 +67,37 @@ const TownBooths = ({ route }) => {
             <FlatList
                 data={searchedBooth}
                 keyExtractor={item => item.booth_id.toString()}
-                showsVerticalScrollIndicator={false}
+                showsVerticalScrollIndicator={true}
                 renderItem={({ item }) => (
                     <Pressable style={styles.voterItem}
                         onPress={() => {
                             navigation.navigate('Booth Voters', { boothId: item.booth_id });
                         }}
                     >
-                        <Text style={styles.boothIdText}>{item.booth_id}</Text>
-                        <Text style={styles.boothNameText}>{language === 'en' ? item.booth_name : item.booth_name_mar}</Text>
+                        <View style={styles.topSection}>
+                            <Text style={styles.boothIdText}>{item.booth_id}</Text>
+                            <Text style={styles.boothNameText}>{language === 'en' ? item.booth_name : item.booth_name_mar}</Text>
+                        </View>
+
+                        <View style={styles.buttonsContainer}>
+                            <Pressable
+                                style={styles.votersButton}
+                                onPress={() => { navigation.navigate('Booth Voters', { boothId: item.booth_id }) }}
+                            >
+                                <Text style={styles.buttonText}>{language === 'en' ? 'Voters' : 'मतदार'}</Text>
+                            </Pressable>
+                            <Pressable
+                                style={styles.votersButton}
+                                onPress={() => { navigation.navigate('Booth Voted', { boothId: item.booth_id }) }}
+                            >
+                                <Text style={styles.buttonText}>{language === 'en' ? 'Voted' : 'मतदान'}</Text>
+                            </Pressable>
+                        </View>
                     </Pressable>
                 )}
                 ListHeaderComponent={loading && <LoadingListComponent />}
                 ListEmptyComponent={!loading && <EmptyListComponent />}
             />
-
-            {pdfLoading && (
-                <View style={styles.pdfLoadingOverlay}>
-                    <ActivityIndicator size="large" color="white" />
-                    <Text style={styles.pdfLoadingText}>
-                        {language === 'en' ? 'Generating PDF...' : 'PDF व्युत्पन्न करत आहे...'}
-                    </Text>
-                </View>
-            )}
         </View>
     );
 };
@@ -132,18 +140,47 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap',
 
     },
+    topSection: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        width: '100%',
+    },
+    indexText: {
+        fontWeight: 'bold',
+        fontSize: 16,
+    },
     boothIdText: {
         borderWidth: 1,
         borderColor: 'blue',
-        width: 30,
+        width: 50,
         textAlign: 'center',
         borderRadius: 3,
-        fontWeight: '700',
+        fontWeight: '500',
+        marginRight: 10,
     },
     boothNameText: {
         flex: 1,
         fontSize: 16,
-        flexWrap: 'wrap',
+        fontWeight: '800',
+    },
+    buttonsContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        width: '100%',
+        marginTop: 10,
+    },
+    votersButton: {
+        backgroundColor: '#4CAF50',
+        padding: 10,
+        borderRadius: 5,
+        width: '45%',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    buttonText: {
+        color: 'white',
+        fontWeight: 'bold',
     },
     noDataText: {
         textAlign: 'center',
@@ -151,43 +188,5 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: 'gray',
     },
-    loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginTop: 50
 
-    },
-    pdfButtonContainer: {
-        alignSelf: 'center',
-        marginVertical: 20,
-    },
-    pdfButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#FF6347',
-        padding: 10,
-        borderRadius: 5,
-    },
-    pdfButtonText: {
-        color: 'white',
-        marginLeft: 10,
-        fontSize: 18,
-        fontWeight: 'bold',
-    },
-    pdfLoadingOverlay: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(0,0,0,0.7)',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    pdfLoadingText: {
-        color: 'white',
-        fontSize: 18,
-        marginTop: 10,
-    },
 });

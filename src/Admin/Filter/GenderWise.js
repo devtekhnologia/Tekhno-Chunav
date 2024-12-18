@@ -23,7 +23,7 @@ export default function GenderWise() {
     const [isModalVisible, setIsModalVisible] = useState(false);
 
     const fetchVoterDetails = (voter_id) => {
-        axios.get(`http://192.168.1.24:8000/api/voters/${voter_id}`)
+        axios.get(`http://192.168.1.38:8000/api/voters/${voter_id}`)
             .then(response => {
                 setSelectedVoter(response.data);
                 setIsModalVisible(true);
@@ -65,7 +65,7 @@ export default function GenderWise() {
     const fetchVoters = async (genderValue) => {
         try {
             setLoading(true);
-            const response = await axios.get(`http://192.168.1.24:8000/api/get_male_female_voters_by_all/gender/${genderValue}/`);
+            const response = await axios.get(`http://192.168.1.38:8000/api/get_male_female_voters_by_all/gender/${genderValue}/`);
             setFilteredVoters(response.data);
             setLoading(false);
         } catch (error) {
@@ -104,11 +104,21 @@ export default function GenderWise() {
                         renderItem={({ item, index }) => (
                             <Pressable style={styles.voterItem} onPress={() => { handleVoterPress(item.voter_id) }}>
                                 <View style={styles.voterDetails}>
-                                    <View style={styles.voterIdContainer}>
-                                        <Text>{index + 1}</Text>
-                                    </View>
-                                    <Text>{language === 'en' ? toTitleCase(item.voter_name) : item.voter_name_mar}</Text>
-                                </View>
+                                                    <View style={styles.topSection}>
+                                                        <Text>
+                                                            Sr. No: <Text style={styles.label}>{item.voter_serial_number}</Text>
+                                                        </Text>
+                                                        <Text>
+                                                            Voter Id: <Text style={styles.label}>{item.voter_id_card_number}</Text>
+                                                        </Text>
+                                                    </View>
+                                                    <View style={styles.divider} />
+                                                    <View style={styles.bottomSection}>
+                                                        <Text style={styles.voterName}>
+                                                            {language === 'en' ? toTitleCase(item.voter_name) : item.voter_name_mar}
+                                                        </Text>
+                                                    </View>
+                                                </View>
                             </Pressable>
                         )}
                         ListHeaderComponent={loading && genderValue && <LoadingListComponent />}
@@ -172,16 +182,42 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
     },
     voterDetails: {
-        flexDirection: 'row',
-        alignItems: 'center',
+        flexDirection: 'column',
+        flex: 1,
+        padding: 10,
+        backgroundColor: '#f9f9f9',
+        borderRadius: 8,
+        // marginVertical: 8,
+        shadowColor: '#000',
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 2,
     },
-    voterIdContainer: {
-        borderRightWidth: 1,
-        borderColor: '#D9D9D9',
-        paddingRight: 10,
-        marginRight: 10,
-        width: 60,
+    topSection: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
         alignItems: 'center',
+        marginBottom: 8,
+    },
+    label: {
+        fontWeight: '500',
+        fontSize: 16,
+    },
+    divider: {
+        borderBottomWidth: 1,
+        borderBottomColor: '#ccc',
+        borderStyle: 'dotted',
+        marginVertical: 8,
+    },
+    bottomSection: {
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    voterName: {
+        fontSize: 18,
+        fontWeight:'900',
+        color: '#333',
+        textAlign: 'center',
     },
     noDataText: {
         textAlign: 'center',

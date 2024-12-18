@@ -34,7 +34,7 @@ const TempEditedVoterForm = ({ isVisible, onClose, selectedVoter, onEditVoter })
 
     const fetchCasteData = async () => {
         try {
-            const response = await axios.get('http://192.168.1.24:8000/api/cast/');
+            const response = await axios.get('http://192.168.1.38:8000/api/cast/');
             const casteData = response.data.map(cast => ({
                 label: `${cast.cast_id} - ${cast.cast_name}`,
                 value: cast.cast_id,
@@ -91,7 +91,7 @@ const TempEditedVoterForm = ({ isVisible, onClose, selectedVoter, onEditVoter })
 
 
         try {
-            const apiUrl = `http://192.168.1.24:8000/api/update_voter_data/${selectedVoter.temp_voter_data_voter_id}/`;
+            const apiUrl = `http://192.168.1.38:8000/api/update_voter_data/${selectedVoter.temp_voter_data_voter_id}/`;
             const response = await axios.put(apiUrl, updatedData);
 
             Alert.alert("Success", "Voter details updated successfully.");

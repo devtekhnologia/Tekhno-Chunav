@@ -33,7 +33,7 @@ export default function WardBoothVoters({ route, navigation }) {
   useEffect(() => {
     const fetchVoters = async () => {
       try {
-        const response = await axios.get(`http://192.168.1.24:8000/api/get_voters_by_booth/${boothId}`);
+        const response = await axios.get(`http://192.168.1.38:8000/api/get_voters_by_booth/${boothId}`);
         if (response.data && response.data && Array.isArray(response.data)) {
 
           const voterData = response.data.map(voter => ({
@@ -71,7 +71,7 @@ export default function WardBoothVoters({ route, navigation }) {
 
   const fetchVoterDetails = (voter_id) => {
     setLoadingModalDetails(true);
-    axios.get(`http://192.168.1.24:8000/api/voters/${voter_id}`)
+    axios.get(`http://192.168.1.38:8000/api/voters/${voter_id}`)
       .then(response => {
         setSelectedVoter(response.data);
         setFormVisible(true);
@@ -133,7 +133,7 @@ export default function WardBoothVoters({ route, navigation }) {
       <TouchableOpacity style={[styles.voterItem, { backgroundColor }]}
         onPress={() => fetchVoterDetails(item.voter_id)}>
         <View style={styles.idSection}>
-        <Text>{fixedIndex}</Text>
+          <Text>{fixedIndex}</Text>
         </View>
         <View style={styles.nameSection}>
           <Text style={styles.itemText}>{language === 'en' ? toTitleCase(item.voter_name) : item.voter_name_mar}</Text>
@@ -144,10 +144,10 @@ export default function WardBoothVoters({ route, navigation }) {
 
   const toTitleCase = (str) => {
     return str
-        .split(' ')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-        .join(' ');
-};
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+  };
 
   return (
     <View style={styles.container}>
@@ -156,7 +156,7 @@ export default function WardBoothVoters({ route, navigation }) {
         <TextInput
           value={search}
           onChangeText={setSearch}
-          placeholder={language === 'en' ? "search booth by name or ID" : 'नाव किंवा आयडीद्वारे बूथ शोधा'}
+          placeholder={language === 'en' ? "Search booth by name or ID" : 'नाव किंवा आयडीद्वारे बूथ शोधा'}
           style={styles.searchInput}
         />
       </View>
@@ -164,7 +164,7 @@ export default function WardBoothVoters({ route, navigation }) {
       <FlatList
         data={filteredVoters}
         keyExtractor={item => item.voter_id.toString()}
-        showsVerticalScrollIndicator={false}
+        showsVerticalScrollIndicator={true}
         contentContainerStyle={styles.listContent}
         renderItem={renderItem}
         ListHeaderComponent={loading && <LoadingListComponent />}

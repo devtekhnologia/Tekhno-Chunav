@@ -26,7 +26,7 @@ export default function WboothUsers() {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get(`http://192.168.1.24:8000/api/user_booth_details_by_prabhag_user/${wardUserId}/`);
+      const response = await axios.get(`http://192.168.1.38:8000/api/user_booth_details_by_prabhag_user/${wardUserId}/`);
       setUsers(response.data);
       setLoading(false);
     } catch (error) {
@@ -48,7 +48,7 @@ export default function WboothUsers() {
 
   const deleteUser = async (wardUserId) => {
     try {
-      const response = await axios.post('http://192.168.1.24:8000/api/delete_user/', {
+      const response = await axios.post('http://192.168.1.38:8000/api/delete_user/', {
         user_id: wardUserId,
       }, {
         headers: {
@@ -91,7 +91,7 @@ export default function WboothUsers() {
         <TextInput
           value={searchedValue}
           onChangeText={text => setSearchedValue(text)}
-          placeholder={language === 'en' ? "Search by voter’s name or ID" : 'मतदाराचे नाव किंवा आयडी द्वारे शोधा'}
+          placeholder={language === 'en' ? "Search by voter’s name" : 'मतदाराचे नाव किंवा आयडी द्वारे शोधा'}
           style={styles.searchInput}
         />
       </View>
@@ -99,7 +99,7 @@ export default function WboothUsers() {
       <FlatList
         data={searchedUsers}
         keyExtractor={(item) => item.user_id.toString()}
-        showsVerticalScrollIndicator={false}
+        showsVerticalScrollIndicator={true}
         renderItem={({ item }) => (
           <Pressable
             style={styles.userItem}

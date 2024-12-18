@@ -1,5 +1,5 @@
 import { AntDesign, MaterialIcons, MaterialCommunityIcons, FontAwesome5, Octicons } from 'react-native-vector-icons';
-import { Dimensions, Pressable, StyleSheet, TouchableOpacity } from 'react-native';
+import { Dimensions, Platform, Pressable, StyleSheet, TouchableOpacity } from 'react-native';
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
@@ -15,6 +15,7 @@ import WardVoters from '../Admin/Ward/WardVoters';
 import ContactUs from '../ReusableCompo/ContactUs/ContactUs';
 import { useContext } from 'react';
 import { LanguageContext } from '../ContextApi/LanguageContext';
+import { KeyboardAvoidingView } from 'react-native-web';
 
 
 const Tab = createMaterialBottomTabNavigator();
@@ -158,6 +159,10 @@ const ProfileStack = () => {
 
 
 const AdminBottomTabNav = () => (
+    // <KeyboardAvoidingView
+    //     style={{ flex: 1 }}
+    //     behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    // >
     <Tab.Navigator
         initialRouteName='Dashboard'
         activeColor="#3C4CAC"
@@ -166,7 +171,7 @@ const AdminBottomTabNav = () => (
     >
         <Tab.Screen name='Dashboard Tab' component={AdminMainStack}
             options={{
-                tabBarLabel:"Dashboard",
+                tabBarLabel: "Dashboard",
                 tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="home" IconComponent={AntDesign} />,
             }}
         />
@@ -201,12 +206,13 @@ const AdminBottomTabNav = () => (
             }}
         />
     </Tab.Navigator>
+    // {/* </KeyboardAvoidingView> */ }
 );
 
 const styles = StyleSheet.create({
     tabBar: {
         backgroundColor: 'white',
-        height: height * 0.085,
+        height: height * 0.1,
         borderTopWidth: 1,
         borderTopColor: '#e0e0e0',
     },

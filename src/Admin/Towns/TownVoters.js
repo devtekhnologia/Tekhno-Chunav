@@ -1,456 +1,3 @@
-// import React, { useContext, useEffect, useState } from 'react';
-// import { Alert, Dimensions, FlatList, Pressable, StyleSheet, Text, TextInput, View, RefreshControl } from 'react-native';
-// import Ionicons from '@expo/vector-icons/Ionicons';
-// import HeaderFooterLayout from '../../ReusableCompo/HeaderFooterLayout';
-// import axios from 'axios';
-// import VoterDetailsPopUp from '../Voters/VoterDetailsPopUp';
-// import LoadingListComponent from '../../ReusableCompo/LoadingListComponent';
-// import EmptyListComponent from '../../ReusableCompo/EmptyListComponent';
-// import { LanguageContext } from '../../ContextApi/LanguageContext';
-// import EditVoterForm from '../../ReusableCompo/EditVoterForm';
-// import CastModal from '../Voters/CastModals';
-
-
-// const { width, height } = Dimensions.get('screen');
-
-// const TownVoters = ({ route }) => {
-//     const { townId } = route.params;
-//     const { language } = useContext(LanguageContext);
-//     const [voters, setVoters] = useState([]);
-//     const [filteredVoters, setFilteredVoters] = useState([]);
-//     const [loading, setLoading] = useState(true);
-//     const [searchedValue, setSearchValue] = useState('');
-//     const [sortState, setSortState] = useState(0);
-//     const [initialVoters, setInitialVoters] = useState([]);
-//     const [error, setError] = useState(null);
-
-//     const [selectedVoter, setSelectedVoter] = useState(null);
-//     const [isModalVisible, setIsModalVisible] = useState(false);
-//     const [selectedVoters, setSelectedVoters] = useState([]);
-//     const [isSelectionMode, setIsSelectionMode] = useState(false);
-//     const [refreshing, setRefreshing] = useState(false);
-//     const [selectAll, setSelectAll] = useState(false);
-
-//     const fetchVoterDetails = (voter_id) => {
-//         axios.get(`http://192.168.1.24:8000/api/voters/${voter_id}`)
-//             .then(response => {
-//                 setSelectedVoter(response.data);
-//                 setIsModalVisible(true);
-//             })
-//             .catch(error => {
-//                 Alert.alert('Error', 'Failed to fetch voter details. Please try again.');
-//             });
-//     };
-
-//     const handleVoterPress = (voter_id) => {
-//         if (isSelectionMode) {
-//             toggleVoterSelection(voter_id);
-//         } else {
-//             fetchVoterDetails(voter_id);
-//         }
-//     };
-
-//     const toggleVoterSelection = (voter_id) => {
-//         if (selectedVoters.includes(voter_id)) {
-//             setSelectedVoters(selectedVoters.filter(id => id !== voter_id));
-//         } else {
-//             setSelectedVoters([...selectedVoters, voter_id]);
-//         }
-//     };
-
-//     const handleLongPress = (voter_id) => {
-//         setIsSelectionMode(true);
-//         toggleVoterSelection(voter_id);
-//     };
-
-//     const exitSelectionMode = () => {
-//         setIsSelectionMode(false);
-//         setSelectedVoters([]);
-//     };
-
-//     useEffect(() => {
-//         const searchTerms = searchedValue.toLowerCase().trim().split(/\s+/);
-
-//         const filtered = voters.filter(voter => {
-//             const voterName = voter.voter_name ? voter.voter_name.toLowerCase() : '';
-//             const voterNameMar = voter.voter_name_mar ? voter.voter_name_mar.toLowerCase() : '';
-//             const voterId = voter.voter_id ? voter.voter_id.toString() : '';
-
-//             const voterNameParts = voterName.split(/\s+/);
-//             const voterNameMarParts = voterNameMar.split(/\s+/);
-
-//             return searchTerms.every(term =>
-//                 voterId.includes(term) ||
-//                 voterName.includes(term) ||
-//                 voterNameMar.includes(term) ||
-//                 voterNameParts.some(part => part.includes(term)) ||
-//                 voterNameMarParts.some(part => part.includes(term)) ||
-//                 voterName.startsWith(searchTerms.join(' ')) ||
-//                 voterNameMar.startsWith(searchTerms.join(' '))
-//             );
-//         });
-
-//         setFilteredVoters(filtered);
-//     }, [searchedValue, voters]);
-
-//     const toTitleCase = (str) => {
-//         return str
-//             .split(' ')
-//             .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-//             .join(' ');
-//     };
-//     const sortVotersAlphabetically = () => {
-//         if (sortState === 0) {
-//             // Sort A-Z
-//             const sortedVoters = [...filteredVoters].sort((a, b) => {
-//                 const nameA = a.voter_name ? a.voter_name.toLowerCase() : '';
-//                 const nameB = b.voter_name ? b.voter_name.toLowerCase() : '';
-//                 return nameA.localeCompare(nameB);
-//             });
-//             setFilteredVoters(sortedVoters);
-//             setSortState(1);
-//         } else if (sortState === 1) {
-//             // Sort Z-A
-//             const sortedVoters = [...filteredVoters].sort((a, b) => {
-//                 const nameA = a.voter_name ? a.voter_name.toLowerCase() : '';
-//                 const nameB = b.voter_name ? b.voter_name.toLowerCase() : '';
-//                 return nameB.localeCompare(nameA);
-//             });
-//             setFilteredVoters(sortedVoters);
-//             setSortState(2);
-//         } else {
-//             // Reset to default order (initial voters)
-//             setFilteredVoters(initialVoters);
-//             setSortState(0);
-//         }
-//     };
-
-//     const fetchVoterData = async () => {
-//         try {
-//             const response = await axios.get(`http://192.168.1.24:8000/api/town_wise_voter_list/${townId}/`);
-//             if (response.data && Array.isArray(response.data)) {
-//                 setVoters(response.data);
-//                 setFilteredVoters(response.data);
-//                 setInitialVoters(response.data);
-//             } else {
-//                 setError('Unexpected API response format.');
-//             }
-//         } catch (error) {
-//             console.error(error);
-//             Alert.alert('Error fetching voter data', error.toString ? error.toString() : 'Unknown error');
-//             setError('Error fetching data. Please try again later.');
-//         } finally {
-//             setLoading(false);
-//         }
-//     };
-
-//     const onRefresh = async () => {
-//         setRefreshing(true);
-//         await fetchVoterData();
-//         setRefreshing(false);
-//     };
-
-//     useEffect(() => {
-//         fetchVoterData();
-//     }, [townId]);
-
-
-//     const getIconName = () => {
-//         if (sortState === 0) {
-//             return "sort";
-//         } else if (sortState === 1) {
-//             return "sort-alpha-down";
-//         } else if (sortState === 2) {
-//             return "sort-alpha-up-alt";
-//         }
-//     };
-
-
-//     const renderItem = ({ item }) => {
-//         let backgroundColor = 'white';
-
-//         switch (item.voter_favour_id) {
-//             case 1:
-//                 backgroundColor = '#d3f5d3';
-//                 break;
-//             case 2:
-//                 backgroundColor = '#f5d3d3';
-//                 break;
-//             case 3:
-//                 backgroundColor = '#f5f2d3';
-//                 break;
-//             case 4:
-//                 backgroundColor = '#c9daff';
-//                 break;
-//             case 5:
-//                 backgroundColor = 'skyblue';
-//                 break;
-//             case 6:
-//                 backgroundColor = '#fcacec';
-//                 break;
-//             case 7:
-//                 backgroundColor = '#dcacfa';
-//                 break;
-
-//             default:
-//                 backgroundColor = 'white';
-//         }
-
-//         return (
-
-//             <Pressable
-//                 style={[styles.voterItem, selectedVoters.includes(item.voter_id) && styles.selectedVoterItem, { backgroundColor }]}
-//                 onPress={() => handleVoterPress(item.voter_id)}
-//                 onLongPress={() => handleLongPress(item.voter_id)}
-//             >
-
-//                 <View style={styles.voterDetails}>
-//                     <View style={{
-//                         borderRightWidth: 1, borderColor: '#D9D9D9',
-//                         width: 60, alignItems: 'center',
-//                     }}>
-//                         <Text>{item.voter_id}</Text>
-//                     </View>
-//                     <Text >{language === 'en' ? toTitleCase(item.voter_name) : item.voter_name_mar}</Text>
-//                 </View>
-//             </Pressable>
-//         )
-//     }
-
-//     const [colorState, setColorState] = useState({
-//         1: '#2ff55d', // Green
-//         2: '#fc392b', // Red
-//         3: '#dedb21', // Yellow
-//         4: '#2832f7', // Sky Blue
-//         5: '#21b9db', // Blue
-//         6: '#f52cda', // Pink
-//         7: '#ac1fed', // Purple
-//         0: 'black'    // Black
-//     });
-
-//     const applyColorToSelected = async (colorKey) => {
-//         const colorCode = colorState[colorKey];
-//         const updatedVoters = filteredVoters.map(voter =>
-//             selectedVoters.includes(voter.voter_id) ? { ...voter, voter_favour_id: colorKey } : voter
-//         );
-//         setFilteredVoters(updatedVoters);
-//         for (let voter_id of selectedVoters) {
-//             try {
-//                 await sendCheckboxStateToAPI(voter_id, colorKey);
-//             } catch (error) {
-//                 console.error(`Failed to update voter ${voter_id}:`, error);
-//             }
-//         }
-//         exitSelectionMode();
-//     };
-//     const sendCheckboxStateToAPI = async (voter_id, checkboxID) => {
-//         try {
-//             const response = await axios.put(`http://192.168.1.24:8000/api/favour/${voter_id}/`, {
-//                 voter_favour_id: checkboxID,
-//             });
-
-//             if (response.status !== 200) {
-//                 throw new Error('Failed to update checkbox state.');
-//             }
-//         } catch (error) {
-//             console.error('Error updating checkbox state:', error.message);
-//             alert('Failed to update checkbox state. Please try again.');
-//         }
-//     };
-
-//     const handleSelectAll = () => {
-//         if (selectAll) {
-//             // Deselect all visible voters
-//             const deselected = selectedVoters.filter(id => !filteredVoters.some(voter => voter.voter_id === id));
-//             setSelectedVoters(deselected);
-//         } else {
-//             // Select all visible voters
-//             const allVisibleVoterIds = filteredVoters.map(voter => voter.voter_id);
-//             setSelectedVoters([...new Set([...selectedVoters, ...allVisibleVoterIds])]);
-//         }
-//         setSelectAll(!selectAll); // Toggle select all state
-//     };
-
-//     return (
-//         <HeaderFooterLayout
-//             headerText={language === 'en' ? `${route.params.townName} Voters` : `${route.params.townName} मतदार`}
-//             showHeader={true}
-//             showFooter={false}
-//             leftIcon={true}
-//             rightIcon={true}
-//             leftIconName="keyboard-backspace"
-//             rightIconName={getIconName()}
-//             onRightIconPress={sortVotersAlphabetically}
-//         >
-
-//             <View style={styles.container}>
-//                 <View style={styles.searchContainer}>
-//                     <Ionicons name="search" size={20} color="grey" />
-//                     <TextInput
-//                         value={searchedValue}
-//                         onChangeText={text => setSearchValue(text)}
-//                         placeholder={language === 'en' ? "Search by voter’s name or ID" : "मतदाराचे नाव किंवा आयडी द्वारे शोधा"}
-//                         style={styles.searchInput}
-//                     />
-//                 </View>
-
-//                 {isSelectionMode && (
-//                     <>
-//                         <Pressable
-//                             style={styles.selectAllButtonn}
-//                             onPress={() => {
-//                                 setCasteModalVisible(true);
-//                             }}
-//                         >
-//                             <Text style={styles.selectAllTextt}>Assign Cast</Text>
-//                         </Pressable>
-
-//                         <View style={styles.colorToolbar}>
-//                             <Pressable
-//                                 style={styles.selectAllButton}
-//                                 onPress={handleSelectAll}
-//                             >
-//                                 <Text style={styles.selectAllText}>
-//                                     {selectAll ? 'Deselect All' : 'Select All'}
-//                                 </Text>
-//                             </Pressable>
-//                             {Object.entries(colorState).map(([key, color]) => (
-//                                 <Pressable
-//                                     key={key}
-//                                     style={[styles.colorCircle, { backgroundColor: color }]}
-//                                     onPress={() => applyColorToSelected(parseInt(key))}
-//                                 />
-//                             ))}
-//                             <Ionicons name="close-circle" size={30} color="red" onPress={exitSelectionMode} style={styles.actionIcon} />
-//                         </View>
-//                     </>
-//                 )}
-
-
-//                 <View style={styles.listContainer}>
-//                     <FlatList
-//                         data={filteredVoters}
-//                         keyExtractor={item => item.voter_id.toString()}
-//                         showsVerticalScrollIndicator={false}
-//                         renderItem={renderItem}
-//                         refreshControl={
-//                             <RefreshControl
-//                                 refreshing={refreshing}
-//                                 onRefresh={onRefresh}
-//                             />
-//                         }
-//                         ListHeaderComponent={loading && <LoadingListComponent />}
-//                         ListEmptyComponent={!loading && <EmptyListComponent />}
-//                     />
-//                 </View>
-
-
-//                 <VoterDetailsPopUp
-//                     isModalVisible={isModalVisible}
-//                     selectedVoter={selectedVoter}
-//                     setIsModalVisible={setIsModalVisible}
-//                 />
-//             </View >
-//         </HeaderFooterLayout >
-//     )
-// }
-
-// export default TownVoters
-
-// const styles = StyleSheet.create({
-//     container: {
-//         paddingHorizontal: 15,
-//         height: '100%',
-//     },
-//     searchContainer: {
-//         borderColor: '#9095A1',
-//         borderWidth: 1.5,
-//         borderRadius: 5,
-//         height: 45,
-//         flexDirection: 'row',
-//         alignItems: 'center',
-//         paddingHorizontal: 10,
-//         columnGap: 20,
-//         marginVertical: 10,
-//     },
-//     searchInput: {
-//         flex: 1,
-//         paddingVertical: 10,
-//     },
-//     selectionToolbar: {
-//         flexDirection: 'row',
-//         justifyContent: 'space-around',
-//         marginVertical: 10,
-//     },
-//     actionIcon: {
-//         paddingHorizontal: 15,
-//     },
-//     listContainer: {
-//         flex: 1,
-//     },
-//     voterItem: {
-//         flexDirection: 'row',
-//         alignItems: 'center',
-//         padding: 10,
-//         marginVertical: 5,
-//         borderRadius: 5,
-//         borderWidth: 2,
-//         borderColor: '#e0e0e0',
-//     },
-//     selectedVoterItem: {
-//         borderColor: 'black',
-//         borderWidth: 2,
-//     },
-//     voterDetails: {
-//         flexDirection: 'row',
-//         alignItems: 'center',
-//         columnGap: 10,
-//     },
-//     voterName: {
-//         marginLeft: 10,
-//         fontSize: 16,
-//     },
-//     noDataText: {
-//         textAlign: 'center',
-//         marginTop: 20,
-//     },
-//     loadingContainer: {
-//         flex: 1,
-//         justifyContent: 'center',
-//         alignItems: 'center',
-//     },
-//     colorToolbar: {
-//         flexDirection: 'row',
-//         justifyContent: 'center',
-//         marginBottom: 10,
-//     },
-//     colorCircle: {
-//         width: 30,
-//         height: 30,
-//         borderRadius: 15,
-//         marginHorizontal: 5,
-//         borderWidth: 1,
-//         borderColor: '#e0e0e0',
-//     },
-//     actionIcon: {
-//         marginLeft: 10,
-//     },
-//     selectAllButton: {
-//         backgroundColor: '#007bff',
-//         borderRadius: 5,
-//         padding: 10,
-//         marginHorizontal: 5,
-//         alignItems: 'center',
-//         justifyContent: 'center',
-//     },
-//     selectAllText: {
-//         color: 'white',
-//         fontSize: 16,
-//         fontWeight: 'bold',
-//     },
-// });
-
-
 import React, { useContext, useEffect, useState, useMemo } from 'react';
 import { Dimensions, FlatList, Pressable, StyleSheet, Text, TextInput, View, Alert, RefreshControl, Modal, TouchableOpacity } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -484,15 +31,13 @@ export default function TownVoters({ route }) {
     const [selectAll, setSelectAll] = useState(false);
     const [isCasteModalVisible, setCasteModalVisible] = useState(false);
     const [castes, setCastes] = useState([]);
-    // console.log("castes", castes);
-
     const [selectedCasteId, setSelectedCasteId] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
 
 
 
     const fetchVoterDetails = (voter_id) => {
-        axios.get(`http://192.168.1.24:8000/api/voters/${voter_id}`)
+        axios.get(`http://192.168.1.38:8000/api/voters/${voter_id}`)
             .then(response => {
                 setSelectedVoter(response.data);
                 setIsFormVisible(true);
@@ -533,17 +78,21 @@ export default function TownVoters({ route }) {
 
     useEffect(() => {
         const searchTerms = searchedValue.toLowerCase().trim().split(/\s+/);
-
+    
         const filtered = voters.filter(voter => {
             const voterName = voter.voter_name ? voter.voter_name.toLowerCase() : '';
             const voterNameMar = voter.voter_name_mar ? voter.voter_name_mar.toLowerCase() : '';
             const voterId = voter.voter_id ? voter.voter_id.toString() : '';
-
+            const voterSerialNumber = voter.voter_serial_number ? voter.voter_serial_number.toString() : '';
+            const voterIdCardNumber = voter.voter_id_card_number ? voter.voter_id_card_number.toLowerCase() : '';
+    
             const voterNameParts = voterName.split(/\s+/);
             const voterNameMarParts = voterNameMar.split(/\s+/);
-
+    
             return searchTerms.every(term =>
                 voterId.includes(term) ||
+                voterSerialNumber.includes(term) ||
+                voterIdCardNumber.includes(term) ||
                 voterName.includes(term) ||
                 voterNameMar.includes(term) ||
                 voterNameParts.some(part => part.includes(term)) ||
@@ -552,10 +101,10 @@ export default function TownVoters({ route }) {
                 voterNameMar.startsWith(searchTerms.join(' '))
             );
         });
-
+    
         setFilteredVoters(filtered);
     }, [searchedValue, voters]);
-
+    
     const sortVotersAlphabetically = () => {
         const sortedVoters = [...filteredVoters];
         if (sortState === 0) {
@@ -581,7 +130,7 @@ export default function TownVoters({ route }) {
 
     const fetchVoterData = async () => {
         try {
-            const response = await axios.get(`http://192.168.1.24:8000/api/town_wise_voter_list/${townId}/`);
+            const response = await axios.get(`http://192.168.1.38:8000/api/town_wise_voter_list/${townId}/`);
             if (response.data && Array.isArray(response.data)) {
                 setVoters(response.data);
                 setFilteredVoters(response.data);
@@ -657,14 +206,20 @@ export default function TownVoters({ route }) {
             >
 
                 <View style={styles.voterDetails}>
-                    <View style={{
-                        borderRightWidth: 1, borderColor: '#D9D9D9',
-                        width: 60, alignItems: 'center',
-                    }}>
-                       {/* <Text>{item.voter_id}</Text> */}
-                       <Text>{fixedIndex}</Text>
+                    <View style={styles.topSection}>
+                        <Text>
+                            Sr. No: <Text style={styles.label}>{item.voter_serial_number}</Text>
+                        </Text>
+                        <Text>
+                            Voter Id: <Text style={styles.label}>{item.voter_id_card_number}</Text>
+                        </Text>
                     </View>
-                    <Text >{language === 'en' ? toTitleCase(item.voter_name) : item.voter_name_mar}</Text>
+                    <View style={styles.divider} />
+                    <View style={styles.bottomSection}>
+                        <Text style={styles.voterName}>
+                            {language === 'en' ? toTitleCase(item.voter_name) : item.voter_name_mar}
+                        </Text>
+                    </View>
                 </View>
             </Pressable>
         )
@@ -717,7 +272,7 @@ export default function TownVoters({ route }) {
     };
     const sendCheckboxStateToAPI = async (voter_id, checkboxID) => {
         try {
-            const response = await axios.put(`http://192.168.1.24:8000/api/favour/`, {
+            const response = await axios.put(`http://192.168.1.38:8000/api/favour/`, {
                 voter_ids: selectedVoters,
                 voter_favour_id: checkboxID,
             });
@@ -758,7 +313,7 @@ export default function TownVoters({ route }) {
                     <TextInput
                         value={searchedValue}
                         onChangeText={text => setSearchValue(text)}
-                        placeholder={language === 'en' ? 'Search by voter’s name or ID' : 'मतदाराचे नाव किंवा ओळखपत्राने शोधा'}
+                        placeholder={language === 'en' ? 'Search by voter’s name' : 'मतदाराचे नाव किंवा ओळखपत्राने शोधा'}
                         style={styles.searchInput}
                     />
                 </View>
@@ -800,7 +355,7 @@ export default function TownVoters({ route }) {
                     <FlatList
                         data={filteredVoters}
                         keyExtractor={item => item.voter_id.toString()}
-                        showsVerticalScrollIndicator={false}
+                        showsVerticalScrollIndicator={true}
                         renderItem={renderItem}
                         refreshControl={
                             <RefreshControl
@@ -819,17 +374,17 @@ export default function TownVoters({ route }) {
                         onEditVoter={handleSelectedVoterDetails}
                     />
 
-                        {isCasteModalVisible && (
-                            <CastModal
-                                isVisible={isCasteModalVisible}
-                                onClose={() => setCasteModalVisible(false)}
-                                selectedVoters={selectedVoters}
-                                onAssignCaste={(casteId) => {
-                                    setCasteModalVisible(false); 
-                                    console.log(`Assigned caste ID ${casteId} to voters`, selectedVoters);
-                                }}
-                            />
-                        )}
+                    {isCasteModalVisible && (
+                        <CastModal
+                            isVisible={isCasteModalVisible}
+                            onClose={() => setCasteModalVisible(false)}
+                            selectedVoters={selectedVoters}
+                            onAssignCaste={(casteId) => {
+                                setCasteModalVisible(false);
+                                console.log(`Assigned caste ID ${casteId} to voters`, selectedVoters);
+                            }}
+                        />
+                    )}
                 </View>
             </View>
         </HeaderFooterLayout>
@@ -881,13 +436,42 @@ const styles = StyleSheet.create({
         borderWidth: 2,
     },
     voterDetails: {
+        flexDirection: 'column',
+        flex: 1,
+        padding: 10,
+        backgroundColor: '#f9f9f9',
+        borderRadius: 8,
+        // marginVertical: 8,
+        shadowColor: '#000',
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 2,
+    },
+    topSection: {
         flexDirection: 'row',
+        justifyContent: 'space-between',
         alignItems: 'center',
-        columnGap: 10,
+        marginBottom: 8,
+    },
+    label: {
+        fontWeight: '500',
+        fontSize: 16,
+    },
+    divider: {
+        borderBottomWidth: 1,
+        borderBottomColor: '#ccc',
+        borderStyle: 'dotted',
+        marginVertical: 8,
+    },
+    bottomSection: {
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     voterName: {
-        marginLeft: 10,
-        fontSize: 16,
+        fontSize: 18,
+        fontWeight:'900',
+        color: '#333',
+        textAlign: 'center',
     },
     noDataText: {
         textAlign: 'center',

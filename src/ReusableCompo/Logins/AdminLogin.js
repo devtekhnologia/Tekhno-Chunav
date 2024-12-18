@@ -1,23 +1,29 @@
-import { ActivityIndicator, Alert, Dimensions, Image, Pressable, StyleSheet, Text, TextInput, Vibration, View } from 'react-native';
+import { ActivityIndicator, Alert, Dimensions, Image, Pressable, StyleSheet, Text, TextInput, Vibration, View, } from 'react-native';
 import React, { useContext, useState } from 'react';
-
 import Feather from '@expo/vector-icons/Feather';
 import { LinearGradient } from 'expo-linear-gradient';
 import axios from 'axios';
 import { AuthenticationContext } from '../../ContextApi/AuthenticationContext';
 import { LanguageContext } from '../../ContextApi/LanguageContext';
 import NetInfo from '@react-native-community/netinfo';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { WardUserContext } from '../../ContextApi/WardUserContext';
+import { TownUserContext } from '../../ContextApi/TownUserProvider';
+import { BoothUserContext } from '../../ContextApi/BuserContext';
 
 const { height, width } = Dimensions.get('screen');
 
-const AdminLogin = () => {
+const AdminLogin = ({ navigation }) => {
     const { login } = useContext(AuthenticationContext);
+    const { townUserLogin } = useContext(TownUserContext)
+    const { loginBuser } = useContext(BoothUserContext)
+    const {wardlogin} = useContext(WardUserContext)
     const { language } = useContext(LanguageContext);
-    const [username, setUsername] = useState("politician");
-    const [password, setPassword] = useState("politician123");
+    const [userPhone, setUserPhone] = useState('');
+    const [userPassword, setUserPassword] = useState('');
     const [isTextSecure, setTextSecure] = useState(true);
     const [isLoading, setLoading] = useState(false);
-    const [nameError, setNameError] = useState('');
+    const [phoneError, setPhoneError] = useState('');
     const [passwordError, setPasswordError] = useState('');
 
     const toggleSecureText = () => {
@@ -26,20 +32,20 @@ const AdminLogin = () => {
 
     const validate = () => {
         let isValid = true;
-        if (!username) {
-            setNameError('Username is required.');
+        if (!userPhone) {
+            setPhoneError('Phone number is required.');
             isValid = false;
-        } else if (username.length < 2) {
-            setNameError('Username must be at least 2 characters.');
+        } else if (userPhone.length < 10) {
+            setPhoneError('Phone number must be at least 10 digits.');
             isValid = false;
         } else {
-            setNameError('');
+            setPhoneError('');
         }
 
-        if (!password) {
+        if (!userPassword) {
             setPasswordError('Password is required.');
             isValid = false;
-        } else if (password.length < 5) {
+        } else if (userPassword.length < 5) {
             setPasswordError('Password must be at least 5 characters long.');
             isValid = false;
         } else {
@@ -70,14 +76,39 @@ const AdminLogin = () => {
                 Vibration.vibrate(100);
                 setLoading(true);
 
-                const response = await axios.post('http://192.168.1.24:8000/api/politician_login/', {
-                    politician_name: username,
-                    politician_password: password,
+                const response = await axios.post('http://192.168.1.38:8000/api/common_login/', {
+                    user_phone: userPhone,
+                    user_password: userPassword,
                 });
 
+                console.log('Login Response:', response.data);
+
                 if (response.status === 200) {
-                    const responseData = response.data.token;
-                    login(responseData);
+                    const { token, table_name, user_id } = response.data;
+
+                    switch (table_name) {
+                        case 'tbl_politician':
+                            login(token); 
+                            break;
+                        case 'tbl_prabhag_user':
+                            wardlogin(token); 
+                            break;
+                        case 'tbl_town_user':
+                            townUserLogin(token); 
+                            break;
+                        case 'tbl_user':
+                            loginBuser(token); 
+                            break;
+                        case 'tbl_karyakarta':
+                            karyakartaContext.loginKaryakartaUser(token); 
+                            break;
+                        default:
+                            Alert.alert('Error', 'Unknown user role.');
+                            return;
+                    }
+
+                    // Navigate to appropriate screen if needed
+                    console.log('Login successful!');
                 }
             } catch (error) {
                 Alert.alert('Alert', 'Invalid credentials. Please try again.');
@@ -86,6 +117,8 @@ const AdminLogin = () => {
             }
         }
     };
+
+
 
     return (
         <LinearGradient
@@ -100,32 +133,39 @@ const AdminLogin = () => {
             <View style={styles.formContainer}>
                 <Text style={styles.title}>{language === 'en' ? 'Log in' : 'लॉग इन'}</Text>
                 <View style={styles.inputContainer}>
-                    <Text style={styles.label}>{language === 'en' ? 'Username or Mobile' : 'वापरकर्तानाव किंवा मोबाइल'}</Text>
+                    <Text style={styles.label}>
+                        {language === 'en' ? 'Phone Number' : 'फोन नंबर'}
+                    </Text>
                     <TextInput
-                        value={username}
-                        placeholder={language === 'en' ? 'Enter username or mobile here ...' : 'येथे वापरकर्तानाव किंवा मोबाइल प्रविष्ट करा ...'}
-                        onChangeText={setUsername}
+                        value={userPhone}
+                        placeholder={
+                            language === 'en'
+                                ? 'Enter phone number here ...'
+                                : 'येथे फोन नंबर प्रविष्ट करा ...'
+                        }
+                        onChangeText={setUserPhone}
+                        keyboardType="phone-pad"
                         style={styles.input}
-                        accessibilityLabel="Username input"
-                        accessibilityHint="Enter your username"
                     />
-                    {nameError ? <Text style={styles.errorText}>{nameError}</Text> : null}
+                    {phoneError ? <Text style={styles.errorText}>{phoneError}</Text> : null}
                 </View>
 
                 <View style={styles.inputContainer}>
-                    <Text style={styles.label}>{language === 'en' ? 'Password' : 'पासवर्ड'}</Text>
+                    <Text style={styles.label}>
+                        {language === 'en' ? 'Password' : 'पासवर्ड'}
+                    </Text>
                     <View style={styles.passwordInputContainer}>
                         <TextInput
-                            value={password}
-                            placeholder={language === 'en' ? 'Enter password here ...' : 'इथे पासवर्ड टाका...'}
-                            onChangeText={setPassword}
+                            value={userPassword}
+                            placeholder={
+                                language === 'en' ? 'Enter password here ...' : 'इथे पासवर्ड टाका...'
+                            }
+                            onChangeText={setUserPassword}
                             secureTextEntry={isTextSecure}
                             style={styles.passwordInput}
-                            accessibilityLabel="Password input"
-                            accessibilityHint="Enter your password"
                         />
                         <Pressable onPress={toggleSecureText} style={styles.eyeIcon}>
-                            <Feather name={isTextSecure ? "eye-off" : "eye"} size={24} color="black" />
+                            <Feather name={isTextSecure ? 'eye-off' : 'eye'} size={24} color="black" />
                         </Pressable>
                     </View>
                     {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
@@ -133,7 +173,9 @@ const AdminLogin = () => {
 
                 <Pressable onPress={checkNetworkAndLogin} style={styles.loginButton}>
                     {!isLoading ? (
-                        <Text style={styles.loginButtonText}>{language === 'en' ? 'Log in' : 'लॉग इन करा'}</Text>
+                        <Text style={styles.loginButtonText}>
+                            {language === 'en' ? 'Log in' : 'लॉग इन करा'}
+                        </Text>
                     ) : (
                         <ActivityIndicator color={'white'} size={'large'} />
                     )}
@@ -142,6 +184,7 @@ const AdminLogin = () => {
         </LinearGradient>
     );
 };
+
 
 const styles = StyleSheet.create({
     linearGradient: {

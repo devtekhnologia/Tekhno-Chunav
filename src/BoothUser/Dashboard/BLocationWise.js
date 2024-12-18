@@ -36,7 +36,7 @@ export default function BLocationWise({ navigation }) {
 
     const fetchBoothData = async () => {
         try {
-            const response = await axios.get(`http://192.168.1.24:8000/api/user_booth/${buserId}`);
+            const response = await axios.get(`http://192.168.1.38:8000/api/user_booth/${buserId}`);
             const boothData = response.data.map(booth => ({
                 label: `${booth.user_booth_booth_id} - ${language === 'en' ? booth.booth_name : booth.booth_name_mar}`,
                 value: booth.user_booth_booth_id,
@@ -49,13 +49,19 @@ export default function BLocationWise({ navigation }) {
             setLoading(false);
         }
     };
+    const toTitleCase = (str) => {
+        return str
+            .split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+            .join(' ');
+    };
 
     const fetchVoterData = async () => {
         if (boothValue && locationValue) {
             setLoading(true);
             try {
                 const response = await axios.get(
-                    `http://192.168.1.24:8000/api/get_voter_current_location_details_by_booth/booth_id/${boothValue}/city_id/${locationValue}/`
+                    `http://192.168.1.38:8000/api/get_voter_current_location_details_by_booth/booth_id/${boothValue}/city_id/${locationValue}/`
                 );
                 setVoterData(response.data);
                 setLoading(false);
@@ -72,8 +78,11 @@ export default function BLocationWise({ navigation }) {
 
     const renderVoterItem = ({ item }) => (
         <View style={styles.voterItem}>
-            <Text style={styles.voterText}>{language === 'en' ? 'ID' : 'आईडी'}: {item.voter_id}</Text>
+            <Text style={styles.voterText}>{language === 'en' ? 'ID' : 'आईडी'}: {item.voter_serial_number}</Text>
             <Text style={styles.voterText}>{language === 'en' ? 'Name' : 'नाव'}: {language === 'en' ? toTitleCase(item.voter_name) : item.voter_name_mar}</Text>
+            <Text style={styles.voterText}>{language === 'en' ? 'Card No.' : 'कार्ड क्र.'}:
+                {item.voter_id_card_number ? item.voter_id_card_number : 'N/A'}
+            </Text>
             <Text style={styles.voterText}>{language === 'en' ? 'Contact' : 'संपर्क'}:
                 {item.voter_contact_number ? item.voter_contact_number : 'N/A'}
             </Text>
@@ -84,8 +93,12 @@ export default function BLocationWise({ navigation }) {
     );
 
     const filteredVoterData = voterData.filter((voter) =>
-        voter.voter_name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+        (voter.voter_name?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        voter.voter_name_mar?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (voter.voter_id_card_number?.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (voter.voter_serial_number && String(voter.voter_serial_number).toLowerCase().includes(searchQuery.toLowerCase()))
+    ));
+    
 
 
     return (
@@ -121,7 +134,7 @@ export default function BLocationWise({ navigation }) {
                 {boothValue && locationValue && (
                     <TextInput
                         style={styles.searchBar}
-                        placeholder={language === 'en' ? 'search by voter’s name or ID' : 'मतदाराचे नाव किंवा आयडी द्वारे शोधा'}
+                        placeholder={language === 'en' ? 'Search by voter’s name' : 'मतदाराचे नाव किंवा आयडी द्वारे शोधा'}
                         value={searchQuery}
                         onChangeText={(text) => setSearchQuery(text)}
                     />

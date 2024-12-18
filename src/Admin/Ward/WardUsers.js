@@ -28,7 +28,7 @@ const PrabhagUsers = () => {
 
     const fetchData = async () => {
         try {
-            const response = await axios.get('http://192.168.1.24:8000/api/prabhag_users_info/');
+            const response = await axios.get('http://192.168.1.38:8000/api/prabhag_users_info/');
             const formattedTowns = response.data;
             if (Array.isArray(formattedTowns)) {
                 setTownUsers(formattedTowns);
@@ -60,7 +60,7 @@ const PrabhagUsers = () => {
     const handlePDFClick = async () => {
         setPdfLoading(true);
         try {
-            const response = await axios.get('http://192.168.1.24:8000/api/generate_town_user_pdf/', {
+            const response = await axios.get('http://192.168.1.38:8000/api/generate_town_user_pdf/', {
                 responseType: 'arraybuffer',
             });
 
@@ -89,7 +89,7 @@ const PrabhagUsers = () => {
 
     const handleDeleteUser = async (userId) => {
         try {
-            await axios.delete(`http://192.168.1.24:8000/api/delete_prabhag_user/${userId}/`);
+            await axios.delete(`http://192.168.1.38:8000/api/delete_prabhag_user/${userId}/`);
             // If the API deletion is successful, update the state
             const updatedUsers = townUsers.filter(user => user.prabhag_user_id !== userId);
             setTownUsers(updatedUsers); // Now update the state
@@ -123,7 +123,7 @@ const PrabhagUsers = () => {
                     <TextInput
                         value={searchedValue}
                         onChangeText={text => setSearchValue(text)}
-                        placeholder={language === 'en' ? 'search by voter’s name or ID' : 'मतदाराचे नाव किंवा आयडी द्वारे शोधा'}
+                        placeholder={language === 'en' ? 'Search by voter’s name' : 'मतदाराचे नाव किंवा आयडी द्वारे शोधा'}
                         style={styles.searchInput}
                     />
                 </View>
@@ -140,7 +140,7 @@ const PrabhagUsers = () => {
                         <FlatList
                             data={searchedTown}
                             keyExtractor={item => item.prabhag_user_id.toString()}
-                            showsVerticalScrollIndicator={false}
+                            showsVerticalScrollIndicator={true}
                             renderItem={({ item }) => (
                                 <Pressable
                                     style={styles.voterItem}

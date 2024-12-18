@@ -24,16 +24,15 @@ export default function Familylist({ navigation }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [voterModalVisible, setVoterModalVisible] = useState(false);
   const [voterData, setVoterData] = useState([]);
-  const [selectedVoter, setSelectedVoter] = useState([]); // Store selected voter IDs
+  const [selectedVoter, setSelectedVoter] = useState([]);
 
-  // Function to fetch family group data
   const fetchFamilyGroups = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`http://192.168.1.24:8000/api/get_family_groups_by_user/${buserId}/`);
+      const response = await axios.get(`http://192.168.1.38:8000/api/get_family_groups_by_user/${buserId}/`);
       if (response.status === 200) {
         const familyGroups = await Promise.all(response.data.map(async (group) => {
-          const membersResponse = await axios.get(`http://192.168.1.24:8000/api/get_voters_by_group_id/${group.family_group_id}/`);
+          const membersResponse = await axios.get(`http://192.168.1.38:8000/api/get_voters_by_group_id/${group.family_group_id}/`);
           const membersCount = membersResponse.status === 200 ? membersResponse.data.voters.length : 0;
           return { ...group, member_count: membersCount };
         }));
@@ -50,7 +49,6 @@ export default function Familylist({ navigation }) {
     }
   };
 
-  // Initialize arrow animations
   const initializeArrowAnimations = (groups) => {
     const animations = {};
     groups.forEach((group) => {
@@ -81,7 +79,7 @@ export default function Familylist({ navigation }) {
       setModalLoading(true);
       setModalVisible(true);
       try {
-        const response = await axios.get(`http://192.168.1.24:8000/api/get_voters_by_group_id/${id}/`);
+        const response = await axios.get(`http://192.168.1.38:8000/api/get_voters_by_group_id/${id}/`);
         if (response.status === 200) {
           setMembers(response.data.voters);
         }
@@ -96,7 +94,7 @@ export default function Familylist({ navigation }) {
   const handleLongPress = async (familyGroupId) => {
     setSelectedId(familyGroupId);
     try {
-      const response = await axios.get(`http://192.168.1.24:8000/api/get_voters_by_user_wise/${buserId}/`);
+      const response = await axios.get(`http://192.168.1.38:8000/api/get_voters_by_user_wise/${buserId}/`);
       if (response.status === 200) {
         setVoterData(response.data.voters);
         setVoterModalVisible(true);
@@ -111,9 +109,8 @@ export default function Familylist({ navigation }) {
   };
 
   const refreshFamilyGroups = () => {
-    fetchFamilyGroups(); // This will refresh the family groups list
+    fetchFamilyGroups();
   };
-
 
   const toggleVoterSelection = (voterId) => {
     setSelectedVoter((prevSelected) =>
@@ -136,7 +133,7 @@ export default function Familylist({ navigation }) {
         voter_ids: selectedVoter
       };
 
-      const response = await axios.put('http://192.168.1.24:8000/api/add_voter_in_existing_group/', requestData);
+      const response = await axios.put('http://192.168.1.38:8000/api/add_voter_in_existing_group/', requestData);
 
       if (response.status === 200) {
         console.log(`Voters added successfully to family group ${selectedId}`);
@@ -182,7 +179,7 @@ export default function Familylist({ navigation }) {
           {language === 'en' ? 'Contact' : 'संपर्क'} : {item.family_group_contact_no}</Text>
       </View>
       {/* <Animated.View style={{ transform: [{ rotate: rotateArrow(item.family_group_id) }] }}> */}
-        <MaterialIcons name="arrow-forward-ios" size={24} color="#000" style={styles.arrowIcon} />
+      <MaterialIcons name="arrow-forward-ios" size={24} color="#000" style={styles.arrowIcon} />
       {/* </Animated.View> */}
     </TouchableOpacity>
   );
@@ -199,12 +196,6 @@ export default function Familylist({ navigation }) {
       )}
     </TouchableOpacity>
   );
-
-  const rotateArrow = (id) =>
-    arrowAnimations[id]?.interpolate({
-      inputRange: [0, 1],
-      outputRange: ['0deg', '90deg'],
-    }) || '0deg';
 
   return (
     <View style={styles.container}>

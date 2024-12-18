@@ -28,7 +28,7 @@ const TownUsers = () => {
 
     const fetchData = async () => {
         try {
-            const response = await axios.get('http://192.168.1.24:8000/api/town_user_info/');
+            const response = await axios.get('http://192.168.1.38:8000/api/town_user_info/');
             const formattedTowns = response.data;
             if (Array.isArray(formattedTowns)) {
                 setTownUsers(formattedTowns);
@@ -57,7 +57,7 @@ const TownUsers = () => {
     const handlePDFClick = async () => {
         setPdfLoading(true);
         try {
-            const response = await axios.get('http://192.168.1.24:8000/api/generate_town_user_pdf/', {
+            const response = await axios.get('http://192.168.1.38:8000/api/generate_town_user_pdf/', {
                 responseType: 'arraybuffer',
             });
 
@@ -86,9 +86,9 @@ const TownUsers = () => {
 
     const handleDeleteUser = async (userId) => {
         try {
-            await axios.delete(`http://192.168.1.24:8000/api/delete_town_user/${userId}/`);
+            await axios.delete(`http://192.168.1.38:8000/api/delete_town_user/${userId}/`);
             const updatedUsers = townUsers.filter(user => user.town_user_id !== userId);
-            setTownUsers(updatedUsers); 
+            setTownUsers(updatedUsers);
             Alert.alert('Success', 'User deleted successfully!');
         } catch (error) {
             Alert.alert('Error', 'Failed to delete the user.');
@@ -120,7 +120,7 @@ const TownUsers = () => {
                     <TextInput
                         value={searchedValue}
                         onChangeText={text => setSearchValue(text)}
-                        placeholder={language === 'en' ? 'search by voter’s name or ID' : 'मतदाराचे नाव किंवा आयडी द्वारे शोधा'}
+                        placeholder={language === 'en' ? 'Search by voter’s name' : 'मतदाराचे नाव किंवा आयडी द्वारे शोधा'}
                         style={styles.searchInput}
                     />
                 </View>
@@ -129,11 +129,11 @@ const TownUsers = () => {
                     <FlatList
                         data={searchedTown}
                         keyExtractor={item => item.town_user_id.toString()}
-                        showsVerticalScrollIndicator={false}
-                        renderItem={({ item, index}) => (
+                        showsVerticalScrollIndicator={true}
+                        renderItem={({ item, index }) => (
                             <Pressable
                                 style={styles.voterItem}
-                                onLongPress={() => confirmDelete(item.town_user_id)} 
+                                onLongPress={() => confirmDelete(item.town_user_id)}
                             >
                                 <View style={styles.voterDetails}>
                                     <View style={styles.townUserIdContainer}>

@@ -37,7 +37,7 @@ export default function WLocationWise({ navigation }) {
 
     const fetchBoothData = async () => {
         try {
-            const response = await axios.get(`http://192.168.1.24:8000/api/booth_details_by_prabhag_user/${wardUserId}/`);
+            const response = await axios.get(`http://192.168.1.38:8000/api/booth_details_by_prabhag_user/${wardUserId}/`);
             const boothOptions = response.data.map((item) => ({
                 label: `${item.booth_id} - ${language === 'en' ? item.booth_name : item.booth_name_mar}`,
                 value: item.booth_id,
@@ -55,7 +55,7 @@ export default function WLocationWise({ navigation }) {
             setLoading(true);
             try {
                 const response = await axios.get(
-                    `http://192.168.1.24:8000/api/get_voter_current_location_details_by_booth/booth_id/${boothValue}/city_id/${locationValue}/`
+                    `http://192.168.1.38:8000/api/get_voter_current_location_details_by_booth/booth_id/${boothValue}/city_id/${locationValue}/`
                 );
                 setVoterData(response.data);
                 setLoading(false);
@@ -79,7 +79,7 @@ export default function WLocationWise({ navigation }) {
         setPdfLoading(true);
         try {
             const response = await axios.get(
-                `http://192.168.1.24:8000/api/generate_voter_pdf_by_booth/booth_id/${boothValue}/city_id/${locationValue}/`,
+                `http://192.168.1.38:8000/api/generate_voter_pdf_by_booth/booth_id/${boothValue}/city_id/${locationValue}/`,
                 { responseType: 'arraybuffer' }
             );
             const base64 = btoa(new Uint8Array(response.data).reduce((data, byte) => data + String.fromCharCode(byte), ''));
@@ -157,7 +157,7 @@ export default function WLocationWise({ navigation }) {
                     />
                     <TextInput
                         style={styles.searchBar}
-                        placeholder={language === 'en' ? 'search by voter’s name or ID' : 'मतदाराचे नाव किंवा आयडी द्वारे शोधा'}
+                        placeholder={language === 'en' ? 'Search by voter’s name' : 'मतदाराचे नाव किंवा आयडी द्वारे शोधा'}
                         value={searchQuery}
                         onChangeText={(text) => setSearchQuery(text)}
                     />

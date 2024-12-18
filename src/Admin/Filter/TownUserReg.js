@@ -27,7 +27,7 @@ export default function TownUserReg({ navigation, toggleSidebar }) {
     const [items, setItems] = useState([]);
 
     useEffect(() => {
-        axios.get('http://192.168.1.24:8000/api/towns/')
+        axios.get('http://192.168.1.38:8000/api/towns/')
             .then(response => {
                 const townsData = response.data.map(town => ({
                     label: `${town.town_id} - ${language === 'en' ? town.town_name : town.town_name_mar}`,
@@ -89,7 +89,7 @@ export default function TownUserReg({ navigation, toggleSidebar }) {
         if (validate()) {
             setLoading(true);
             try {
-                const response = await axios.post('http://192.168.1.24:8000/api/town_user_register/', {
+                const response = await axios.post('http://192.168.1.38:8000/api/town_user_register/', {
                     town_user_name: name,
                     town_user_contact_number: contact,
                     town_user_password: password,

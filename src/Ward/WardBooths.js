@@ -34,7 +34,7 @@ export default function WardBooths() {
 
     const fetchData = async () => {
         try {
-            const statesResponse = await axios.get(`http://192.168.1.24:8000/api/booth_details_by_prabhag_user/${wardUserId}`);
+            const statesResponse = await axios.get(`http://192.168.1.38:8000/api/booth_details_by_prabhag_user/${wardUserId}`);
             const formattedTowns = statesResponse.data;
 
             if (Array.isArray(formattedTowns)) {
@@ -70,7 +70,7 @@ export default function WardBooths() {
                 <TextInput
                     value={searchedValue}
                     onChangeText={text => setSearchValue(text)}
-                    placeholder={language === 'en' ? "search booth by name or ID" : 'नाव किंवा आयडीद्वारे बूथ शोधा'}
+                    placeholder={language === 'en' ? "Search booth by name or ID" : 'नाव किंवा आयडीद्वारे बूथ शोधा'}
                     style={styles.searchInput}
                 />
             </View>
@@ -78,7 +78,7 @@ export default function WardBooths() {
             <FlatList
                 data={searchedBooth}
                 keyExtractor={item => item.booth_id.toString()}
-                showsVerticalScrollIndicator={false}
+                showsVerticalScrollIndicator={true}
                 renderItem={({ item }) => (
                     <Pressable style={styles.voterItem}
                         onPress={() => {

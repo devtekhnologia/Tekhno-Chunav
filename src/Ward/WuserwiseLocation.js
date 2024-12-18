@@ -41,7 +41,7 @@ export default function WuserwiseLocation({ navigation }) {
             setLoading(true);
             try {
                 const response = await axios.get(
-                    `http://192.168.1.24:8000/api/get_voter_current_location_details_by_prabhag_user/prabhag_user_id/${wardUserId}/city_id/${locationValue}/`
+                    `http://192.168.1.38:8000/api/get_voter_current_location_details_by_prabhag_user/prabhag_user_id/${wardUserId}/city_id/${locationValue}/`
                 );
                 setVoterData(response.data);
             } catch (error) {
@@ -68,7 +68,7 @@ export default function WuserwiseLocation({ navigation }) {
         setPdfLoading(true);
         try {
             const response = await axios.get(
-                `http://192.168.1.24:8000/api/generate_voter_pdf_by_prabhag_user/prabhag_user_id/${wardUserId}/city_id/${locationValue}/`,
+                `http://192.168.1.38:8000/api/generate_voter_pdf_by_prabhag_user/prabhag_user_id/${wardUserId}/city_id/${locationValue}/`,
                 { responseType: 'arraybuffer' }
             );
             const base64 = btoa(new Uint8Array(response.data).reduce((data, byte) => data + String.fromCharCode(byte), ''));
@@ -132,7 +132,7 @@ export default function WuserwiseLocation({ navigation }) {
                     />
                     <TextInput
                         style={styles.searchBar}
-                        placeholder={language === 'en' ? 'search by voter’s name or ID' : 'मतदाराचे नाव किंवा आयडी द्वारे शोधा'}
+                        placeholder={language === 'en' ? 'Search by voter’s name' : 'मतदाराचे नाव किंवा आयडी द्वारे शोधा'}
                         value={searchQuery}
                         onChangeText={(text) => setSearchQuery(text)}
                     />

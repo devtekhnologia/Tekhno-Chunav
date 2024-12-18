@@ -25,7 +25,7 @@ export default function WardVoted({ route, navigation }) {
   // Function to fetch voter data
   const fetchVoters = async () => {
     try {
-      const response = await axios.get(`http://192.168.1.24:8000/api/voter_details_by_confirmation/${wardUserId}/1/`);
+      const response = await axios.get(`http://192.168.1.38:8000/api/voter_details_by_confirmation/${wardUserId}/1/`);
       if (response.data && Array.isArray(response.data)) {
         setVoters(response.data);
         setFilteredVoters(response.data);
@@ -45,7 +45,7 @@ export default function WardVoted({ route, navigation }) {
     fetchVoters();
   }, [wardUserId]);
 
-  // Effect to filter the voters based on the search input
+  // Effect to filter the voters based on the Searchinput
   useEffect(() => {
     const filtered = voters.filter(voter =>
       voter.voter_id.toString().includes(search) ||
@@ -62,7 +62,7 @@ export default function WardVoted({ route, navigation }) {
 
   // Function to fetch voter details
   const fetchVoterDetails = (voter_id) => {
-    axios.get(`http://192.168.1.24:8000/api/voters/${voter_id}`)
+    axios.get(`http://192.168.1.38:8000/api/voters/${voter_id}`)
       .then(response => {
         setSelectedVoter(response.data); // Set selected voter details
         setIsModalVisible(true); // Show the modal
@@ -109,7 +109,7 @@ export default function WardVoted({ route, navigation }) {
         onPress={() => fetchVoterDetails(item.voter_id)}>
         <View style={styles.voterDetails}>
           <View style={styles.voterIdContainer}>
-          <Text>{fixedIndex}</Text>
+            <Text>{fixedIndex}</Text>
           </View>
           <Text>{item.voter_name}</Text>
         </View>
@@ -128,7 +128,7 @@ export default function WardVoted({ route, navigation }) {
         <TextInput
           value={search}
           onChangeText={setSearch}
-          placeholder={language === 'en' ? 'Search by voter’s name or ID' : 'मतदाराचे नाव किंवा ओळखपत्राने शोधा'}
+          placeholder={language === 'en' ? 'Search by voter’s name' : 'मतदाराचे नाव किंवा ओळखपत्राने शोधा'}
           style={styles.searchInput}
         />
       </View>
@@ -137,7 +137,7 @@ export default function WardVoted({ route, navigation }) {
       <FlatList
         data={filteredVoters}
         keyExtractor={item => item.voter_id.toString()}
-        showsVerticalScrollIndicator={false}
+        showsVerticalScrollIndicator={true}
         contentContainerStyle={styles.listContent}
         renderItem={renderItem}
         ListHeaderComponent={loading && <LoadingListComponent />}

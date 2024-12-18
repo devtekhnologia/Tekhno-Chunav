@@ -23,7 +23,7 @@ export default function AddVoter({ navigation }) {
   useEffect(() => {
     const fetchUserBooths = async () => {
       try {
-        const response = await axios.get(`http://192.168.1.24:8000/api/user_booth/${buserId}`);
+        const response = await axios.get(`http://192.168.1.38:8000/api/user_booth/${buserId}`);
         if (response.status === 200) {
           const boothData = response.data.map(booth => ({
             label: `${booth.user_booth_booth_id} - ${language === 'en' ? booth.booth_name : booth.booth_name_mar}`,
@@ -53,15 +53,18 @@ export default function AddVoter({ navigation }) {
   // Handle adding a new voter
   const handleAddNewVoter = async () => {
     try {
-      const response = await axios.post('http://192.168.1.24:8000/api/create_new_voter/', {
+      const response = await axios.post('http://192.168.1.38:8000/api/create_new_voter/', {
         voter_name: newVotername,
         voter_booth_id: selectedBooth,
         voter_contact_number: newVotercontact,
       });
 
       if (response.status === 201) {
-        const { voter_id } = response.data;
-        Alert.alert('Success', `New voter added successfully. Voter ID: ${voter_id}`);
+        Alert.alert('Success', `New voter added successfully.`);
+        setBoothDropdownOpen(false);
+        setBooths([]);
+        setNewVotercontact('');
+        setNewVotername('');
       } else {
         Alert.alert('Error', 'Failed to add new voter. Please try again.');
       }

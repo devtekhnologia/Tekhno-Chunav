@@ -20,7 +20,7 @@ export default function KVotingBarStats() {
 
     // Fetch data from API
     useEffect(() => {
-        axios.get(`http://192.168.1.24:8000/api/voters_by_group_user/${KuserId}/`)
+        axios.get(`http://192.168.1.38:8000/api/voters_by_group_user/${KuserId}/`)
             .then((response) => {
                 const voters = response.data.voters;
                 const counts = { favorable: 0, nonFavorable: 0, doubted: 0, nonVoted: 0 };

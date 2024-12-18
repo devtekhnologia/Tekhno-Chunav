@@ -32,7 +32,7 @@ export default function Ward() {
     const getWards = async () => {
         try {
             setWardLoading(true);
-            const response = await axios.get('http://192.168.1.24:8000/api/get_prabhags');
+            const response = await axios.get('http://192.168.1.38:8000/api/get_prabhags');
             if (Array.isArray(response.data)) {
                 setWards(response.data);
             } else {
@@ -66,7 +66,7 @@ export default function Ward() {
         setModalVisible(true);
         setLoading(true);
         setBooths([]); // Clear booths on new fetch
-        const url = `http://192.168.1.24:8000/api/get_booth_info_by_prabhag_id/${wardId}/`;
+        const url = `http://192.168.1.38:8000/api/get_booth_info_by_prabhag_id/${wardId}/`;
 
         try {
             const response = await axios.get(url);
@@ -169,7 +169,7 @@ export default function Ward() {
                 <FlatList
                     data={searchedWards}
                     keyExtractor={(item) => item.prabhag_id.toString()}
-                    showsVerticalScrollIndicator={false}
+                    showsVerticalScrollIndicator={true}
                     renderItem={({ item }) => (
                         <TouchableOpacity style={styles.wardItem} onPress={() => {
                             getBoothsByWard(item.prabhag_id);

@@ -57,7 +57,7 @@ const KUserLogin = () => {
 
         if (validate()) {
             try {
-                const response = await axios.post(`http://192.168.1.24:8000/api/voter_group_login/`, {
+                const response = await axios.post(`http://192.168.1.38:8000/api/voter_group_login/`, {
                     voter_group_user_contact_number: username,
                     voter_group_user_password: password
                 })

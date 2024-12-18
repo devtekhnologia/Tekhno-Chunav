@@ -14,7 +14,11 @@ import EmptyListComponent from '../../ReusableCompo/EmptyListComponent';
 
 const FilterVoterByRelations = ({ route }) => {
     const { relationId, ScreenName } = route.params;
+    console.log(relationId, ScreenName);
+
     const { buserId } = useContext(BoothUserContext);
+    console.log(buserId);
+
     const { language } = useContext(LanguageContext);
     const [voters, setVoters] = useState([]);
     const [filteredVoters, setFilteredVoters] = useState([]);
@@ -29,7 +33,7 @@ const FilterVoterByRelations = ({ route }) => {
 
     const fetchVoterDetails = (voter_id) => {
         setLoadingDetails(true);
-        axios.get(`http://192.168.1.24:8000/api/voters/${voter_id}`)
+        axios.get(`http://192.168.1.38:8000/api/voters/${voter_id}`)
             .then(response => {
                 setSelectedVoter(response.data);
                 setIsModalVisible(true);
@@ -40,14 +44,28 @@ const FilterVoterByRelations = ({ route }) => {
             .finally(() => setLoadingDetails(false));
     };
 
-    const searchedVoters = voters.filter(voter =>
-        (voter.voter_name && voter.voter_name.toLowerCase().includes(searchedValue.toLowerCase())) ||
-        (voter.voter_id && voter.voter_id.toString().includes(searchedValue))
-    );
-
     useEffect(() => {
-        setFilteredVoters(searchedVoters);
+        const searchTerms = searchedValue.toLowerCase().trim().split(/\s+/);
+
+        const filtered = voters.filter(voter => {
+            const voterName = voter.voter_name ? voter.voter_name.toLowerCase() : '';
+            const voterNameMar = voter.voter_name_mar ? voter.voter_name_mar.toLowerCase() : '';
+            const voterId = voter.voter_id ? voter.voter_id.toString() : '';
+            const voterSerialNumber = voter.voter_serial_number ? voter.voter_serial_number.toString() : '';
+            const voterIdCardNumber = voter.voter_id_card_number ? voter.voter_id_card_number.toLowerCase() : '';
+
+            return searchTerms.every(term =>
+                voterName.includes(term) ||
+                voterNameMar.includes(term) ||
+                voterId.includes(term) ||
+                voterSerialNumber.includes(term) ||
+                voterIdCardNumber.includes(term)
+            );
+        });
+
+        setFilteredVoters(filtered);
     }, [searchedValue, voters]);
+    
 
     const sortVotersAlphabetically = () => {
         const sortedVoters = [...filteredVoters];
@@ -66,7 +84,7 @@ const FilterVoterByRelations = ({ route }) => {
 
     useEffect(() => {
         setLoading(true);
-        axios.get(`http://192.168.1.24:8000/api/get_voter_info/${buserId}/${relationId}/`)
+        axios.get(`http://192.168.1.38:8000/api/get_voter_info/${buserId}/${relationId}/`)
             .then(response => {
                 if (response.data && Array.isArray(response.data)) {
                     setVoters(response.data);
@@ -95,7 +113,6 @@ const FilterVoterByRelations = ({ route }) => {
 
     const renderVoterItem = ({ item, index }) => {
         let color = 'transparent';
-        // Assign color based on voter_favour_id
         switch (item.voter_favour_id) {
             case 1: color = '#d3f5d3'; break;
             case 2: color = '#fededd'; break;
@@ -109,22 +126,30 @@ const FilterVoterByRelations = ({ route }) => {
 
         return (
             <TouchableOpacity style={[styles.voterItem, { backgroundColor: color }]} onPress={() => fetchVoterDetails(item.voter_id)}>
-                <View style={styles.voterDetails}>
-                    <View style={{ borderRightWidth: 1, borderColor: '#D9D9D9', width: 60, alignItems: 'center' }}>
-                        <Text>{index + 1}</Text>
-                    </View>
-                    <Text style={{ flex: 1 }}>{language === 'en' ? toTitleCase(item.voter_name) : item.voter_name_mar}</Text>
-                </View>
+               <View style={styles.voterDetails}>
+                                   <View style={styles.topSection}>
+                                       <Text>
+                                           Sr. No: <Text style={styles.label}>{item.voter_serial_number}</Text>
+                                       </Text>
+                                       <Text>
+                                           Voter Id: <Text style={styles.label}>{item.voter_id_card_number}</Text>
+                                       </Text>
+                                   </View>
+                                   <View style={styles.divider} />
+                                   <View style={styles.bottomSection}>
+                                       <Text style={styles.voterName}>
+                                           {language === 'en' ? toTitleCase(item.voter_name) : item.voter_name_mar}
+                                       </Text>
+                                   </View>
+                               </View>
             </TouchableOpacity>
         );
     };
 
     return (
         <>
-            {/* Loading Modal - Fullscreen */}
-            {loadingDetails && <LoadingModal />}
+                    {loadingDetails && <LoadingModal />}
 
-            {/* Main UI */}
             <HeaderFooterLayout
                 headerText={ScreenName}
                 showHeader={true}
@@ -150,7 +175,7 @@ const FilterVoterByRelations = ({ route }) => {
                         <FlatList
                             data={filteredVoters}
                             keyExtractor={item => item.voter_id.toString()}
-                            showsVerticalScrollIndicator={false}
+                            showsVerticalScrollIndicator={true}
                             renderItem={renderVoterItem}
                             ListHeaderComponent={loading && <LoadingListComponent />}
                             ListEmptyComponent={!loading && <EmptyListComponent />}
@@ -189,7 +214,7 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
     },
     listContainer: {
-        flex: 1,
+        flex: 0.99,
     },
     voterItem: {
         flex: 1,
@@ -203,9 +228,42 @@ const styles = StyleSheet.create({
         borderWidth: 0.2,
     },
     voterDetails: {
+        flexDirection: 'column',
+        flex: 1,
+        padding: 10,
+        backgroundColor: '#f9f9f9',
+        borderRadius: 8,
+        // marginVertical: 8,
+        shadowColor: '#000',
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 2,
+    },
+    topSection: {
         flexDirection: 'row',
+        justifyContent: 'space-between',
         alignItems: 'center',
-        columnGap: 10,
+        marginBottom: 8,
+    },
+    label: {
+        fontWeight: '500',
+        fontSize: 16,
+    },
+    divider: {
+        borderBottomWidth: 1,
+        borderBottomColor: '#ccc',
+        borderStyle: 'dotted',
+        marginVertical: 8,
+    },
+    bottomSection: {
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    voterName: {
+        fontSize: 18,
+        fontWeight:'900',
+        color: '#333',
+        textAlign: 'center',
     },
     noDataText: {
         textAlign: 'center',

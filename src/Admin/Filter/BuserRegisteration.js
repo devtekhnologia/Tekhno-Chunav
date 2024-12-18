@@ -99,7 +99,7 @@ export default BuserRegistration = ({ navigation }) => {
                 });
 
 
-                Alert.alert('Success', 'Registeration successful', [
+                Alert.alert('Success', 'Signup successful', [
                     {
                         text: 'OK', onPress: () => {
                             setName('');
@@ -111,7 +111,7 @@ export default BuserRegistration = ({ navigation }) => {
                     }
                 ]);
             } catch (error) {
-                const errorMessage = error.response?.data?.message || 'Registeration failed. Please try again.';
+                const errorMessage = error.response?.data?.message || 'Signup failed. Please try again.';
                 Alert.alert('Error', errorMessage);
             } finally {
                 setLoading(false);
@@ -143,18 +143,18 @@ export default BuserRegistration = ({ navigation }) => {
                         <Pressable onPress={handleGoBack} style={styles.iconLeft}>
                             <Octicons name="arrow-left" size={30} color="white" />
                         </Pressable>
-                        <Text style={styles.text}>{language === 'en' ? 'Booth User Register' : 'बूथ कार्यकर्ता रजिस्टर'}</Text>
+                        <Text style={styles.text}>{language === 'en' ? 'Booth User Registration' : 'बूथ कार्यकर्ता रजिस्टर'}</Text>
                         <View style={styles.iconRight} />
                     </View>
                 </LinearGradient>
             </View>
 
-            <View style={[styles.formContainer, { height: hasErrors() ? 550 : 500 }]}>
+            <View style={[styles.formContainer, { height: hasErrors() ? 600 : 500 }]}>
                 <View style={styles.header}>
                     <Text style={styles.headerText}>{language === 'en' ? 'Booth User' : 'बूथ कार्यकर्ता'}</Text>
                 </View>
 
-                <View style={{ margin: 20, }}>
+                <View style={{ marginTop: 20, }}>
                     <View style={{ marginVertical: 10 }}>
                         <TextInput style={styles.input} placeholder={language === 'en' ? 'Enter Name' : 'नाव टाईप करा'}
                             placeholderTextColor="grey"
@@ -200,8 +200,6 @@ export default BuserRegistration = ({ navigation }) => {
                             placeholderStyle={{ color: 'grey' }}
                             style={[styles.dropdown]}
                             containerStyle={styles.dropdownContainer}
-                            dropDownContainerStyle={styles.dropdownContainer}
-                            listItemContainerStyle={styles.listItemContainer}
                             selectedItemContainerStyle={styles.selectedItem}
                             zIndex={9999}
                             showArrow={true}
@@ -263,11 +261,11 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         backgroundColor: 'white',
         justifyContent: 'center',
-        // paddingVertical: 10,
+        paddingVertical: 20,
         paddingHorizontal: 10,
-        // margin: 10,
+        margin: 10,
         borderRadius: 15,
-        top: -120,
+        top: -100,
         elevation: 5,
     },
     input: {
@@ -305,6 +303,7 @@ const styles = StyleSheet.create({
         // paddingVertical: 10,
     },
     dropdownContainer: {
+        marginBottom: 10,
         width: width * 0.8,
     },
     dropdown: {
@@ -315,9 +314,5 @@ const styles = StyleSheet.create({
     },
     selectedItem: {
         backgroundColor: 'white',
-    },
-    listItemContainer: {
-        paddingVertical: 10,
-        height: 'auto'
     },
 });

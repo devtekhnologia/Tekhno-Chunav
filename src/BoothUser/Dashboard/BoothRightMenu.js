@@ -69,7 +69,10 @@ const BoothRightMenu = () => {
                     <View style={styles.modalContainer}>
                         <Animated.View style={[styles.modalContent, { transform: [{ translateY: slideAnim }] }]}>
                             <TouchableOpacity
-                                onPress={() => { handleNavigation('Family') }}
+                                onPress={() => {
+                                    setPressed(false);
+                                    handleNavigation('Family')
+                                }}
                                 style={styles.modalOption}
                                 accessibilityLabel="Go to Family"
                             >
@@ -80,10 +83,13 @@ const BoothRightMenu = () => {
                             </TouchableOpacity>
 
                             <TouchableOpacity
-                                onPress={() => navigation.navigate('Relational Voters', {
-                                    relationId: 5,
-                                    ScreenName: language === 'en' ? 'Pro Voters' : 'प्रो मतदार'
-                                })}
+                                onPress={() => {
+                                    setPressed(false);
+                                    navigation.navigate('Relational Voters', {
+                                        relationId: 5,
+                                        ScreenName: language === 'en' ? 'Pro Voters' : 'प्रो मतदार'
+                                    })
+                                }}
                                 style={styles.modalOption}
                                 accessibilityLabel="Go to Pro Voters"
                             >
@@ -94,10 +100,13 @@ const BoothRightMenu = () => {
                             </TouchableOpacity>
 
                             <TouchableOpacity
-                                onPress={() => navigation.navigate('Relational Voters', {
-                                    relationId: 4,
-                                    ScreenName: language === 'en' ? 'Pro+ Voters' : 'प्रो+ मतदार'
-                                })}
+                                onPress={() => {
+                                    setPressed(false);
+                                    navigation.navigate('Relational Voters', {
+                                        relationId: 4,
+                                        ScreenName: language === 'en' ? 'Pro+ Voters' : 'प्रो+ मतदार'
+                                    })
+                                }}
                                 style={styles.modalOption}
                                 accessibilityLabel="Go to Pro+ Voters"
                             >
@@ -108,7 +117,10 @@ const BoothRightMenu = () => {
                             </TouchableOpacity>
 
                             <TouchableOpacity
-                                onPress={() => { handleNavigation('Add Voters') }}
+                                onPress={() => {
+                                    setPressed(false);
+                                    handleNavigation('Add Voters')
+                                }}
                                 style={styles.modalOption}
                                 accessibilityLabel="Go to Add Voters"
                             >
@@ -118,7 +130,10 @@ const BoothRightMenu = () => {
                                 <Text style={styles.modalText}>{language === 'en' ? 'Add Voters' : 'मतदार जोडा'}</Text>
                             </TouchableOpacity>
                             <TouchableOpacity
-                                onPress={() => { handleNavigation('Locationwise Voters') }}
+                                onPress={() => {
+                                    setPressed(false);
+                                    handleNavigation('Locationwise Voters')
+                                }}
                                 style={styles.modalOption}
                                 accessibilityLabel="Go to Location Wise Voters"
                             >

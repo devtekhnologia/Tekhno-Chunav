@@ -67,7 +67,7 @@ export default function Wardvoterlist({ route, navigation }) {
 
   const fetchVoters = async () => {
     try {
-      const response = await axios.get(`http://192.168.1.24:8000/api/get_voterlist_by_prabhag_user/${wardUserId}/`);
+      const response = await axios.get(`http://192.168.1.38:8000/api/get_voterlist_by_prabhag_user/${wardUserId}/`);
       if (response.data && Array.isArray(response.data)) {
         const votersWithIndex = response.data.map((voter, index) => ({
           ...voter,
@@ -99,7 +99,7 @@ export default function Wardvoterlist({ route, navigation }) {
 
 
   const fetchVoterDetails = (voter_id) => {
-    axios.get(`http://192.168.1.24:8000/api/voters/${voter_id}`)
+    axios.get(`http://192.168.1.38:8000/api/voters/${voter_id}`)
       .then(response => {
         setSelectedVoter(response.data); // Set selected voter details
         setFormVisible(true); // Show the modal
@@ -161,7 +161,7 @@ export default function Wardvoterlist({ route, navigation }) {
     <View style={styles.container}>
       <TextInput
         style={styles.searchBar}
-        placeholder={language === 'en' ? 'search by voter’s name or ID' : 'मतदाराचे नाव किंवा आयडी द्वारे शोधा'}
+        placeholder={language === 'en' ? 'Search by voter’s name' : 'मतदाराचे नाव किंवा आयडी द्वारे शोधा'}
         value={searchText}
         onChangeText={handleSearch}
       />

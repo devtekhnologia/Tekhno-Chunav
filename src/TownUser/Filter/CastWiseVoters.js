@@ -1,4 +1,4 @@
-import { ActivityIndicator, Dimensions, FlatList, StyleSheet, Text, View, Alert } from 'react-native';
+import { ActivityIndicator, Dimensions, FlatList, StyleSheet, Text, View, Alert, Pressable } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import axios from 'axios';
 import { Dropdown } from 'react-native-element-dropdown'; // Import Dropdown
@@ -7,12 +7,13 @@ import VoterDetailsPopUp from '../../ReusableCompo/VoterDetailsPopUp';
 import { TownUserContext } from '../../ContextApi/TownUserProvider';
 import LoadingListComponent from '../../ReusableCompo/LoadingListComponent';
 import EmptyListComponent from '../../ReusableCompo/EmptyListComponent';
+import { LanguageContext } from '../../ContextApi/LanguageContext';
 
 const { height } = Dimensions.get('screen');
 
 const CastWiseVoters = () => {
     const { userId } = useContext(TownUserContext);
-
+    const { language } = useContext(LanguageContext);
     const [selectedCast, setSelectedCast] = useState(null);
     const [items, setItems] = useState([]);
     const [voters, setVoters] = useState([]);
@@ -22,7 +23,7 @@ const CastWiseVoters = () => {
 
     const fetchCasteData = async () => {
         try {
-            const response = await axios.get('http://192.168.1.24:8000/api/cast/');
+            const response = await axios.get('http://192.168.1.38:8000/api/cast/');
             const casteData = response.data.map(cast => ({
                 label: `${cast.cast_id} - ${cast.cast_name}`,
                 value: cast.cast_id,
@@ -36,7 +37,7 @@ const CastWiseVoters = () => {
     const fetVotersByCastwise = async () => {
         try {
             setLoading(true);
-            const response = await axios.get(`http://192.168.1.24:8000/api/get_voters_by_town_user_and_cast/${userId}/${selectedCast}/`);
+            const response = await axios.get(`http://192.168.1.38:8000/api/get_voters_by_town_user_and_cast/${userId}/${selectedCast}/`);
             setVoters(response.data);
         } catch (error) {
             Alert.alert('Error fetching voters:', error.toString ? error.toString() : 'Unknown error');
@@ -45,16 +46,6 @@ const CastWiseVoters = () => {
         }
     };
 
-    const fetchVoterDetails = (voter_id) => {
-        axios.get(`http://192.168.1.24:8000/api/voters/${voter_id}`)
-            .then(response => {
-                setSelectedVoter(response.data);
-                setIsModalVisible(true);
-            })
-            .catch(error => {
-                Alert.alert('Error', 'Failed to fetch voter details. Please try again.');
-            });
-    };
 
     const toTitleCase = (str) => {
         return str
@@ -73,13 +64,65 @@ const CastWiseVoters = () => {
         fetchCasteData();
     }, []);
 
-    const renderVoterItem = ({ item }) => (
-        <View style={[styles.voterItem, { backgroundColor: item.color || '#FFFFFF' }]}>
-            <TouchableOpacity style={styles.closeCircle} onPress={() => fetchVoterDetails(item.voter_id)}>
-                <Text style={styles.voterText}>{item.voter_id} - {toTitleCase(item.voter_name)}</Text>
-            </TouchableOpacity>
-        </View>
-    );
+    const renderVoterItem = ({ item, index }) => {
+        const fixedIndex = index + 1;
+        let backgroundColor = 'white';
+
+        switch (item.voter_favour_id) {
+            case 1:
+                backgroundColor = '#d3f5d3';
+                break;
+            case 2:
+                backgroundColor = '#f5d3d3';
+                break;
+            case 3:
+                backgroundColor = '#f5f2d3';
+                break;
+            case 4:
+                backgroundColor = '#c9daff';
+                break;
+            case 5:
+                backgroundColor = 'skyblue';
+                break;
+            case 6:
+                backgroundColor = '#fcacec';
+                break;
+            case 7:
+                backgroundColor = '#dcacfa';
+                break;
+
+            default:
+                backgroundColor = 'white';
+        }
+
+
+
+        return (
+
+            <Pressable
+                style={[styles.voterItem, { backgroundColor }]}
+                // onPress={() => handleVoterPress(item.voter_id)}
+                // onLongPress={() => handleLongPress(item.voter_id)}
+            >
+                <View style={styles.voterDetails}>
+                    <View style={styles.topSection}>
+                        <Text>
+                            Sr. No: <Text style={styles.label}>{item.voter_serial_number}</Text>
+                        </Text>
+                        <Text>
+                            Voter Id: <Text style={styles.label}>{item.voter_id_card_number}</Text>
+                        </Text>
+                    </View>
+                    <View style={styles.divider} />
+                    <View style={styles.bottomSection}>
+                        <Text style={styles.voterName}>
+                            {language === 'en' ? toTitleCase(item.voter_name) : item.voter_name_mar}
+                        </Text>
+                    </View>
+                </View>
+            </Pressable>
+        )
+    }
 
     return (
         <View style={styles.container}>
@@ -124,9 +167,10 @@ export default CastWiseVoters;
 
 const styles = StyleSheet.create({
     container: {
-        paddingHorizontal: 20,
-        marginVertical: 10,
-        height: height * 0.774,
+        flex: 1,
+        // paddingHorizontal: 20,
+        paddingVertical: 10,
+        backgroundColor: 'white'
     },
 
     picker: {
@@ -140,6 +184,7 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         paddingHorizontal: 10,
         backgroundColor: 'white',
+        marginHorizontal: 20,
     },
     dropdownList: {
         maxHeight: 200,
@@ -178,20 +223,49 @@ const styles = StyleSheet.create({
     voterItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
         padding: 10,
-        width: '100%',
+        marginVertical: 5,
         borderRadius: 5,
-        marginBottom: 10,
-        borderWidth: 1,
-        borderColor: '#D9D9D9',
+        borderWidth: 2,
+        borderColor: '#e0e0e0',
+        marginHorizontal: 20
     },
-    voterText: {
-        flex: 1,
-        fontSize: 15,
+    voterDetails: {
+        flexDirection: 'column',
+        width: '100%',
+        padding: 10,
+        backgroundColor: '#f9f9f9',
+        borderRadius: 8,
+        // marginVertical: 8,
+        shadowColor: '#000',
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 2,
     },
-    loadingContainer: {
-        flex: 1,
+    topSection: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
         alignItems: 'center',
+        marginBottom: 8,
+    },
+    label: {
+        fontWeight: '500',
+        fontSize: 16,
+    },
+    divider: {
+        borderBottomWidth: 1,
+        borderBottomColor: '#ccc',
+        borderStyle: 'dotted',
+        marginVertical: 8,
+    },
+    bottomSection: {
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    voterName: {
+        fontSize: 18,
+        fontWeight: '900',
+        color: '#333',
+        textAlign: 'center',
     },
 });

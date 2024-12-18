@@ -32,7 +32,7 @@ const BoothUsers = () => {
 
     const fetchData = async () => {
         try {
-            const statesResponse = await axios.get('http://192.168.1.24:8000/api/booth_user_info/');
+            const statesResponse = await axios.get('http://192.168.1.38:8000/api/booth_user_info/');
             const formattedTowns = statesResponse.data;
             if (Array.isArray(formattedTowns)) {
                 setBoothUsers(formattedTowns);
@@ -57,14 +57,14 @@ const BoothUsers = () => {
 
     const deleteUser = async (userId) => {
         try {
-            const response = await axios.delete(`http://192.168.1.24:8000/api/delete_user/${userId}`, {
+            const response = await axios.delete(`http://192.168.1.38:8000/api/delete_user/${userId}`, {
                 headers: {
                     'Content-Type': 'application/json',
                 },
             });
-    
+
             if (response.status === 200 || response.status === 204) {
-                await fetchData(); 
+                await fetchData();
                 Alert.alert('Success', 'User has been deleted successfully.');
             } else {
                 Alert.alert('Error', 'Failed to delete the user.');
@@ -79,7 +79,6 @@ const BoothUsers = () => {
             }
         }
     };
-    
 
     const handleLongPressDelete = (userId) => {
         Alert.alert(
@@ -100,7 +99,7 @@ const BoothUsers = () => {
     const handlePDFClick = async () => {
         setPdfLoading(true);
         try {
-            const response = await axios.get('http://192.168.1.24:8000/api/generate_booth_user_pdf/', {
+            const response = await axios.get('http://192.168.1.38:8000/api/generate_booth_user_pdf/', {
                 responseType: 'arraybuffer',
             });
 
@@ -154,7 +153,7 @@ const BoothUsers = () => {
                     <TextInput
                         value={searchedValue}
                         onChangeText={text => setSearchValue(text)}
-                        placeholder={language === 'en' ? 'search by voter’s name or ID' : 'मतदाराचे नाव किंवा आयडी द्वारे शोधा'}
+                        placeholder={language === 'en' ? 'Search by voter’s name' : 'मतदाराचे नाव किंवा आयडी द्वारे शोधा'}
                         style={styles.searchInput}
                     />
                 </View>
@@ -168,7 +167,7 @@ const BoothUsers = () => {
                             />}
                         data={searchedTown}
                         keyExtractor={item => item.user_id.toString()}
-                        showsVerticalScrollIndicator={false}
+                        showsVerticalScrollIndicator={true}
                         renderItem={({ item, index }) => (
                             <Pressable
                                 style={styles.voterItem}

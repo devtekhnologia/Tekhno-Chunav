@@ -18,6 +18,7 @@ import CastWiseVoters from '../TownUser/Filter/CastWiseVoters';
 import TownVoters from '../TownUser/Voters/TownVoters';
 import { LanguageContext } from '../ContextApi/LanguageContext';
 import { useContext } from 'react';
+import BoothVoted from '../TownUser/Voters/BoothVoted';
 
 const Stack = createNativeStackNavigator();
 const TownUserMainStack = () => {
@@ -166,6 +167,22 @@ const TownUserMainStack = () => {
                         fontSize: 22
                     },
                     headerTitle: language === 'en' ? 'Booth Voters' : 'बूथ मतदार',
+                    headerShadowVisible: false, headerLeft: () => (
+                        <TouchableOpacity style={{ width: 35, borderRadius: 30, alignItems: 'center', padding: 5 }}
+                            onPress={() => navigation.goBack()}  >
+                            <Octicons name="arrow-left" size={30} color="black" />
+                        </TouchableOpacity>
+                    ),
+                }}
+            />
+
+            <Stack.Screen name='Booth Voted' component={BoothVoted}
+                options={{
+                    headerShown: true, headerTitleAlign: 'center',
+                    headerTitleStyle: {
+                        fontSize: 22
+                    },
+                    headerTitle: language === 'en' ? 'Booth Voted' : 'बूथ मतदार',
                     headerShadowVisible: false, headerLeft: () => (
                         <TouchableOpacity style={{ width: 35, borderRadius: 30, alignItems: 'center', padding: 5 }}
                             onPress={() => navigation.goBack()}  >

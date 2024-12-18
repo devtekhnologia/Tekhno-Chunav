@@ -43,7 +43,7 @@ export const WardUserProvider = ({ children }) => {
         loadUser();
     }, []);
 
-    const login = async (userData) => {
+    const wardlogin = async (userData) => {
         try {
             const decoded = jwtDecode(userData);
             const expirationDate = new Date(decoded.exp * 1000);
@@ -52,7 +52,7 @@ export const WardUserProvider = ({ children }) => {
             setWarduserAuthenticated(true);
             await AsyncStorage.setItem('WardUserToken', userData);
         } catch (error) {
-            Alert.alert('Error during login:', error.toString ? error.toString() : 'Unknown error');
+            Alert.alert('Error during wardlogin:', error.toString ? error.toString() : 'Unknown error');
             setError('Failed to log in. Invalid token or network error.');
         }
     };
@@ -69,7 +69,7 @@ export const WardUserProvider = ({ children }) => {
         }
     };
     return (
-        <WardUserContext.Provider value={{ boothId, setBoothId, wardUserId, setWardUserId, wardusername, setwarduserName, login, logoutWuser, isWarduserAuthenticated }}>
+        <WardUserContext.Provider value={{ boothId, setBoothId, wardUserId, setWardUserId, wardusername, setwarduserName, wardlogin, logoutWuser, isWarduserAuthenticated }}>
             {children}
         </WardUserContext.Provider>
     );

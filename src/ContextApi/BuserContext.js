@@ -23,7 +23,7 @@ export const BoothUserProvider = ({ children }) => {
                 const expirationDate = new Date(decoded.exp * 1000);
 
                 if (expirationDate > new Date()) {
-                    setBoothId(decoded.politician_id);
+                    setBoothId(decoded.user_id);
                     setToken(storedUser);
                     setBuserAuthenticated(true);
                 } else {

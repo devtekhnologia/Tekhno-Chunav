@@ -10,7 +10,7 @@ export default function FamilyModal({
   setModalVisible,
   handleVoterSelect,
   setMembers,
-  refreshFamilyGroups, // Added this prop
+  refreshFamilyGroups, 
   language
 }) {
   const [removalLoading, setRemovalLoading] = useState(false);
@@ -25,20 +25,15 @@ export default function FamilyModal({
     setRemovalLoading(true);
     try {
       const response = await axios.patch(
-        `http://192.168.1.24:8000/api/remove_voter_from_family_group/${selectedMember.voter_id}/`
+        `http://192.168.1.38:8000/api/remove_voter_from_family_group/${selectedMember.voter_id}/`
       );
 
-      // Check if response has the expected message
       if (response.data.message === "Voter group ID updated to NULL") {
         Alert.alert('Success', 'Voter removed from the group successfully');
-
-        // Remove the voter from the members list
         setMembers((prevMembers) =>
           prevMembers.filter((member) => member.voter_id !== selectedMember.voter_id)
         );
-        setSelectedMember(null); // Reset selected member
-
-        // Call the function to refresh the family groups in the parent component
+        setSelectedMember(null);
         refreshFamilyGroups();
       } else {
         Alert.alert('Error', 'Unexpected response from the server');
@@ -78,9 +73,15 @@ export default function FamilyModal({
     <Modal visible={visible} transparent={true} animationType="slide">
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
-          <Text style={styles.modalTitle}>
-            {language === 'en' ? 'Group Members' : 'कुटुंबातील सदस्य'}
-          </Text>
+          <View style={styles.headerContainer}>
+            <Text style={styles.modalTitle}>
+              {language === 'en' ? 'Group Members' : 'कुटुंबातील सदस्य'}
+            </Text>
+            <TouchableOpacity style={styles.numberButton}>
+              <Text style={styles.numberButtonText}>{members.length}</Text>
+            </TouchableOpacity>
+          </View>
+
           {removalLoading ? (
             <ActivityIndicator size="large" color="#0000ff" />
           ) : (
@@ -121,10 +122,28 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 10,
   },
+  headerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
   modalTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 10,
+  },
+  numberButton: {
+    backgroundColor: '#FF6347',
+    borderRadius: 15,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  numberButtonText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: 'bold',
   },
   memberItem: {
     padding: 10,

@@ -3,37 +3,36 @@ import { jwtDecode } from 'jwt-decode';
 import React, { createContext, useEffect, useState } from 'react';
 import { Alert } from 'react-native';
 
-export const TownUserContext = createContext();
+export const ZPUserContext = createContext();
 
-export const TownUserProvider = ({ children }) => {
-  const [userName, setUserName] = useState('');
-  const [tuserName, settuserName] = useState('');
+export const ZPUserProvider = ({ children }) => {
+  const [username, setUsername] = useState('');
+  const [zpUsername, setZpUsername] = useState('');
   const [boothId, setBoothId] = useState('');
-  const [userId, setUserId] = useState(null)
-  const [isTuserAuthenticated, setTuserAuthenticated] = useState(false);
+  const [zpUserId, setZPuserId] = useState(null)
+  const [isZPuserAuthenticated, setZPuserAuthenticated] = useState(false);
   const [token, setToken] = useState(null)
   const [error, setError] = useState(null);
-  console.log(token);
 
-  const loadUser = async () => {
+  const ZPloadUser = async () => {
     try {
-      const storedUserToken = await AsyncStorage.getItem('TUserToken');
+      const storedUserToken = await AsyncStorage.getItem('ZPuserToken');
       if (storedUserToken) {
         try {
           const decoded = jwtDecode(storedUserToken);
-          setUserId(JSON.parse(decoded.user_id));
+          setZPuserId(JSON.parse(decoded.user_id));
           const expirationDate = new Date(decoded.exp * 1000);
 
           if (expirationDate > new Date()) {
-            setUserId(decoded.user_id);
+            setZPuserId(decoded.user_id);
             setToken(storedUserToken);
-            setTuserAuthenticated(true);
+            setZPuserAuthenticated(true);
           } else {
-            logoutTuser();
+            logoutZPuser();
             setError('Token expired. Please log in again.');
           }
         } catch (error) {
-          Alert.alert('Error decoding token on load:', error.toString ? error.toString() : 'Unknown error');
+          Alert.alert('Error decoding token on load PS User:', error.toString ? error.toString() : 'Unknown error');
           setError('Failed to decode token. Please log in again.');
         }
       }
@@ -44,41 +43,42 @@ export const TownUserProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    loadUser();
+    ZPloadUser();
   }, []);
 
-  const townUserLogin = async (userData) => {
-    console.log("Login data:", userData);
-    
+  const zpUserLogin = async (userData) => {
     try {
       const decoded = jwtDecode(userData);
       const expirationDate = new Date(decoded.exp * 1000);
-console.log("Decoded token: ", decoded);
+      console.log("Decoded token: ", decoded);
 
       setToken(userData);
-      setUserId(decoded.user_id);
-      setTuserAuthenticated(true);
-      await AsyncStorage.setItem('TUserToken', JSON.stringify(userData));
+      setZPuserId(decoded.user_id);
+      setZPuserAuthenticated(true);
+      await AsyncStorage.setItem('ZPuserToken', JSON.stringify(userData));
     } catch (error) {
       Alert.alert('Error during login:', error.toString ? error.toString() : 'Unknown error');
       setError('Failed to log in. Invalid token or network error.');
     }
   };
 
-  const logoutTuser = async () => {
+  const logoutZPuser = async () => {
     try {
-      setUserId(null);
+      setZPuserId(null);
       setToken(null);
-      setTuserAuthenticated(false);
-      await AsyncStorage.removeItem('TUserToken');
+      setZPuserAuthenticated(false);
+      await AsyncStorage.removeItem('ZPuserToken');
     } catch (error) {
       Alert.alert('Error during logout:', error.toString ? error.toString() : 'Unknown error');
       setError('Failed to log out. Please try again.');
     }
   };
   return (
-    <TownUserContext.Provider value={{ userName, setUserName, boothId, setBoothId, userId, setUserId, tuserName, settuserName, townUserLogin, logoutTuser, isTuserAuthenticated }}>
+    <ZPUserContext.Provider value={{
+      token, username, setUsername, boothId, setBoothId, zpUserId, zpUsername,
+      setZPuserId, setZpUsername, zpUserLogin, logoutZPuser, isZPuserAuthenticated
+    }}>
       {children}
-    </TownUserContext.Provider>
+    </ZPUserContext.Provider>
   );
 };

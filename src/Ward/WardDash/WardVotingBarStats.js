@@ -44,7 +44,7 @@ const WardVotingBarStats = () => {
 
     const fetchData = async () => {
         try {
-            const response = await axios.get(`http://192.168.1.24:8000/api/get_voterlist_by_prabhag_user/${wardUserId}/`);
+            const response = await axios.get(`http://192.168.1.38:8000/api/get_voterlist_by_prabhag_user/${wardUserId}/`);
             const voterList = response.data;
 
             let favorableCount = 0;

@@ -23,7 +23,7 @@ export default function KProfile() {
 
   const getKaryakartaDetails = async () => {
     try {
-      const response = await axios.get(`http://192.168.1.24:8000/api/get_voter_group_details_by_user/${KuserId}/`);
+      const response = await axios.get(`http://192.168.1.38:8000/api/get_voter_group_details_by_user/${KuserId}/`);
       const karyakartaDetails = response.data;
       setProfileDetails(karyakartaDetails);
       console.log(karyakartaDetails);

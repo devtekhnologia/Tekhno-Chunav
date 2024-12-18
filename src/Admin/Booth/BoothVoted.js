@@ -12,7 +12,7 @@ import EditVoterForm from '../../ReusableCompo/EditVoterForm';
 import CastModal from '../Voters/CastModals';
 import { render } from 'react-dom';
 
-export default function BoothVoters({ route }) {
+export default function BoothVoted({ route }) {
     const { boothId } = route.params;
     const { language } = useContext(LanguageContext);
     const [voters, setVoters] = useState([]);
@@ -32,6 +32,7 @@ export default function BoothVoters({ route }) {
     const [castes, setCastes] = useState([]);
     const [selectedCasteId, setSelectedCasteId] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [votePercentage, setVotePercentage] = useState(null);
 
     const fetchVoterDetails = (voter_id) => {
         axios.get(`http://192.168.1.38:8000/api/voters/${voter_id}`)
@@ -102,6 +103,7 @@ export default function BoothVoters({ route }) {
         setFilteredVoters(filtered);
     }, [searchedValue, voters]);
     
+
     const sortVotersAlphabetically = () => {
         const sortedVoters = [...filteredVoters];
         if (sortState === 0) {
@@ -127,7 +129,7 @@ export default function BoothVoters({ route }) {
 
     const fetchVoterData = async () => {
         try {
-            const response = await axios.get(`http://192.168.1.38:8000/api/get_voters_by_booth/${boothId}/`);
+            const response = await axios.get(`http://192.168.1.38:8000/api/get_voted_data_by_booth/${boothId}/1/`);
             if (response.data && Array.isArray(response.data)) {
                 setVoters(response.data);
                 setFilteredVoters(response.data);
@@ -200,22 +202,23 @@ export default function BoothVoters({ route }) {
                 onPress={() => handleVoterPress(item.voter_id)}
                 onLongPress={() => handleLongPress(item.voter_id)}
             >
+
                 <View style={styles.voterDetails}>
-                    <View style={styles.topSection}>
-                        <Text>
-                            Sr. No: <Text style={styles.label}>{item.voter_serial_number}</Text>
-                        </Text>
-                        <Text>
-                            Voter Id: <Text style={styles.label}>{item.voter_id_card_number}</Text>
-                        </Text>
-                    </View>
-                    <View style={styles.divider} />
-                    <View style={styles.bottomSection}>
-                        <Text style={styles.voterName}>
-                            {language === 'en' ? toTitleCase(item.voter_name) : item.voter_name_mar}
-                        </Text>
-                    </View>
-                </View>
+                                    <View style={styles.topSection}>
+                                        <Text>
+                                            Sr. No: <Text style={styles.label}>{item.voter_serial_number}</Text>
+                                        </Text>
+                                        <Text>
+                                            Voter Id: <Text style={styles.label}>{item.voter_id_card_number}</Text>
+                                        </Text>
+                                    </View>
+                                    <View style={styles.divider} />
+                                    <View style={styles.bottomSection}>
+                                        <Text style={styles.voterName}>
+                                            {language === 'en' ? toTitleCase(item.voter_name) : item.voter_name_mar}
+                                        </Text>
+                                    </View>
+                                </View>
             </Pressable>
         )
     }
@@ -291,9 +294,27 @@ export default function BoothVoters({ route }) {
         setSelectAll(!selectAll);
     };
 
+    const fetchVotePercentage = async () => {
+        try {
+            const response = await axios.get(`http://192.168.1.38:8000/api/booth_voting_percentage/${boothId}/`);
+            if (response.data && response.data.length > 0) {
+                setVotePercentage(response.data[0].voted_percentage); // Assuming the first object in the array contains the required data.
+            } else {
+                setVotePercentage('0'); // Fallback if data is empty or undefined.
+            }
+        } catch (error) {
+            console.error('Error fetching vote percentage:', error);
+            Alert.alert('Error', 'Failed to fetch vote percentage. Please try again later.');
+        }
+    };
+
+    useEffect(() => {
+        fetchVotePercentage();
+    }, [boothId]);
+
     return (
         <HeaderFooterLayout
-            headerText={language === 'en' ? `Voters in Booth : ${route.params.boothId}` : `बूथमधील मतदार : ${route.params.boothId}`}
+            headerText={language === 'en' ? `Voting in Booth : ${route.params.boothId}` : `बूथमधील मतदार : ${route.params.boothId}`}
             showHeader={true}
             showFooter={false}
             leftIcon={true}
@@ -303,12 +324,23 @@ export default function BoothVoters({ route }) {
             onRightIconPress={sortVotersAlphabetically}
         >
             <View style={styles.container}>
+
+                <View style={styles.voteCard}>
+                    <Text style={styles.voteTitle}>
+                        {language === 'en' ? 'Vote Percentage' : 'मतदान टक्केवारी'}
+                    </Text>
+                    <Text style={styles.votePercentage}>
+                        {votePercentage !== null ? `${parseFloat(votePercentage).toFixed(2)}%` : 'Loading...'}
+                    </Text>
+                </View>
+
+
                 <View style={styles.searchContainer}>
                     <Ionicons name="search" size={20} color="grey" />
                     <TextInput
                         value={searchedValue}
                         onChangeText={text => setSearchValue(text)}
-                        placeholder={language === 'en' ? 'Search by voter’s name' : 'मतदाराचे नाव किंवा ओळखपत्राने शोधा'}
+                        placeholder={language === 'en' ? 'Search by voter’s name or ID' : 'मतदाराचे नाव किंवा ओळखपत्राने शोधा'}
                         style={styles.searchInput}
                     />
                 </View>
@@ -350,7 +382,7 @@ export default function BoothVoters({ route }) {
                     <FlatList
                         data={filteredVoters}
                         keyExtractor={item => item.voter_id.toString()}
-                        showsVerticalScrollIndicator={true}
+                        showsVerticalScrollIndicator={false}
                         renderItem={renderItem}
                         refreshControl={
                             <RefreshControl
@@ -390,6 +422,31 @@ const styles = StyleSheet.create({
     container: {
         paddingHorizontal: 15,
         height: '100%',
+    },
+    voteCard: {
+        width: '100%',
+        height: '10%',
+        backgroundColor: '#e8f4fa',
+        borderRadius: 10,
+        padding: 15,
+        marginBottom: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    voteTitle: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#007bff',
+    },
+    votePercentage: {
+        fontSize: 28,
+        fontWeight: 'bold',
+        color: '#0056b3',
+        marginVertical: 5,
+    },
+    voteSubtitle: {
+        fontSize: 14,
+        color: '#555',
     },
     searchContainer: {
         borderColor: '#9095A1',

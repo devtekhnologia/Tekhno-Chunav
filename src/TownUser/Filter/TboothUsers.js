@@ -35,14 +35,13 @@ const TboothUsers = () => {
     const fetchData = async () => {
         setRefreshing(true); // Start loading indicator
         try {
-            const response = await axios.get(`http://192.168.1.24:8000/api/get_booth_users_by_town_user/${userId}/`);
+            const response = await axios.get(`http://192.168.1.38:8000/api/get_booth_users_by_town_user/${userId}/`);
             const formattedTowns = response.data;
 
             if (Array.isArray(formattedTowns)) {
                 setBooths(formattedTowns);
             } else {
-                Alert.alert('Expected an array of booths');
-                setError('Unexpected data format. Please try again later.');
+                setBooths([]);
             }
         } catch (error) {
             if (error.response.status === 404) {
@@ -65,7 +64,7 @@ const TboothUsers = () => {
 
 
     const fetchUserDetails = (id) => {
-        axios.get(`http://192.168.1.24:8000/api/booth_user_info/${id}`)
+        axios.get(`http://192.168.1.38:8000/api/booth_user_info/${id}`)
             .then(response => {
                 setBuser(response.data);
                 setIsModalVisible(true);
@@ -95,7 +94,7 @@ const TboothUsers = () => {
                 <TextInput
                     value={searchedValue}
                     onChangeText={text => setSearchValue(text)}
-                    placeholder={language === 'en' ? 'search by voter’s name or ID' : 'मतदाराचे नाव किंवा आयडी द्वारे शोधा'}
+                    placeholder={language === 'en' ? 'Search by voter’s name or Id' : 'मतदाराचे नाव किंवा आयडी द्वारे शोधा'}
                     style={styles.searchInput}
                 />
             </View>
@@ -104,7 +103,7 @@ const TboothUsers = () => {
             <FlatList
                 data={searchedBooth}
                 keyExtractor={item => item.user_id.toString()}
-                showsVerticalScrollIndicator={false}
+                showsVerticalScrollIndicator={true}
                 refreshControl={
                     <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
                 }

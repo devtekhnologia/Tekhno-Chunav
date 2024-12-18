@@ -10,7 +10,6 @@ import { LanguageContext } from '../../ContextApi/LanguageContext';
 import LoadingListComponent from '../../ReusableCompo/LoadingListComponent';
 import EmptyListComponent from '../../ReusableCompo/EmptyListComponent';
 
-
 const scaleFontSize = (size) => Math.round(size * width * 0.0025);
 const { width, height } = Dimensions.get('window');
 
@@ -26,6 +25,7 @@ export default function LocationWise() {
     ]);
 
     const [voterData, setVoterData] = useState([]);
+    const [filteredVoters, setFilteredVoters] = useState([]); // New state for filtered data
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
     const [pdfLoading, setPdfLoading] = useState(false);
@@ -36,7 +36,7 @@ export default function LocationWise() {
 
     const fetchBoothData = async () => {
         try {
-            const response = await axios.get('http://192.168.1.24:8000/api/booths/');
+            const response = await axios.get('http://192.168.1.38:8000/api/booths/');
             const boothOptions = response.data.map((item) => ({
                 label: `${item.booth_id} - ${language === 'en' ? item.booth_name : item.booth_name_mar}`,
                 value: item.booth_id,
@@ -54,13 +54,13 @@ export default function LocationWise() {
             setLoading(true);
             try {
                 const response = await axios.get(
-                    `http://192.168.1.24:8000/api/get_voter_current_location_details_by_booth/booth_id/${boothValue}/city_id/${locationValue}/`
+                    `http://192.168.1.38:8000/api/get_voter_current_location_details_by_booth/booth_id/${boothValue}/city_id/${locationValue}/`
                 );
                 setVoterData(response.data);
+                setFilteredVoters(response.data); // Initialize filtered voters
                 setLoading(false);
             } catch (error) {
                 Alert.alert('Error fetching voter data', error.toString ? error.toString() : 'Unknown error');
-
                 setLoading(false);
             }
         }
@@ -69,6 +69,36 @@ export default function LocationWise() {
     useEffect(() => {
         fetchVoterData();
     }, [boothValue, locationValue]);
+
+    // Advanced Search Logic
+    useEffect(() => {
+        const searchTerms = searchQuery.toLowerCase().trim().split(/\s+/);
+
+        const filtered = voterData.filter(voter => {
+            const voterName = voter.voter_name ? voter.voter_name.toLowerCase() : '';
+            const voterNameMar = voter.voter_name_mar ? voter.voter_name_mar.toLowerCase() : '';
+            const voterId = voter.voter_id ? voter.voter_id.toString() : '';
+            const voterSerialNumber = voter.voter_serial_number ? voter.voter_serial_number.toString() : '';
+            const voterIdCardNumber = voter.voter_id_card_number ? voter.voter_id_card_number.toLowerCase() : '';
+
+            const voterNameParts = voterName.split(/\s+/);
+            const voterNameMarParts = voterNameMar.split(/\s+/);
+
+            return searchTerms.every(term =>
+                voterId.includes(term) ||
+                voterSerialNumber.includes(term) ||
+                voterIdCardNumber.includes(term) ||
+                voterName.includes(term) ||
+                voterNameMar.includes(term) ||
+                voterNameParts.some(part => part.includes(term)) ||
+                voterNameMarParts.some(part => part.includes(term)) ||
+                voterName.startsWith(searchTerms.join(' ')) ||
+                voterNameMar.startsWith(searchTerms.join(' '))
+            );
+        });
+
+        setFilteredVoters(filtered);
+    }, [searchQuery, voterData]);
 
     const handlePDFClick = async () => {
         if (!boothValue || !locationValue) {
@@ -79,7 +109,7 @@ export default function LocationWise() {
         setPdfLoading(true);
         try {
             const response = await axios.get(
-                `http://192.168.1.24:8000/api/generate_voter_pdf_by_booth/booth_id/${boothValue}/city_id/${locationValue}/`,
+                `http://192.168.1.38:8000/api/generate_voter_pdf_by_booth/booth_id/${boothValue}/city_id/${locationValue}/`,
                 { responseType: 'arraybuffer' }
             );
             const base64 = btoa(new Uint8Array(response.data).reduce((data, byte) => data + String.fromCharCode(byte), ''));
@@ -101,7 +131,7 @@ export default function LocationWise() {
 
     const renderVoterItem = ({ item }) => (
         <View style={styles.voterItem}>
-            <Text style={styles.voterText}>{language === 'en' ? 'ID' : 'आईडी'}: {item.voter_id}</Text>
+            <Text style={styles.voterText}>{language === 'en' ? 'Sr.No' : 'क्र.'}: {item.voter_serial_number}  [ {language === 'en' ? 'Voter Id' : 'मतदार आईडी'} : {item.voter_id_card_number} ]</Text>
             <Text style={styles.voterText}>{language === 'en' ? 'Name' : 'नाव'}: {language === 'en' ? toTitleCase(item.voter_name) : item.voter_name_mar}</Text>
             <Text style={styles.voterText}>{language === 'en' ? 'Contact' : 'संपर्क'}:
                 {item.voter_contact_number ? item.voter_contact_number : 'N/A'}
@@ -112,9 +142,6 @@ export default function LocationWise() {
         </View>
     );
 
-    const filteredVoterData = voterData.filter((voter) =>
-        voter.voter_name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
     const toTitleCase = (str) => {
         return str
             .split(' ')
@@ -158,14 +185,13 @@ export default function LocationWise() {
                     />
                     <TextInput
                         style={styles.searchBar}
-                        placeholder={language === 'en' ? 'Search by name' : 'नाव शोधा'}
+                        placeholder={language === 'en' ? 'Search by name, ID, or location' : 'नाव, आयडी किंवा स्थान शोधा'}
                         value={searchQuery}
                         onChangeText={(text) => setSearchQuery(text)}
                     />
 
-
                     <FlatList
-                        data={filteredVoterData}
+                        data={filteredVoters}
                         keyExtractor={(item) => item.voter_id.toString()}
                         renderItem={renderVoterItem}
                         ListHeaderComponent={loading && <LoadingListComponent />}

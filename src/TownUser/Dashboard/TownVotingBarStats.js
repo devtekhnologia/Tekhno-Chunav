@@ -41,7 +41,7 @@ const TownVotingBarStats = memo(() => {
 
     const fetchData = async () => {
         try {
-            const response = await axios.get(`http://192.168.1.24:8000/api/get_voter_list_by_town_user/${userId}/`);
+            const response = await axios.get(`http://192.168.1.38:8000/api/get_voter_list_by_town_user/${userId}/`);
             const voterList = response.data;
 
             let favorableCount = 0;

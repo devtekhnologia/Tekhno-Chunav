@@ -9,7 +9,7 @@ const CastModal = ({ isVisible, onClose, onAssignCaste, selectedVoters }) => {
   useEffect(() => {
     if (isVisible) {
       axios
-        .get('http://192.168.1.24:8000/api/cast/')
+        .get('http://192.168.1.38:8000/api/cast/')
         .then(response => {
           setCastes(response.data);
         })
@@ -31,7 +31,7 @@ const CastModal = ({ isVisible, onClose, onAssignCaste, selectedVoters }) => {
     };
 
     axios
-      .post('http://192.168.1.24:8000/api/assign_voter_cast/', payload)
+      .post('http://192.168.1.38:8000/api/assign_voter_cast/', payload)
       .then(response => {
         Alert.alert('Success', 'Caste assigned successfully!');
         onAssignCaste(selectedCasteId); // Callback to notify parent about the caste assignment

@@ -1,18 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import {
-    View,
-    Text,
-    FlatList,
-    StyleSheet,
-    TextInput,
-    ActivityIndicator,
-    TouchableOpacity,
-    Alert,
-    Modal,
-    Pressable,
-} from 'react-native';
+import { View, Text, FlatList, StyleSheet, TextInput, ActivityIndicator, TouchableOpacity, Alert, Modal, Pressable, } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import CastModal from '../Voters/CastModals';
 
 const Surname = () => {
     const [data, setData] = useState([]);
@@ -20,7 +10,11 @@ const Surname = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [loading, setLoading] = useState(true);
     const [modalVisible, setModalVisible] = useState(false);
+    const [selectedSurnames, setSelectedSurnames] = useState([]);
+    const [selectionMode, setSelectionMode] = useState(false);
     const [selectedVoterIds, setSelectedVoterIds] = useState([]);
+    const [isCasteModalVisible, setCasteModalVisible] = useState(false);
+
 
     useEffect(() => {
         fetchData();
@@ -28,7 +22,7 @@ const Surname = () => {
 
     const fetchData = async () => {
         try {
-            const response = await axios.get('http://192.168.1.24:8000/api/surname_wise_voter_count/');
+            const response = await axios.get('http://192.168.1.38:8000/api/surname_wise_voter_count/');
             setData(response.data);
             setFilteredData(response.data);
         } catch (error) {
@@ -44,19 +38,50 @@ const Surname = () => {
     const handleSearch = (query) => {
         setSearchQuery(query);
         if (query) {
-            const filtered = data.filter((item) =>
-                item.surname.toLowerCase().includes(query.toLowerCase())
-            );
+            const filtered = data.filter((item) => {
+                const surname = item.surname || ''; 
+                return surname.toLowerCase().includes(query.toLowerCase());
+            });
             setFilteredData(filtered);
         } else {
             setFilteredData(data);
         }
     };
+    
 
-    const handlePress = async (surnameId) => {
+    const toggleSelection = (surnameId) => {
+        if (selectedSurnames.includes(surnameId)) {
+            setSelectedSurnames(selectedSurnames.filter((id) => id !== surnameId));
+        } else {
+            setSelectedSurnames([...selectedSurnames, surnameId]);
+        }
+    };
+
+    const handleLongPress = (surnameId) => {
+        setSelectionMode(true);
+        toggleSelection(surnameId);
+    };
+
+    const handlePress = (surnameId) => {
+        if (selectionMode) {
+            toggleSelection(surnameId);
+        } else {
+            fetchVoterIds([surnameId]);
+        }
+    };
+
+    const fetchVoterIds = async (surnameIds) => {
+        if (!surnameIds.length) {
+            Alert.alert('Error', 'Please select at least one surname.');
+            return;
+        }
+
         try {
             setLoading(true);
-            const response = await axios.get(`http://192.168.1.24:8000/api/surname_wise_voter_count/${surnameId}`);
+            const apiUrl = 'http://192.168.1.38:8000/api/surname_wise_voter_count/';
+            const requestBody = { "surname_ids": surnameIds };
+
+            const response = await axios.post(apiUrl, requestBody);
             const voterIds = response.data.voter_ids;
 
             await AsyncStorage.setItem('voter_ids', JSON.stringify(voterIds));
@@ -70,6 +95,17 @@ const Surname = () => {
         }
     };
 
+
+    const assignCasteToVoters = async () => {
+        if (!selectedSurnames.length) {
+            Alert.alert('Error', 'No surnames selected.');
+            return;
+        }
+
+        await fetchVoterIds(selectedSurnames);
+        setCasteModalVisible(true);
+    };
+
     const assignColorToSelectedVoters = async (colorId) => {
         try {
             const payload = {
@@ -77,10 +113,12 @@ const Surname = () => {
                 voter_favour_id: colorId,
             };
 
-            const response = await axios.put('http://192.168.1.24:8000/api/favour/', payload);
+            const response = await axios.put('http://192.168.1.38:8000/api/favour/', payload);
             if (response.status === 200) {
                 Alert.alert('Success', 'Color assigned successfully!');
                 setModalVisible(false);
+                setSelectionMode(false);
+                setSelectedSurnames([]);
             } else {
                 throw new Error('Failed to update colors. Please try again.');
             }
@@ -101,6 +139,34 @@ const Surname = () => {
                 />
             </View>
 
+            {selectionMode && (
+                <View style={styles.selectionActions}>
+                    <TouchableOpacity
+                        style={styles.actionButton}
+                        onPress={() => {
+                            setSelectionMode(false);
+                            setSelectedSurnames([]);
+                        }}
+                    >
+                        <Text style={styles.actionButtonText}>Exit Selection</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={styles.actionButton}
+                        onPress={assignCasteToVoters}
+                    >
+                        <Text style={styles.actionButtonText}>Assign Cast</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={styles.actionButton}
+                        onPress={() => fetchVoterIds(selectedSurnames)}
+                    >
+                        <Text style={styles.actionButtonText}>Assign Color</Text>
+                    </TouchableOpacity>
+                </View>
+            )}
+
             {loading ? (
                 <ActivityIndicator size="large" color="blue" style={styles.loadingIndicator} />
             ) : (
@@ -111,8 +177,16 @@ const Surname = () => {
                     }
                     showsVerticalScrollIndicator={false}
                     renderItem={({ item, index }) => (
-                        <TouchableOpacity onPress={() => handlePress(item.surname_id)}>
-                            <View style={styles.voterItem}>
+                        <TouchableOpacity
+                            onPress={() => handlePress(item.surname_id)}
+                            onLongPress={() => handleLongPress(item.surname_id)}
+                        >
+                            <View
+                                style={[
+                                    styles.voterItem,
+                                    selectedSurnames.includes(item.surname_id) && styles.selectedItem,
+                                ]}
+                            >
                                 <View style={styles.voterDetails}>
                                     <Text style={styles.index}>{index + 1}</Text>
                                     <View>
@@ -164,6 +238,16 @@ const Surname = () => {
                     </View>
                 </View>
             </Modal>
+            <CastModal
+                isVisible={isCasteModalVisible}
+                onClose={() => setCasteModalVisible(false)}
+                selectedVoters={selectedVoterIds}
+                onAssignCaste={(casteId) => {
+                    setSelectedSurnames([]);
+                    setSelectionMode(false);
+                    console.log(`Assigned caste ID ${casteId} to voters`, selectedVoterIds);
+                }}
+            />
         </View>
     );
 };
@@ -226,6 +310,23 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: 'grey',
         fontWeight: '700',
+    },
+    selectedItem: {
+        backgroundColor: '#a9aba9'
+    },
+    selectionActions: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 16
+    },
+    actionButton: {
+        padding: 8,
+        backgroundColor: 'blue',
+        borderRadius: 4
+    },
+    actionButtonText: {
+        color: 'white',
+        fontWeight: 'bold'
     },
     loadingIndicator: {
         flex: 1,

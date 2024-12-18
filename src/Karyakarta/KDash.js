@@ -31,10 +31,10 @@ export default function KDash() {
     await fetchVotedCount();
     await fetchNonVotedCount();
   };
-  
+
   const fetchVotersCount = async () => {
     try {
-      const response = await axios.get(`http://192.168.1.24:8000/api/voters_by_group_user/${KuserId}/`);
+      const response = await axios.get(`http://192.168.1.38:8000/api/voters_by_group_user/${KuserId}/`);
       const votersData = response.data?.voters || [];
       setTotalVotersCount(votersData.length);
     } catch (error) {
@@ -44,7 +44,7 @@ export default function KDash() {
 
   const fetchVotedCount = async () => {
     try {
-      const response = await axios.get(`http://192.168.1.24:8000/api/voter_status/${KuserId}/1/`);
+      const response = await axios.get(`http://192.168.1.38:8000/api/voter_status/${KuserId}/1/`);
       const votedData = response.data || [];
       setTotalVotedCount(votedData.length);
     } catch (error) {
@@ -54,7 +54,7 @@ export default function KDash() {
 
   const fetchNonVotedCount = async () => {
     try {
-      const response = await axios.get(`http://192.168.1.24:8000/api/voter_status/${KuserId}/2/`);
+      const response = await axios.get(`http://192.168.1.38:8000/api/voter_status/${KuserId}/2/`);
       const nonVotedData = response.data || [];
       setTotalNonVotedCount(nonVotedData.length);
     } catch (error) {

@@ -31,7 +31,7 @@ export default function ReligionCasteList() {
 
   const fetchTowns = async () => {
     try {
-      const response = await axios.get('http://192.168.1.24:8000/api/towns/');
+      const response = await axios.get('http://192.168.1.38:8000/api/towns/');
       const townsData = response.data.map(town => ({
         label: `${town.town_id} - ${language === 'en' ? town.town_name : town.town_name_mar}`,
         value: town.town_id,
@@ -45,7 +45,7 @@ export default function ReligionCasteList() {
 
   const fetchBoothsByTown = async (townId) => {
     try {
-      const response = await axios.get(`http://192.168.1.24:8000/api/booths_by_town/${townId}`);
+      const response = await axios.get(`http://192.168.1.38:8000/api/booths_by_town/${townId}`);
       const boothsData = response.data.map(booth => ({
         label: `${booth.booth_id} - ${language === 'en' ? booth.booth_name : booth.booth_name_mar}`,
         value: booth.booth_id,
@@ -59,7 +59,7 @@ export default function ReligionCasteList() {
 
   const fetchCasteData = async (religionId) => {
     try {
-      const response = await axios.get(`http://192.168.1.24:8000/api/cast_by_religion/${religionId}`);
+      const response = await axios.get(`http://192.168.1.38:8000/api/cast_by_religion/${religionId}`);
       const casteData = response.data.map(cast => ({
         label: `${cast.cast_id} - ${cast.cast_name}`,
         value: cast.cast_id,
@@ -73,7 +73,7 @@ export default function ReligionCasteList() {
 
   const fetchVotersByBoothAndCaste = async (boothId, castId) => {
     try {
-      const response = await axios.get(`http://192.168.1.24:8000/api/booth/${boothId}/cast/${castId}/`);
+      const response = await axios.get(`http://192.168.1.38:8000/api/booth/${boothId}/cast/${castId}/`);
       setVoters(response.data);
     } catch (error) {
       console.error('Error fetching voters:', error);
@@ -105,7 +105,8 @@ export default function ReligionCasteList() {
 
   const renderVoterItem = ({ item, index }) => (
     <View style={styles.voterItem}>
-      <Text style={styles.voterText}>{index + 1} - {language === 'en' ? item.voter_name : item.voter_name_mar}</Text>
+      <Text style={styles.voterText}>{item.voter_serial_number} - {language === 'en' ? item.voter_name : item.voter_name_mar}</Text>
+      <Text style={styles.voterContact}>{language === 'en' ? 'Voter Id' : 'मतदार आयडी'}: {item.voter_id_card_number}</Text>
       <Text style={styles.voterContact}>{language === 'en' ? 'Contact' : 'संपर्क'}: {item.voter_contact_number}</Text>
     </View>
   );
@@ -118,7 +119,7 @@ export default function ReligionCasteList() {
 
     setPdfLoading(true);
     try {
-      const response = await axios.get(`http://192.168.1.24:8000/api/booth_pdf/${boothValue}/cast/${casteValue}/`, {
+      const response = await axios.get(`http://192.168.1.38:8000/api/booth_pdf/${boothValue}/cast/${casteValue}/`, {
         responseType: 'arraybuffer',
       });
 

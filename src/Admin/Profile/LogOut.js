@@ -16,7 +16,7 @@ const LogOut = () => {
         try {
             // Make the logout request without token
             const response = await axios.post(
-                'http://192.168.1.24:8000/api/politician_logout/',
+                'http://192.168.1.38:8000/api/politician_logout/',
                 {},
                 {
                     headers: {

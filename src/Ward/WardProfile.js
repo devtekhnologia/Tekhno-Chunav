@@ -36,7 +36,7 @@ const WardProfile = () => {
       }
 
       try {
-        const response = await axios.get(`http://192.168.1.24:8000/api/prabhag_users_info/${wardUserId}`);
+        const response = await axios.get(`http://192.168.1.38:8000/api/prabhag_users_info/${wardUserId}`);
         console.log(response.data); // Log the response data for debugging
 
         if (Array.isArray(response.data) && response.data.length > 0) {
@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
 
   text: {
     color: 'white',
-    fontSize: height * 0.03,
+    fontSize: height * 0.0255,
     textAlign: 'center',
     fontWeight: 'bold',
   },

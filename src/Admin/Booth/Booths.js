@@ -18,7 +18,6 @@ const Booths = () => {
     const [loading, setLoading] = useState(true);
     const [booths, setBooths] = useState([]);
     const [pdfLoading, setPdfLoading] = useState(false);
-    const [votingPercentages, setVotingPercentages] = useState({});
     const scaleValue = useRef(new Animated.Value(1)).current;
 
     const searchedBooth = booths.filter(booth => {
@@ -32,37 +31,18 @@ const Booths = () => {
 
     const fetchData = async () => {
         try {
-            const response = await axios.get('http://192.168.1.24:8000/api/booths/');
+            const response = await axios.get('http://192.168.1.38:8000/api/booths/');
             const formattedTowns = response.data;
 
             if (Array.isArray(formattedTowns)) {
                 setBooths(formattedTowns);
-
-                // Fetch voting percentages
-                const votingData = await Promise.all(
-                    formattedTowns.map(async (booth) => {
-                        const { booth_id } = booth;
-                        try {
-                            const response = await axios.get(`http://192.168.1.24:8000/api/booth_voting_percentage/${booth_id}/`);
-                            return { booth_id, voted_percentage: response.data.voted_percentage };
-                        } catch {
-                            return { booth_id, voted_percentage: 'N/A' };
-                        }
-                    })
-                );
-
-                // Map percentages to booth IDs
-                const percentageMap = votingData.reduce((acc, item) => {
-                    acc[item.booth_id] = item.voted_percentage;
-                    return acc;
-                }, {});
-                setVotingPercentages(percentageMap);
             } else {
                 Alert.alert('Expected an array of booths');
             }
             setLoading(false);
         } catch (error) {
             Alert.alert('Error', `Error fetching data: ${error}`);
+
             setLoading(false);
         }
     };
@@ -92,13 +72,13 @@ const Booths = () => {
 
         setPdfLoading(true);
         try {
-            const response = await axios.get('http://192.168.1.24:8000/api/generate_pdf/', {
+            const response = await axios.get('http://192.168.1.38:8000/api/generate_pdf/', {
                 responseType: 'arraybuffer',
             });
 
             const base64 = btoa(
-                new Uint8Array(response.data).reduce((data, byte) => data + String.fromCharCode(byte), '')
-            );
+                new Uint8Array(response.data).reduce((data, byte) => data + String.fromCharCode(byte), ''))
+            ;
 
             const fileUri = FileSystem.documentDirectory + 'booths_report.pdf';
             await FileSystem.writeAsStringAsync(fileUri, base64, {
@@ -143,25 +123,29 @@ const Booths = () => {
                     data={searchedBooth}
                     keyExtractor={item => item.booth_id.toString()}
                     showsVerticalScrollIndicator={false}
-                    renderItem={({ item }) => (
-                        <Pressable
-                            style={styles.voterItem}
+                    renderItem={({ item, index }) => (
+                        <Pressable style={styles.voterItem}
                             onPress={() => { navigation.navigate('Booth Voters', { boothId: item.booth_id }) }}
                         >
-                            {/* Top Section */}
                             <View style={styles.topSection}>
                                 <Text style={styles.boothIdText}>{item.booth_id}</Text>
-                                <Text style={styles.boothNameText}>
-                                    {language === 'en' ? item.booth_name : item.booth_name_mar}
-                                </Text>
+                                <Text style={styles.boothNameText}>{language === 'en' ? item.booth_name : item.booth_name_mar}</Text>
                             </View>
-                            {/* Divider */}
-                            <View style={styles.separator} />
-                            {/* Bottom Section */}
-                            <View style={styles.bottomSection}>
-                                <Text style={styles.percentageText}>
-                                    {language === 'en' ? "Voted Percentage:" : 'मतदान टक्केवारी:'} {votingPercentages[item.booth_id] || 'N/A'}%
-                                </Text>
+
+                            {/* Bottom Section: Buttons */}
+                            <View style={styles.buttonsContainer}>
+                                <Pressable
+                                    style={styles.votersButton}
+                                    onPress={() => { navigation.navigate('Booth Voters', { boothId: item.booth_id }) }}
+                                >
+                                    <Text style={styles.buttonText}>{language === 'en' ? 'Voters' : 'मतदार'}</Text>
+                                </Pressable>
+                                <Pressable
+                                    style={styles.votersButton}
+                                    onPress={() => { navigation.navigate('Booth Voted', { boothId: item.booth_id }) }}
+                                >
+                                    <Text style={styles.buttonText}>{language === 'en' ? 'Voted' : 'मतदान'}</Text>
+                                </Pressable>
                             </View>
                         </Pressable>
                     )}
@@ -178,7 +162,7 @@ const Booths = () => {
                     </View>
                 )}
             </View>
-        </HeaderFooterLayout>
+        </HeaderFooterLayout >
     );
 };
 
@@ -199,6 +183,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingHorizontal: 10,
         marginVertical: 10,
+        columnGap: 20,
     },
     searchInput: {
         flex: 1,
@@ -206,46 +191,57 @@ const styles = StyleSheet.create({
     },
     voterItem: {
         flex: 1,
-        paddingVertical: 12,
-        paddingHorizontal: 15,
+        paddingVertical: 10,
+        paddingHorizontal: 10,
         marginVertical: 5,
-        borderWidth: 0.5,
-        borderColor: '#d3d3d3',
-        borderRadius: 5,
-        backgroundColor: 'white',
+        flexDirection: 'column',
+        borderRadius: 1,
+        borderWidth: 0.1,
+        gap: 15,
+        alignItems: 'center',
+        backgroundColor: '#f5f5f5',
     },
     topSection: {
         flexDirection: 'row',
+        justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 5,
+        width: '100%',
+    },
+    indexText: {
+        fontWeight: 'bold',
+        fontSize: 16,
     },
     boothIdText: {
         borderWidth: 1,
         borderColor: 'blue',
-        width: 40,
+        width: 50,
         textAlign: 'center',
         borderRadius: 3,
-        fontWeight: '700',
+        fontWeight: '500',
         marginRight: 10,
     },
     boothNameText: {
         flex: 1,
-        flexWrap: 'wrap',
         fontSize: 16,
-        fontWeight: '500',
+        fontWeight: '800',
     },
-    separator: {
-        borderBottomWidth: 1,
-        borderStyle: 'dotted',
-        borderColor: '#d3d3d3',
-        marginVertical: 8,
+    buttonsContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        width: '100%',
+        marginTop: 10,
     },
-    bottomSection: {
-        marginTop: 5,
+    votersButton: {
+        backgroundColor: '#4CAF50',
+        padding: 10,
+        borderRadius: 5,
+        width: '45%',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
-    percentageText: {
-        color: 'black',
-        fontSize: 14,
+    buttonText: {
+        color: 'white',
+        fontWeight: 'bold',
     },
     pdfLoadingOverlay: {
         position: 'absolute',

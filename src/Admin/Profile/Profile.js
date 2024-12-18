@@ -54,7 +54,7 @@ const Profile = () => {
                         />
 
                         <CustomeTextInput
-                            label={language === 'en' ? 'Constituency : ' : 'मतदारसंघ : '}
+                            label={language === 'en' ? 'Nagar Parishad : ' : 'नगर परिषद : '}
                             valueDetails={'Washim'}
                             styles={styles.profileTextInput}
                             readValue={true}

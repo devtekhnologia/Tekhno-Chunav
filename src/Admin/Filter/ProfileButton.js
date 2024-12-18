@@ -72,12 +72,12 @@ const ProfileButton = () => {
                                     <Text style={styles.modalText}>{language === 'en' ? 'Rural Towns' : 'ग्रामीण नगर'}</Text>
                                 </TouchableOpacity>
 
-                                <TouchableOpacity
+                                {/* <TouchableOpacity
                                     onPress={() => { navigation.navigate('Towns Users'); handleCloseModal(); }}
                                     style={styles.modalButton}
                                 >
                                     <Text style={styles.modalText}>{language === 'en' ? 'Towns Users' : 'नगर कार्यकर्ता'}</Text>
-                                </TouchableOpacity>
+                                </TouchableOpacity> */}
 
                                 <TouchableOpacity
                                     onPress={() => { navigation.navigate('Booth Users'); handleCloseModal(); }}
@@ -127,18 +127,19 @@ const ProfileButton = () => {
                                 >
                                     <Text style={styles.modalText}>{language === 'en' ? 'Booth Analysis' : 'बूथ विश्लेषण'}</Text>
                                 </TouchableOpacity>
-                                <TouchableOpacity
+                                {/* <TouchableOpacity
                                     onPress={() => { navigation.navigate('Town Analysis'); handleCloseModal(); }}
                                     style={styles.modalButton}
                                 >
                                     <Text style={styles.modalText}>{language === 'en' ? 'Town Analysis' : 'नगर विश्लेषण'}</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity
+                                </TouchableOpacity> */}
+
+                                {/* <TouchableOpacity
                                     onPress={() => { navigation.navigate('Registration'); handleCloseModal(); }}
                                     style={styles.modalButton}
                                 >
                                     <Text style={styles.modalText}>{language === 'en' ? 'Townuser Registration' : 'शहरातील  कार्यकर्ता नोंदणी'}</Text>
-                                </TouchableOpacity>
+                                </TouchableOpacity> */}
 
                                 <TouchableOpacity
                                     style={[styles.modalButton, { marginBottom: 5 }]}
