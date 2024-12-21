@@ -1,0 +1,103 @@
+{
+  "expo": {
+    "name": "Open Demo",
+    "slug": "open_demo",
+    "version": "1.5.6",
+    "orientation": "portrait",
+    "icon": "./assets/deole.png",
+    "userInterfaceStyle": "light",
+    "platforms": [
+      "ios",
+      "android"
+    ],
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "isAndroidBackgroundLocationEnabled": true
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
+        }
+      ],
+      [
+        "expo-background-fetch",
+        {
+          "enabled": true
+        }
+      ],
+      [
+        "expo-task-manager",
+        {
+          "enabled": true
+        }
+      ],
+      "expo-font"
+    ],
+    "splash": {
+      "image": "",
+      "resizeMode": "contain",
+      "backgroundColor": "#080808"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.example.tekhno_Chunav",
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "This app needs access to your photo library to save the PDF.",
+        "UIBackgroundModes": [
+          "location",
+          "fetch",
+          "remote-notification"
+        ]
+      },
+      "backgroundFetch": {
+        "enabled": true
+      }
+    },
+    "backgroundFetch": {
+      "enabled": true,
+      "minimumInterval": 60,
+      "stopOnTerminate": false,
+      "startOnBoot": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/deole.png",
+        "backgroundColor": "#ffffff"
+      },
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION",
+        "FOREGROUND_SERVICE",
+        "ACCESS_FINE_LOCATION",
+        "WRITE_EXTERNAL_STORAGE",
+        "READ_EXTERNAL_STORAGE",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_BACKGROUND_LOCATION",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.FOREGROUND_SERVICE_LOCATION",
+        "android.permission.RECEIVE_BOOT_COMPLETED",
+        "android.permission.WAKE_LOCK"
+      ],
+      "package": "com.test_Election"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "apiUrl": "http://4.172.246.116:8000",
+      "eas": {
+        "projectId": "ea01b1bc-3a75-4da4-af72-ceaac6d9ca6e"
+      }
+    }
+  }
+}
