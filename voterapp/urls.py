@@ -231,6 +231,7 @@ from .views import remove_voter_from_existing_group
 from .views import get_voter_group_details_by_user
 from .views import get_voter_group_details
 from .views import get_voters_by_confirmation
+from .views import delete_voter_group
 
 from .views import get_users_by_town_area_type
 from .views import get_voter_count_by_town_area_type
@@ -255,6 +256,10 @@ from .views import get_voted_list_by_booth
 from .views import surname_wise_voter_count, get_voter_details_by_surname
 from .views import surname_wise_voter_count_pdf
 from .views import surname_wise_favour_caste_assign_voters
+from .views import get_voters_by_booth_and_town_wise
+from .views import booth_and_surname_wise_voter_count, booth_and_surname_wise_voter_details, booth_and_surname_wise_voter_count_pdf
+from .views import get_booth_names_by_ps_circle_user_wise, ps_circle_user_vote_confirmation, ps_circle_user_cast_wise, ps_circle_user_religion_wise, ps_circle_user_favour_wise
+from .views import PanchayatSamitiCircleAPIView, zp_circle_user_vote_confirmation, zp_circle_user_cast_wise, BoothListByZPCircleUser, VoterListByZPCircleUser
 
 
 urlpatterns = [
@@ -356,6 +361,7 @@ urlpatterns = [
     path('zp_circle_user_login/', Zp_circle_userLogin.as_view(), name='zp_circle_user_login'),
     path('zp_circle_user_logout/', Zp_circle_userLogout.as_view(), name='zp_circle_user_logout'),
     path('voter_list_by_user_panchayat_samiti_circle/<int:user_panchayat_samiti_circle_id>/', get_voter_list_by_user_panchayat_samiti_circle, name='voter_list_by_user_panchayat_samiti_circle'),
+    path('get_panchayat_samiti_circle_by_zp_circle/<int:zp_circle_id>/', get_panchayat_samiti_circle_by_zp_circle, name='get_panchayat_samiti_circle_by_zp_circle'),
     path('voter_list_by_user_zp_circle/<int:user_zp_circle_id>/', get_voter_list_by_user_zp_circle, name='get_voter_list_by_user_zp_circle'),
     path('vote_confirmation/<int:vote_confirmation_id>/', VoterlistByVoteConfirmationView.as_view(), name='voter-list-by-vote-confirmation'), 
     path('get_non_voted_voters/', get_non_voted_voters, name='get_non_voted_voters'),
@@ -517,7 +523,6 @@ urlpatterns = [
     path('get_town_info_by_psc/<int:circle_id>/', get_town_info_by_psc, name='get_town_info_by_psc'),
     path('get_booth_info_by_prabhag_id/<int:booth_prabhag_id>/', get_booth_info_by_prabhag_id, name='get_booth_info_by_prabhag_id'),
     path('get_voters_by_prabhagh/<int:booth_prabhag_id>/', get_voters_by_prabhagh, name='get_voters_by_prabhagh'),
-    path('get_panchayat_samiti_circle_by_zp_circle/<int:zp_circle_id>/', get_panchayat_samiti_circle_by_zp_circle, name='get_panchayat_samiti_circle_by_zp_circle'),
     path('booth_user_id/<int:user_id>/religion_id/<int:cast_religion_id>/', GetVoterListByBoothUserAndReligionWise.as_view(), name='get_voter_list'),
     path('get_voter_current_location_details_by_booth/booth_id/<int:booth_id>/city_id/<int:city_id>/', get_voter_current_location_details_by_booth, name='get_voter_details'),
     path('get_voter_current_location_details_by_town/town_id/<int:town_id>/city_id/<int:city_id>/', get_voter_current_location_details_by_town, name='get_voter_details'),
@@ -569,7 +574,9 @@ urlpatterns = [
     path('get_voter_group_details/', get_voter_group_details, name='get_voter_group_details'),
     path('get_voter_group_details_by_user/<int:voter_group_user_id>/', get_voter_group_details_by_user, name='get_voter_group_details_by_user'),
     path('voter_status/<int:voter_group_user_id>/<str:confirmation_id>/', get_voters_by_confirmation, name='get_voters_by_confirmation'),
-
+    path('delete_voter_group/<int:voter_group_id>/', delete_voter_group, name='delete_voter_group'),
+    
+    
     path('get_users_by_town_area_type/<int:town_area_type_id>/', get_users_by_town_area_type, name='get_users_by_town_area_type'),
     path('get_voter_count_by_town_area_type/', get_voter_count_by_town_area_type, name='get_voter_count_by_town_area_type'),
     path('get_voter_count_by_town_area_type/<int:town_area_type_id>/', get_voter_count_by_town_area_type, name='get_voter_count_by_town_area_type_with_filter'),
@@ -610,10 +617,25 @@ urlpatterns = [
     path('surname_wise_voter_count/', surname_wise_voter_count, name='surname_wise_voter_count'),
     path('get_voter_details_by_surname/<int:surname_id>/', get_voter_details_by_surname, name='get_voter_details_by_surname'),
     path('surname_wise_voter_count_pdf/', surname_wise_voter_count_pdf, name='surname_wise_voter_count_pdf'),
-
     path('surname_wise_favour_caste_assign_voters/', surname_wise_favour_caste_assign_voters,  name='surname_wise_favour_assign_voters'),
- 
+    path('get_nagar_parishad_total_voters/', get_voters_by_booth_and_town_wise,  name='get_nagar_parishad_total_voters'),
+    path('booth_and_surname_wise_voter_count/<int:booth_id>/',booth_and_surname_wise_voter_count,name='booth_and_surname_wise_voter_count'),
+    path('booth_and_surname_wise_voter_details/<int:booth_id>/<int:surname_id>/',booth_and_surname_wise_voter_details,name='booth_and_surname_wise_voter_details'),
+    path('booth_and_surname_wise_voter_count_pdf/<int:booth_id>/',booth_and_surname_wise_voter_count_pdf,name='booth_and_surname_wise_voter_count_pdf'),
+#PS circle use wise
+    path('get_booth_names_by_ps_circle_user_wise/<int:panchayat_samiti_circle_user_id>/',get_booth_names_by_ps_circle_user_wise,name="get_booth_names_by_ps_circle_user_wise"),
+    path('ps_circle_user_vote_confirmation/<int:panchayat_samiti_circle_user_id>/<int:vote_confirmation_id>/', ps_circle_user_vote_confirmation, name='ps_circle_user_vote_confirmation'),
+    path('ps_circle_user_cast_wise/<int:panchayat_samiti_circle_user_id>/<int:cast_id>/', ps_circle_user_cast_wise, name='ps_circle_user_cast_wise'),
+    path('ps_circle_user_religion_wise/<int:panchayat_samiti_circle_user_id>/<int:religion_id>/',ps_circle_user_religion_wise, name='ps_circle_user_religion_wise'),
+    path('ps_circle_user_favour_wise/<int:panchayat_samiti_circle_user_id>/<int:favour_id>/', ps_circle_user_favour_wise, name='ps_circle_user_favour_wise'),
+# ZP circle use wise
+    path('zp_circle_user_wise_panchayat_samiti_circle/<int:zp_circle_user_id>/', PanchayatSamitiCircleAPIView.as_view(), name='panchayat_samiti_circle'),
+    path('zp_circle_user_vote_wise_confirmation/<int:zp_circle_user_id>/<int:vote_confirmation_id>/', zp_circle_user_vote_confirmation, name='zp_circle_user_vote_confirmation'),
+    path('zp_circle_user_wise_cast_wise/<int:zp_circle_user_id>/<int:cast_id>/', zp_circle_user_cast_wise, name='zp_circle_user_cast_wise'),
+    path('zp_circle_user_wise_booths/<int:zp_circle_user_id>/', BoothListByZPCircleUser.as_view(), name='booth-list-by-zp-circle-user'),
+    path('zp_circle_user_wise_favour_voters/<int:zp_circle_user_id>/<int:favour_id>/', VoterListByZPCircleUser.as_view(), name='voter-list-by-zp-circle-user'),
 
+    
 # admin pannel 
     path('admin/', include('accounts.urls'))
     

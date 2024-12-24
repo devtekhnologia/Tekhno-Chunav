@@ -5,6 +5,7 @@ from .models import PanchayatSamiti
 from .models import PanchayatSamitiCircle
 from .models import Panchayat_samiti_circle_user
 from .models import Panchayat_samiti_circle_user, User_panchayat_samiti_circle
+from .models import VoterGroup,VoterGroupUser, UserVoterGroup
 from .models import Politician
 from .models import PrabhagUser
 from .models import Religion
@@ -121,93 +122,23 @@ def upload_file(request):
 
 # excel to DB
 
-
 # @transaction.atomic
 # def import_excel_data(file):
 #     try:
 #         df = pd.read_excel(file)
 #     except Exception as e:
-#         # logger.error(f"Error reading Excel file: {str(e)}")
 #         return f"Error reading Excel file: {str(e)}"
-
+ 
 #     successful_imports = 0
 #     total_rows = len(df)
-
 #     data_list = df.values.tolist()
-
+ 
 #     booth_dict = {}
 #     town_dict = {}
+ 
 #     for rec in data_list:
-#         state_name = rec[10]
-#         district_name = rec[9]
-#         taluka_name = rec[8]
-#         town_name = rec[6]
-#         booth_name = rec[7]
-#         voter_name = rec[1]
-
-        
-
-#         booth_id = None
-#         town_id = None
-        
-
-#         state, created = State.objects.get_or_create(state_name=state_name)
-
-#         zp, created = ZP.objects.get_or_create(zp_name=district_name, zp_state_id=state.state_id)
-
-#         panchayat_samiti, created = PanchayatSamiti.objects.get_or_create(panchayat_samiti_name=taluka_name, panchayat_samiti_zp_id=zp.zp_id)
-        
-#         if town_name not in town_dict:
-#             town, created = Town.objects.get_or_create(town_name=town_name, town_panchayat_samiti_id=panchayat_samiti.panchayat_samiti_id)
-#             town_dict[town_name] = town.town_id
-#             town_id = town.town_id
-#         else:
-#             town_id = town_dict[town_name]
-
-#         if booth_name not in booth_dict:
-#             booth, created = Booth.objects.get_or_create(booth_name=booth_name, booth_town_id=town.town_id)
-#             booth_dict[booth_name] = booth.booth_id
-#             booth_id = booth.booth_id
-#         else:
-#             booth_id = booth_dict[booth_name]
-        
-
-#         #voter_name, created = Voterlist.objects.get_or_create(voter_name = voter_name, voter_town_id = town.town_id, voter_booth_id = booth.booth_id)
-
-#         vote_obj = Voterlist(
-            
-#             voter_name = voter_name,
-#             voter_parent_name = rec[2],
-#             voter_house_number = rec[3],
-#             voter_age = rec[4],
-#             voter_gender = rec[5],
-#             voter_town_id = town_id,
-#             voter_booth_id = booth_id
-#         )
-
-#         vote_obj.save()
-
-
-# # does not work on null values--------------------------------------------------------
-
-# @transaction.atomic
-# def import_excel_data(file):
-#     try:
-#         df = pd.read_excel(file)
-#     except Exception as e:
-#         # logger.error(f"Error reading Excel file: {str(e)}")
-#         return f"Error reading Excel file: {str(e)}"
-
-#     successful_imports = 0
-#     total_rows = len(df)
-
-#     data_list = df.values.tolist()
-
-#     booth_dict = {}
-#     town_dict = {}
-#     for rec in data_list:
-#         serial_no = rec[1]  # Assuming 'Serial No' is the first column
-#         voter_id_card_number = rec[2]  # Assuming 'Voter Id' is the second column
+#         serial_no = rec[1]  # Assuming 'Serial No' is the second column
+#         voter_id_card_number = rec[2]  # Assuming 'Voter Id' is the third column
 #         voter_name = rec[3]
 #         voter_parent_name = rec[4]
 #         voter_house_number = rec[5]
@@ -218,40 +149,66 @@ def upload_file(request):
 #         taluka_name = rec[10]
 #         district_name = rec[11]
 #         state_name = rec[12]
-
+ 
+#         # Handle null/empty values by replacing NaN with None
+#         if pd.isna(serial_no):
+#             serial_no = None
+#         if pd.isna(voter_id_card_number):
+#             voter_id_card_number = None
+#         if pd.isna(voter_name):
+#             voter_name = None
+#         if pd.isna(voter_parent_name):
+#             voter_parent_name = None
+#         if pd.isna(voter_house_number):
+#             voter_house_number = None
+#         if pd.isna(voter_age):
+#             voter_age = None
+#         if pd.isna(voter_gender):
+#             voter_gender = None
+#         if pd.isna(town_name):
+#             town_name = None
+#         if pd.isna(booth_name):
+#             booth_name = None
+#         if pd.isna(taluka_name):
+#             taluka_name = None
+#         if pd.isna(district_name):
+#             district_name = None
+#         if pd.isna(state_name):
+#             state_name = None
+ 
 #         booth_id = None
 #         town_id = None
-
+ 
 #         # State, ZP, and Panchayat Samiti creation
 #         state, created = State.objects.get_or_create(state_name=state_name)
 #         zp, created = ZP.objects.get_or_create(zp_name=district_name, zp_state_id=state.state_id)
 #         panchayat_samiti, created = PanchayatSamiti.objects.get_or_create(
-#             panchayat_samiti_name=taluka_name, 
+#             panchayat_samiti_name=taluka_name,
 #             panchayat_samiti_zp_id=zp.zp_id
 #         )
-        
+ 
 #         # Town creation and caching
 #         if town_name not in town_dict:
 #             town, created = Town.objects.get_or_create(
-#                 town_name=town_name, 
+#                 town_name=town_name,
 #                 town_panchayat_samiti_id=panchayat_samiti.panchayat_samiti_id
 #             )
 #             town_dict[town_name] = town.town_id
 #             town_id = town.town_id
 #         else:
 #             town_id = town_dict[town_name]
-
+ 
 #         # Booth creation and caching
 #         if booth_name not in booth_dict:
 #             booth, created = Booth.objects.get_or_create(
-#                 booth_name=booth_name, 
+#                 booth_name=booth_name,
 #                 booth_town_id=town.town_id
 #             )
 #             booth_dict[booth_name] = booth.booth_id
 #             booth_id = booth.booth_id
 #         else:
 #             booth_id = booth_dict[booth_name]
-
+ 
 #         # Voter record creation
 #         vote_obj = Voterlist(
 #             voter_serial_number=serial_no,
@@ -264,13 +221,18 @@ def upload_file(request):
 #             voter_town_id=town_id,
 #             voter_booth_id=booth_id
 #         )
-
-#         vote_obj.save()
-
+ 
+#         try:
+#             vote_obj.save()
+#             logger.info(f"Successfully saved voter: {vote_obj.voter_serial_number}")
+#             successful_imports += 1
+#         except ValidationError as e:
+#             logger.error(f"Validation error saving voter {serial_no}: {str(e)}")
+#         except Exception as e:
+#             logger.error(f"Error saving voter {serial_no}: {str(e)}")
+ 
 #     return f"Successfully imported {successful_imports} out of {total_rows} rows."
 
-
-#### work on null values 
 
 @transaction.atomic
 def import_excel_data(file):
@@ -287,8 +249,8 @@ def import_excel_data(file):
     town_dict = {}
  
     for rec in data_list:
-        serial_no = rec[1]  # Assuming 'Serial No' is the second column
-        voter_id_card_number = rec[2]  # Assuming 'Voter Id' is the third column
+        serial_no = rec[1]
+        voter_id_card_number = rec[2]
         voter_name = rec[3]
         voter_parent_name = rec[4]
         voter_house_number = rec[5]
@@ -297,51 +259,78 @@ def import_excel_data(file):
         town_name = rec[8]
         booth_name = rec[9]
         taluka_name = rec[10]
-        district_name = rec[11]
+        zp_name = rec[11]
         state_name = rec[12]
+        constituency_name = rec[13]
+        voter_name_mar = rec[14]
+        booth_name_mar = rec[15]
+        town_name_mar = rec[16]
+        taluka_name_mar = rec[17]
+        zp_name_mar = rec[18]
+        state_name_mar = rec[19]
+        voter_parent_name_mar = rec[20]
+        voter_gender_mar = rec[21]
  
         # Handle null/empty values by replacing NaN with None
-        if pd.isna(serial_no):
-            serial_no = None
-        if pd.isna(voter_id_card_number):
-            voter_id_card_number = None
-        if pd.isna(voter_name):
-            voter_name = None
-        if pd.isna(voter_parent_name):
-            voter_parent_name = None
-        if pd.isna(voter_house_number):
-            voter_house_number = None
-        if pd.isna(voter_age):
-            voter_age = None
-        if pd.isna(voter_gender):
-            voter_gender = None
-        if pd.isna(town_name):
-            town_name = None
-        if pd.isna(booth_name):
-            booth_name = None
-        if pd.isna(taluka_name):
-            taluka_name = None
-        if pd.isna(district_name):
-            district_name = None
-        if pd.isna(state_name):
-            state_name = None
+ 
+        # List of all variables that need to be checked for NaN
+        variables = [
+            'serial_no', 'voter_id_card_number', 'voter_name', 'voter_parent_name',
+            'voter_house_number', 'voter_age', 'voter_gender', 'town_name', 'booth_name',
+            'taluka_name', 'zp_name', 'state_name', 'constituency_name', 'voter_name_mar',
+            'booth_name_mar', 'town_name_mar', 'taluka_name_mar', 'zp_name_mar', 'state_name_mar', 'voter_parent_name_mar', 'voter_gender_mar'
+        ]
+ 
+        # Iterate through all variables and replace NaN with None
+        for var in variables:
+            value = locals()[var]  # Get the value of the variable
+            if pd.isna(value):
+                locals()[var] = None  # Set the value to None if it's NaN
+ 
+        # if pd.isna(serial_no):
+        #     serial_no = None
+        # if pd.isna(voter_id_card_number):
+        #     voter_id_card_number = None
+        # if pd.isna(voter_name):
+        #     voter_name = None
+        # if pd.isna(voter_parent_name):
+        #     voter_parent_name = None
+        # if pd.isna(voter_house_number):
+        #     voter_house_number = None
+        # if pd.isna(voter_age):
+        #     voter_age = None
+        # if pd.isna(voter_gender):
+        #     voter_gender = None
+        # if pd.isna(town_name):
+        #     town_name = None
+        # if pd.isna(booth_name):
+        #     booth_name = None
+        # if pd.isna(taluka_name):
+        #     taluka_name = None
+        # if pd.isna(district_name):
+        #     district_name = None
+        # if pd.isna(state_name):
+        #     state_name = None
+           
  
         booth_id = None
         town_id = None
  
         # State, ZP, and Panchayat Samiti creation
-        state, created = State.objects.get_or_create(state_name=state_name)
-        zp, created = ZP.objects.get_or_create(zp_name=district_name, zp_state_id=state.state_id)
+        state, created = State.objects.get_or_create(state_name=state_name, state_name_mar = state_name_mar)
+        zp, created = ZP.objects.get_or_create(zp_name=zp_name, zp_state_id=state.state_id, zp_name_mar= zp_name_mar)
         panchayat_samiti, created = PanchayatSamiti.objects.get_or_create(
             panchayat_samiti_name=taluka_name,
-            panchayat_samiti_zp_id=zp.zp_id
+            panchayat_samiti_zp_id=zp.zp_id,
+            panchayat_samiti_name_mar = taluka_name_mar
         )
  
         # Town creation and caching
         if town_name not in town_dict:
             town, created = Town.objects.get_or_create(
                 town_name=town_name,
-                town_panchayat_samiti_id=panchayat_samiti.panchayat_samiti_id
+                town_panchayat_samiti_id=panchayat_samiti.panchayat_samiti_id,
+                town_name_mar = town_name_mar
             )
             town_dict[town_name] = town.town_id
             town_id = town.town_id
@@ -352,7 +341,8 @@ def import_excel_data(file):
         if booth_name not in booth_dict:
             booth, created = Booth.objects.get_or_create(
                 booth_name=booth_name,
-                booth_town_id=town.town_id
+                booth_town_id=town.town_id,
+                booth_name_mar = booth_name_mar
             )
             booth_dict[booth_name] = booth.booth_id
             booth_id = booth.booth_id
@@ -369,7 +359,12 @@ def import_excel_data(file):
             voter_age=voter_age,
             voter_gender=voter_gender,
             voter_town_id=town_id,
-            voter_booth_id=booth_id
+            voter_booth_id=booth_id,
+            voter_name_mar = voter_name_mar,
+            voter_parent_name_mar = voter_parent_name_mar,
+            voter_gender_mar = voter_gender_mar
+            
+            
         )
  
         try:
@@ -382,6 +377,7 @@ def import_excel_data(file):
             logger.error(f"Error saving voter {serial_no}: {str(e)}")
  
     return f"Successfully imported {successful_imports} out of {total_rows} rows."
+ 
  
 
 
@@ -419,7 +415,7 @@ class VoterlistRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
 
     def perform_update(self, serializer):
         user_id = self.request.session.get('user_id')
-        print(user_id)
+        # print(user_id)
         serializer.save(voter_updated_by=user_id)
         
 
@@ -1235,37 +1231,10 @@ def get_town_voter_list(request, town_user_town_id):
 
 def get_taluka_voter_list(request, politician_taluka_id):
     with connection.cursor() as cursor:
-        cursor.execute("""
-            SELECT 
-                v.voter_id, 
-                v.voter_name, 
-                b.booth_id, 
-                b.booth_name, 
-                t.town_id, 
-                t.town_name,
-                v.voter_parent_name,
-                v.voter_house_number,
-                v.voter_age,
-                v.voter_gender,
-                v.voter_cast_id,
-                v.voter_contact_number
-            FROM 
-                tbl_voter v
-            JOIN 
-                tbl_booth b ON v.voter_booth_id = b.booth_id
-            JOIN 
-                tbl_town t ON b.booth_town_id = t.town_id
-            JOIN 
-                tbl_panchayat_samiti ps ON ps.panchayat_samiti_id = t.town_panchayat_samiti_id
-            JOIN 
-                tbl_politician p ON p.politician_taluka_id = ps.panchayat_samiti_id
-            
-            
-            WHERE 
-                p.politician_taluka_id = %s;
-        """, [politician_taluka_id])
+        cursor.callproc('GetTalukaVoterList', [politician_taluka_id])
+       
         results = cursor.fetchall()
-
+ 
     voters = []
     for row in results:
         voters.append({
@@ -1282,7 +1251,7 @@ def get_taluka_voter_list(request, politician_taluka_id):
             'voter_cast_id': row[10],
             'voter_contact_number': row[11]
         })
-
+ 
     return JsonResponse({'voters': voters})
 
 
@@ -2013,74 +1982,28 @@ def get_town_users_by_town_id(request, user_town_town_id):
 
 def booth_votes_summary(request):
     with connection.cursor() as cursor:
-        cursor.execute("""
-            SELECT 
-                serial_number,
-                booth_id,
-                booth_name,
-                voter_count,
-                booth_users_info,
-                town_id,  
-                town_name,
-                panchayat_samiti_name,
-                prabhag_id,
-                prabhag_name,
-                booth_name_mar,
-                town_name_mar
-            FROM (
-                SELECT 
-                    ROW_NUMBER() OVER (ORDER BY b.booth_id) AS serial_number,
-                    b.booth_id,
-                    b.booth_name,
-                    COUNT(v.voter_id) AS voter_count,
-                    GROUP_CONCAT(DISTINCT CONCAT(u.user_name, '|', u.user_phone, '|', u.user_id) SEPARATOR ', ') AS booth_users_info,
-                    t.town_id,  
-                    t.town_name,
-                    ps.panchayat_samiti_name,
-                    p.prabhag_id AS prabhag_id,
-                    p.prabhag_name AS prabhag_name,
-                    b.booth_name_mar,
-                    t.town_name_mar
-                FROM 
-                    vw_voter_list v
-                LEFT JOIN 
-                    tbl_user_booth ub ON v.booth_id = ub.user_booth_booth_id
-                LEFT JOIN 
-                    tbl_user u ON ub.user_booth_user_id = u.user_id
-                LEFT JOIN 
-                    tbl_booth b ON v.booth_id = b.booth_id
-                INNER JOIN 
-                    tbl_town t ON v.town_id = t.town_id  
-                LEFT JOIN 
-                    tbl_panchayat_samiti ps ON t.town_panchayat_samiti_id = ps.panchayat_samiti_id
-                LEFT JOIN
-                    tbl_prabhag p ON b.booth_prabhag_id = p.prabhag_id
-                GROUP BY 
-                    b.booth_id, b.booth_name, b.booth_name_mar, t.town_id, t.town_name, t.town_name_mar, ps.panchayat_samiti_name, p.prabhag_id, p.prabhag_name
-            ) AS subquery
-            ORDER BY 
-                booth_id;
-        """)
+        cursor.callproc('GetBoothVotesSummary')
+       
         rows = cursor.fetchall()
-        
+   
     result = []
     for row in rows:
         booth_users_info = row[4].split(', ') if row[4] else []
         user_names = []
         user_phones = []
         user_ids = []
-
+ 
         for info in booth_users_info:
             if info:
                 parts = info.split('|')
-                if len(parts) == 3:  
+                if len(parts) == 3:
                     name, phone, user_id = parts
                     user_names.append(name)
                     user_phones.append(phone)
                     user_ids.append(int(user_id))
                 else:
                     continue  
-        
+       
         result.append({
             'sr no': row[0],
             'booth_id': row[1],
@@ -2094,11 +2017,12 @@ def booth_votes_summary(request):
             'taluka_name': row[7],
             'prabagh_id': row[8],
             'prabagh_name': row[9],
-            'booth_name_mar': row[10],  
-            'town_name_mar': row[11]  
+            'booth_name_mar': row[10],
+            'town_name_mar': row[11]
         })
-    
+   
     return JsonResponse(result, safe=False)
+ 
 
 
 # export in pdf
@@ -2215,36 +2139,37 @@ class Panchayat_samiti_circle_userCreate(generics.ListCreateAPIView):
 class Zp_circle_userCreate(generics.ListCreateAPIView):
     queryset = Zp_circle_user.objects.all()
     serializer_class = Zp_circle_userRegistrationSerializer
-
+ 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
-        
+       
         if serializer.is_valid():
             zp_circle_user_name = serializer.validated_data['zp_circle_user_name']
             zp_circle_user_password = serializer.validated_data['zp_circle_user_password']
             zp_circle_user_contact_number = serializer.validated_data['zp_circle_user_contact_number']
             zp_circle_user_ids = serializer.validated_data['zp_circle_ids']
-            
+           
             zp_circle_user = Zp_circle_user(
                 zp_circle_user_name= zp_circle_user_name,
                 zp_circle_user_password=zp_circle_user_password,
                 zp_circle_user_contact_number= zp_circle_user_contact_number
             )
-            
+           
             zp_circle_user.zp_circle_user_politician_id = request.session.get('politician_id')
-            
+           
             zp_circle_user.save()
-            
+           
             for zp_circle_user_id in zp_circle_user_ids:
                 User_zp_circle.objects.create(
                     user_zp_circle_id = zp_circle_user.zp_circle_user_id,
                     user_zp_circle_zp_circle_id = zp_circle_user_id
                 )
-            
+           
             return Response({'status': 'User registered successfully'}, status=status.HTTP_201_CREATED)
-        
+       
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
+
 
 def get_panchayat_samiti_user_info(request):
     with connection.cursor() as cursor:
@@ -2688,7 +2613,7 @@ def send_sms_message(to, body):
         )
         return True
     except TwilioException as e:
-        print(f"Error sending SMS to {to}: {e}")
+        # print(f"Error sending SMS to {to}: {e}")
         return False
 
 
@@ -2970,7 +2895,10 @@ def get_voters_by_religion(request, religion_id):
     v.voter_contact_number,  
     c.cast_name,
     r.religion_name,
-    v.voter_favour_id
+    v.voter_favour_id,
+    v.voter_serial_number, 
+    v.voter_id_card_number,
+    v.voter_vote_confirmation_id
 FROM 
     vw_voter_list v
 JOIN 
@@ -2994,7 +2922,10 @@ WHERE
             'voter_contact_number': row[2],
             'voter_cast_name' : row[3],
             'voter_religion_name' : row[4],
-            'voter_favour_id' : row[5]
+            'voter_favour_id' : row[5],
+            'voter_serial_number' : row[6],
+            'voter_id_card_number' : row[7],
+            'voter_vote_confirmation_id' : row[8],
         }
         for row in rows
     ]
@@ -3022,7 +2953,10 @@ def get_voters_town_religion_cast(request, town_id, cast_id):
             voter_contact_number,
             cast_name,
             favour_id,
-            voter_vote_confirmation_id
+            voter_vote_confirmation_id,
+            voter_serial_number, 
+            voter_id_card_number
+            
         FROM vw_voter_list
         WHERE town_id = %s 
         AND cast_id = %s 
@@ -3041,7 +2975,9 @@ def get_voters_town_religion_cast(request, town_id, cast_id):
             'voter_contact_number': str(row[2]),
             'cast_name': str(row[3]),
             'favour_id' : str(row[4]),
-            'voter_vote_confirmation_id' : row[5]
+            'voter_vote_confirmation_id' : row[5],
+            'voter_serial_number' : str(row[6]),
+            'voter_id_card_number' : str(row[7])
         }
         for row in rows
     ]
@@ -3068,7 +3004,10 @@ def get_voters_booth_religion_cast(request, booth_id, cast_id):
             voter_vote_confirmation_id,
             voter_name_mar,
             voter_serial_number,
+            voter_id_card_number,
+            voter_serial_number, 
             voter_id_card_number
+            
         FROM vw_voter_list
         WHERE booth_id = %s
         AND cast_id = %s
@@ -3090,7 +3029,9 @@ def get_voters_booth_religion_cast(request, booth_id, cast_id):
             'voter_vote_confirmation_id' : row[5],
             'voter_name_mar' : str(row[6]),
             'voter_serial_number' : str(row[7]),
-            'voter_id_card_number' : str(row[8])
+            'voter_id_card_number' : str(row[8]),
+            'voter_serial_number' : row[9],
+            'voter_id_card_number' : row[10]
         }
         for row in rows
     ]
@@ -3111,29 +3052,30 @@ def get_voters_booth_religion_wise(request, booth_id, religion_id):
         return HttpResponseBadRequest("Both booth_id and religion_id must be integers")
  
     # SQL query to fetch voters based on booth_id and religion_id
-    query = """
-    SELECT
-        ROW_NUMBER() OVER (ORDER BY c.cast_name, v.voter_name) AS serial_no,
-        v.voter_id,
-        v.voter_name,
-        v.voter_contact_number,
-        v.voter_name_mar,
-        c.cast_name,
-        v.voter_vote_confirmation_id,
-        v.voter_favour_id
-    FROM tbl_voter v
-    INNER JOIN tbl_cast c ON v.voter_cast_id = c.cast_id
-    INNER JOIN tbl_religion r ON c.cast_religion_id = r.religion_id
-    WHERE v.voter_booth_id = %s
-    AND r.religion_id = %s
-    AND v.voter_cast_id IS NOT NULL
-    ORDER BY c.cast_name, v.voter_name;
-    """
+    # query = """
+    # SELECT
+    #     ROW_NUMBER() OVER (ORDER BY c.cast_name, v.voter_name) AS serial_no,
+    #     v.voter_id,
+    #     v.voter_name,
+    #     v.voter_contact_number,
+    #     v.voter_name_mar,
+    #     c.cast_name,
+    #     v.voter_vote_confirmation_id,
+    #     v.voter_favour_id
+    # FROM tbl_voter v
+    # INNER JOIN tbl_cast c ON v.voter_cast_id = c.cast_id
+    # INNER JOIN tbl_religion r ON c.cast_religion_id = r.religion_id
+    # WHERE v.voter_booth_id = %s
+    # AND r.religion_id = %s
+    # AND v.voter_cast_id IS NOT NULL
+    # ORDER BY c.cast_name, v.voter_name;
+    # """
  
     try:
         # Execute the query and fetch the results
         with connection.cursor() as cursor:
-            cursor.execute(query, [booth_id, religion_id])
+            # cursor.execute(query, [booth_id, religion_id])
+            cursor.callproc('GetVotersBoothReligionWise', [booth_id, religion_id])
             rows = cursor.fetchall()
  
         # Convert the result to a list of dictionaries
@@ -3146,7 +3088,7 @@ def get_voters_booth_religion_wise(request, booth_id, religion_id):
                 'cast_name': row[5],
                 'voter_vote_confirmation_id': row[6],
                 'voter_favour_id': row[7],
-                
+               
             }
             for row in rows
         ]
@@ -3158,6 +3100,7 @@ def get_voters_booth_religion_wise(request, booth_id, religion_id):
         logging.error(f"Error fetching voter details: {str(e)}")
         return JsonResponse({'error': 'Error fetching data','actual error':str(e)}, status=500)
  
+ 
 
 
 
@@ -3167,30 +3110,12 @@ def get_voters_town_religion_wise(request, town_id, religion_id):
         religion_id = int(religion_id)
     except ValueError:
         return HttpResponseBadRequest("All parameters (town_id, religion_id, ) must be integers")
-
-    query = """
-    SELECT 
-    voter_id,
-    voter_name,
-    voter_contact_number,
-    cast_name,
-    favour_id,
-    voter_vote_confirmation_id
-FROM 
-    vw_voter_list
-WHERE 
-    town_id = 1
-  --   AND religion_id = 1
-    AND cast_id IN (SELECT cast_id FROM tbl_cast WHERE cast_religion_id = %s and cast_id = %s)  
---     AND cast_id  = 1
-    and cast_id is not null -- Ensure cast_id is not NULL
-ORDER BY 
-    cast_name, voter_name;
-    """
+ 
     with connection.cursor() as cursor:
-        cursor.execute(query, [town_id, religion_id])
+        # cursor.execute(query, [town_id, religion_id])
+        cursor.callproc('GetVoterTownReligionWise',[town_id, religion_id])
         rows = cursor.fetchall()
-        
+       
     result = [
         {
             'voter_id': row[0],
@@ -3198,12 +3123,15 @@ ORDER BY
             'voter_contact_number': row[2],
             'cast_name' : row[3],
             'favour_id' : row[4],
-            'voter_vote_confirmation_id' : row[5]
+            'voter_vote_confirmation_id' : row[5], 
+            'voter_serial_number' : row[6],
+            'voter_id_card_number' : row[7]
         }
         for row in rows
     ]
-    
+   
     return JsonResponse(result, safe=False)
+ 
 
 
 
@@ -3588,25 +3516,10 @@ class VoterByTownUserConfirmationView(APIView):
 def get_family_groups_by_user(request, booth_user_id):
     if request.method == 'GET':
         with connection.cursor() as cursor:
-            cursor.execute(
-                """
-                SELECT f.family_group_id,
-                    f.family_group_name,
-                    f.family_group_head_name,
-                    f.family_group_contact_no
-                FROM tbl_family_group f
-                LEFT JOIN tbl_voter v ON f.family_group_id = v.voter_group_id
-                WHERE f.family_group_booth_user_id = %s
-                GROUP BY f.family_group_id,
-                        f.family_group_name,
-                        f.family_group_head_name,
-                        f.family_group_contact_no
-                HAVING COUNT(v.voter_group_id) > 0;
-                """,
-                [booth_user_id]
-            )
+          
+            cursor.callproc('GetFamilyGroupsByUser', [booth_user_id])
             rows = cursor.fetchall()
-
+ 
         family_groups = [
             {
                 "family_group_id": row[0],
@@ -3616,10 +3529,11 @@ def get_family_groups_by_user(request, booth_user_id):
             }
             for row in rows
         ]
-
+ 
         return JsonResponse(family_groups, safe=False, status=200)
-
+ 
     return JsonResponse({'error': 'Invalid method'}, status=405)
+ 
 
 
 # Create Family Group By booth User
@@ -3627,82 +3541,14 @@ def get_family_groups_by_user(request, booth_user_id):
 
 logging.basicConfig(level=logging.DEBUG)
 
-# @csrf_exempt
-# def manage_family_group(request):
-#     if request.method == 'POST':
-#         data = json.loads(request.body)
-        
-#         voter_ids = data.get('voter_ids', [])
-#         single_voter_id = data.get('single_voter_id')
-#         login_user_id = data.get('login_user_id')
-        
-#         if not voter_ids or not single_voter_id or login_user_id is None:
-#             logging.debug('Returning error: Invalid input')
-#             return JsonResponse({'error': 'Invalid input'}, status=400)
-
-#         with connection.cursor() as cursor:
-#             cursor.execute("SELECT voter_name, voter_contact_number, voter_group_id FROM tbl_voter WHERE voter_id = %s", [single_voter_id])
-#             single_voter = cursor.fetchone()
-        
-#         if not single_voter:
-#             logging.debug('Returning error: Single voter not found')
-#             return JsonResponse({'error': 'Single voter not found'}, status=404)
-
-#         single_voter_name, single_voter_contact, single_voter_group_id = single_voter
-        
-#         with connection.cursor() as cursor:
-#             cursor.execute("SELECT voter_id, voter_group_id FROM tbl_voter WHERE voter_id IN %s", [tuple(voter_ids)])
-#             voter_groups = cursor.fetchall()
-
-#         group_ids = {voter_group_id for _, voter_group_id in voter_groups}
-#         print(group_ids)
-        
-#         if not group_ids or None in group_ids:
-#             logging.debug('No groups assigned; creating a new family group')
-#             return create_family_group(single_voter_name, single_voter_contact, login_user_id, voter_ids)
-
-#         if len(group_ids) == 1:
-#             assigned_group_id = group_ids.pop()
-#             if assigned_group_id != single_voter_group_id:
-#                 logging.debug('Different group assigned; creating a new family group')
-#                 return create_family_group(single_voter_name, single_voter_contact, login_user_id, voter_ids)
-
-#         # If the condition above isn't met, create a new family group
-#         # logging.debug('Conditions not met for existing group; creating a new family group')
-#         # return create_family_group(single_voter_name, single_voter_contact, login_user_id, voter_ids)
-
-#     logging.debug('Returning error: Invalid method')
-#     return JsonResponse({'error': 'the group in already created'}, status=405)
-
-# def create_family_group(voter_name, voter_contact, login_user_id, voter_ids):
-#     with connection.cursor() as cursor:
-#         cursor.execute(
-#             """
-#             INSERT INTO tbl_family_group (family_group_name, family_group_head_name, family_group_contact_no, family_group_booth_user_id)
-#             VALUES (%s, %s, %s, %s)
-#             """,
-#             [voter_name, voter_name, voter_contact, login_user_id]
-#         )
-        
-#         cursor.execute("SELECT LAST_INSERT_ID()")
-#         family_group_id = cursor.fetchone()[0]
-
-#     with connection.cursor() as cursor:
-#         cursor.execute(
-#             "UPDATE tbl_voter SET voter_group_id = %s WHERE voter_id IN %s",
-#             [family_group_id, tuple(voter_ids)]
-#         )
-
-#     return JsonResponse({'message': 'Family group created and voters updated', 'family_group_id': family_group_id}, status=201)
-
 @csrf_exempt
 def manage_family_group(request):
     if request.method == 'POST':
         data = json.loads(request.body)
        
-        voter_ids = data.get('voter_ids', [])  # List of voters to include in the group
-        single_voter_id = data.get('single_voter_id')  # ID of the head of the family group
-        login_user_id = data.get('login_user_id')  # ID of the user creating the group
+        voter_ids = data.get('voter_ids', [])  
+        single_voter_id = data.get('single_voter_id')  
+        login_user_id = data.get('login_user_id')  
        
         if not voter_ids or not single_voter_id or login_user_id is None:
             logging.debug('Returning error: Invalid input')
@@ -3727,12 +3573,11 @@ def manage_family_group(request):
                 cursor.execute("SELECT voter_contact_number FROM tbl_voter WHERE voter_id IN %s", [tuple(voter_ids)])
                 voters_contact_numbers = cursor.fetchall()
  
-            # Look for a valid contact number from the other voters
             valid_contact_number = None
             for contact in voters_contact_numbers:
                 if contact[0]:  # If contact number is not None or empty
                     valid_contact_number = contact[0]
-                    break  # Stop once we find the first valid contact number
+                    break  
  
             # If a valid contact number is found, use it
             if valid_contact_number:
@@ -3910,27 +3755,10 @@ def update_family_group_town_user(family_group_id, login_user_id):
 def get_family_groups_by_town_user(request, town_user_id):
     if request.method == 'GET':
         with connection.cursor() as cursor:
-            cursor.execute(
-                """
-                SELECT f.family_group_id,
-                    f.family_group_name,
-                    f.family_group_head_name,
-                    f.family_group_contact_no
-                FROM tbl_family_group f
-                LEFT JOIN tbl_voter v ON f.family_group_id = v.voter_group_id
-                WHERE f.family_group_town_user_id = %s
-                GROUP BY f.family_group_id,
-                        f.family_group_name,
-                        f.family_group_head_name,
-                        f.family_group_contact_no,
-                        f.family_group_booth_user_id,
-                        f.family_group_town_user_id
-                HAVING COUNT(v.voter_group_id) > 0;
-                """,
-                [town_user_id]
-            )
+ 
+            cursor.callproc('GetFamilyGroupDetailsByTown', [town_user_id])
             rows = cursor.fetchall()
-
+ 
         family_groups = [
             {
                 "family_group_id": row[0],
@@ -3940,10 +3768,11 @@ def get_family_groups_by_town_user(request, town_user_id):
             }
             for row in rows
         ]
-
+ 
         return JsonResponse(family_groups, safe=False, status=200)
-
+ 
     return JsonResponse({'error': 'Invalid method'}, status=405)
+ 
 
 #API for get family group by admin
 def get_family_groups_for_admin(request):
@@ -5861,21 +5690,17 @@ class VotedVotersListByTownUser(View):
  
         try:
             with connection.cursor() as cursor:
-                # Call procedure to fetch voters
                 cursor.callproc('GetVotersByTownUser', [user_town_user_id, voter_vote_confirmation_id])
-                voters = cursor.fetchall()  # Fetch all results
+                voters = cursor.fetchall()  
                
-                # Clear results to prepare for next procedure call
                 cursor.nextset()
  
-                # Call procedure to count voters
                 cursor.callproc('CountVotersByTownUser', [user_town_user_id, voter_vote_confirmation_id, 0])
-                count = cursor.fetchone()[0]  # Fetch the count
+                count = cursor.fetchone()[0]  
  
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
  
-        # Process voters data
         voters_list = [
             {
                 'voter_id': row[0],
@@ -5893,44 +5718,7 @@ class VotedVotersListByTownUser(View):
  
 
 # voted non voted voter details and count by booth user wise
-    
-# class VotedVotersListByBoothUser(View):
-#     def get(self, request, user_booth_user_id, voter_vote_confirmation_id):
-#         if voter_vote_confirmation_id not in [1, 2]:
-#             return JsonResponse({'error': 'Invalid voter_vote_confirmation_id'}, status=400)
- 
-#         try:
-#             with connection.cursor() as cursor:
-#                 # Call the procedure to fetch voters
-#                 cursor.callproc('GetVotersByBoothUser', [user_booth_user_id, voter_vote_confirmation_id])
-#                 voters = cursor.fetchall()  # Consume all results from the procedure
-               
-#                 # Clear the cursor results to avoid "out of sync" error
-#                 cursor.nextset()
- 
-#                 # Call the procedure to fetch the voter count
-#                 cursor.callproc('CountVotersByBoothUser', [user_booth_user_id, voter_vote_confirmation_id, 0])
-#                 count = cursor.fetchone()[0]  # Consume the result for count
- 
-#         except Exception as e:
-#             return JsonResponse({'error': str(e)}, status=500)
- 
-#         voters_list = [
-#             {
-#                 'voter_id': row[0],
-#                 'voter_name': row[1],
-#                 'voter_name_mar': row[2],
-#                 'voter_vote_confirmation_id': row[3],
-#                 'voter_favour_id': row[4],
-#                 'voter_serial_number': row[5],
-#                 'voter_id_card_number': row[6]
-#             }
-#             for row in voters
-#         ]
- 
-#         return JsonResponse({'count': count, 'voters': voters_list})
-
-
+   
 class VotedVotersListByBoothUser(View):
     def get(self, request, user_booth_user_id, voter_vote_confirmation_id):
         if voter_vote_confirmation_id not in [1, 2]:
@@ -6538,7 +6326,6 @@ class AddVoterInExistingGroup(APIView):
         voter_group_id = request.data.get("voter_group_id")
         voter_ids = request.data.get("voter_ids", [])
 
-        # Check if voter_group_id and voter_ids are provided
         if not voter_group_id or not voter_ids:
             return Response(
                 {"message": "voter_group_id and voter_ids are required."},
@@ -6547,7 +6334,6 @@ class AddVoterInExistingGroup(APIView):
 
         try:
             with connection.cursor() as cursor:
-                # Use raw SQL to update multiple voters at once
                 cursor.execute(
                     "UPDATE tbl_voter SET voter_group_id = %s WHERE voter_id IN %s",
                     [voter_group_id, tuple(voter_ids)]
@@ -6574,18 +6360,21 @@ def get_voters_by_town_and_booth(request, town_id, booth_id):
         response_data = [
             {
                 'voter_id': row[0],
-                'voter_name': row[1],
-                'voter_contact_number': row[2],
-                'voter_favour_id': row[3],
-                'voter_vote_confirmation_id': row[4],
-                'town_id': row[5],
-                'booth_id': row[6],
+                'voter_serial_number': row[1],
+                'voter_id_card_number': row[2], 
+                'voter_name': row[3],
+                'voter_contact_number': row[4],
+                'voter_favour_id': row[5],
+                'voter_vote_confirmation_id': row[6],
+                'town_id': row[7],
+                'booth_id': row[8]
+                
             }
             for row in results
         ]
 
     return JsonResponse(response_data, safe=False)
-
+ 
 
 
 # # Add Sarpanch to town
@@ -6707,48 +6496,12 @@ class GetVoterVoteConfirmationCountsViewByBoothUser(APIView):
 class VoterConfirmatioCountForAdminView(APIView):
     def get(self, request):
         try:
-            query = """
-                SELECT 
-                    COUNT(CASE 
-                        WHEN v.voter_vote_confirmation_id = 1 AND v.voter_favour_id = 1 THEN 1 
-                        ELSE NULL 
-                    END) AS favourable_voted_voters_count,
-                    COUNT(CASE 
-                        WHEN v.voter_vote_confirmation_id IS NULL AND v.voter_favour_id = 1 THEN 1 
-                        ELSE NULL 
-                    END) AS favourable_non_voted_voters_count,
-                    COUNT(CASE 
-                        WHEN v.voter_vote_confirmation_id = 1 AND v.voter_favour_id = 2 THEN 1 
-                        ELSE NULL 
-                    END) AS not_favourable_voted_voters_count,
-                    COUNT(CASE 
-                        WHEN v.voter_vote_confirmation_id IS NULL AND v.voter_favour_id = 2 THEN 1 
-                        ELSE NULL 
-                    END) AS not_favourable_non_voted_voters_count,
-                    COUNT(CASE 
-                        WHEN v.voter_vote_confirmation_id = 1 AND v.voter_favour_id = 3 THEN 1 
-                        ELSE NULL 
-                    END) AS not_favourable_voted_voters_count,
-                    COUNT(CASE 
-                        WHEN v.voter_vote_confirmation_id IS NULL AND v.voter_favour_id = 3 THEN 1 
-                        ELSE NULL 
-                    END) AS not_favourable_non_voted_voters_count,
-                    COUNT(CASE 
-                        WHEN v.voter_vote_confirmation_id = 1 AND v.voter_favour_id = 4 THEN 1 
-                        ELSE NULL 
-                    END) AS favourable_voted_voters_count,
-                    COUNT(CASE 
-                        WHEN v.voter_vote_confirmation_id IS NULL AND v.voter_favour_id = 4 THEN 1 
-                        ELSE NULL 
-                    END) AS favourable_non_voted_voters_count
-                FROM 
-                    tbl_voter v;
-            """
+    
             with connection.cursor() as cursor:
-                cursor.execute(query)
-                
+                # cursor.execute(query)
+                cursor.callproc('GetVoterConfirmationCounts')
                 result = cursor.fetchone()
-
+ 
             response_data = {
                 "favourable_voted_voters_count": result[0],
                 "favourable_non_voted_voters_count": result[1],
@@ -6759,10 +6512,11 @@ class VoterConfirmatioCountForAdminView(APIView):
                 "chocolate_voted_voters_count": result[6],
                 "chocolate_non_voted_voters_count": result[7],
             }
-
+ 
             return Response(response_data, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+ 
 
 
 # get booth details by town id 
@@ -6953,36 +6707,6 @@ def get_towns(request):
         return JsonResponse(towns, safe=False)
 
 
-# @method_decorator(csrf_exempt, name='dispatch')
-# class UpdatePrabaghTypeView(View):
-#     def put(self, request, *args, **kwargs):
-#         try:
-#             data = json.loads(request.body)
-#             booth_ids = data.get('booth_ids', [])
-#             prabhag_id = data.get('prabhag_id')
-
-#             if not isinstance(booth_ids, list) or not isinstance(prabhag_id, int):
-#                 return JsonResponse({'error': 'Invalid input'   }, status=400)
-
-#             booth_ids_str = ','.join(map(str, booth_ids))
-
-#             query = f"""
-#                 UPDATE tbl_booth 
-#                 SET booth_prabhag_id = %s 
-#                 WHERE booth_id IN ({booth_ids_str})
-#             """
-            
-#             with connection.cursor() as cursor:
-#                 cursor.execute(query, [prabhag_id])
-
-#             return JsonResponse({'status': 'success', 'updated_booth_ids': booth_ids}, status=200)
-
-#         except json.JSONDecodeError:
-#             return JsonResponse({'error': 'Invalid JSON'}, status=400)
-#         except Exception as e:
-#             return JsonResponse({'error': str(e)}, status=500)
-
-
 @method_decorator(csrf_exempt, name='dispatch')
 class UpdatePrabaghTypeView(View):
     def put(self, request, *args, **kwargs):
@@ -7031,104 +6755,31 @@ class UpdatePrabaghTypeView(View):
 
 # # get prabhag list
 
-# def get_prabhags(request):
-#     if request.method == 'GET':
-#         with connection.cursor() as cursor:
-#             cursor.execute(''' 
-#                     SELECT 
-#                     p.prabhag_id,
-#                     p.prabhag_name,
-#                     p.prabhag_type,
-#                     COUNT(b.booth_id) AS booth_count,
-#                     GROUP_CONCAT(DISTINCT CONCAT(pu.prabhag_user_id, '|', pu.prabhag_user_name, '|', pu.prabhag_user_contact_number) SEPARATOR ', ') AS prabhag_users_info
-#                         FROM 
-#                             tbl_prabhag p
-#                         LEFT JOIN 
-#                             tbl_booth b ON p.prabhag_id = b.booth_prabhag_id
-#                         LEFT JOIN
-#                             tbl_prabhag_user pu ON pu.prabhag_user_prabhag_id = p.prabhag_id
-#                         GROUP BY 
-#                             p.prabhag_id, p.prabhag_name, p.prabhag_type
-#                         ORDER BY 
-#                             p.prabhag_id;''')
-#             rows = cursor.fetchall()
-
-#         result = []
-#         for row in rows:
-#             prabhag_users_info = row[4].split(', ') if row[4] else []
-#             prabhag_user_ids = []
-#             prabhag_user_name = []
-#             prabhag_user_contact_number = []
-
-#             for info in prabhag_users_info:
-#                 if info:
-#                     parts = info.split('|')
-#                     if len(parts) == 3: 
-#                         user_id, name, phone, = parts
-#                         prabhag_user_ids.append(int(user_id))
-#                         prabhag_user_name.append(name)
-#                         prabhag_user_contact_number.append(phone)
-#                     else:
-                        
-#                         continue  
-            
-#             result.append({
-#                 'prabhag_id': row[0],
-#                 'prabhag_name': row[1],
-#                 'prabhag_type': row[2],
-#                 'booth_count' : row[3],
-#                 'prabhag_user_id': prabhag_user_ids,
-#                 'prabhag_user_name': ', '.join(prabhag_user_name),
-#                 'prabhag_user_phone': ', '.join(prabhag_user_contact_number)
-               
-#             })
-        
-#         return JsonResponse(result, safe=False)
-
 def get_prabhags(request):
     if request.method == 'GET':
         with connection.cursor() as cursor:
-            cursor.execute(''' 
-                SELECT 
-                    p.prabhag_id,
-                    p.prabhag_name,
-                    p.prabhag_type,
-                    COUNT(b.booth_id) AS booth_count,
-                    GROUP_CONCAT(DISTINCT CONCAT(pu.prabhag_user_id, '|', pu.prabhag_user_name, '|', pu.prabhag_user_contact_number) SEPARATOR ', ') AS prabhag_users_info,
-                    t.town_name  -- Adding town_name to the select statement
-                FROM 
-                    tbl_prabhag p
-                LEFT JOIN 
-                    tbl_booth b ON p.prabhag_id = b.booth_prabhag_id
-                LEFT JOIN
-                    tbl_prabhag_user pu ON pu.prabhag_user_prabhag_id = p.prabhag_id
-                LEFT JOIN
-                    tbl_town t ON b.booth_town_id = t.town_id  -- Join with tbl_town
-                GROUP BY 
-                    p.prabhag_id, p.prabhag_name, p.prabhag_type, t.town_name  -- Include town_name in GROUP BY
-                ORDER BY 
-                    p.prabhag_id;
-            ''')
+ 
+            cursor.callproc('GetPrabhagDetails')
             rows = cursor.fetchall()
-
+ 
         result = []
         for row in rows:
             prabhag_users_info = row[4].split(', ') if row[4] else []
             prabhag_user_ids = []
             prabhag_user_name = []
             prabhag_user_contact_number = []
-
+ 
             for info in prabhag_users_info:
                 if info:
                     parts = info.split('|')
-                    if len(parts) == 3: 
+                    if len(parts) == 3:
                         user_id, name, phone = parts
                         prabhag_user_ids.append(int(user_id))
                         prabhag_user_name.append(name)
                         prabhag_user_contact_number.append(phone)
                     else:
                         continue  
-            
+           
             result.append({
                 'prabhag_id': row[0],
                 'prabhag_name': row[1],
@@ -7139,42 +6790,19 @@ def get_prabhags(request):
                 'prabhag_user_phone': ', '.join(prabhag_user_contact_number),
                 'town_name': row[5]  # Add town_name to the result
             })
-        
+       
         return JsonResponse(result, safe=False)
+ 
 
 
 class TownRuralView(APIView):
     def get(self, request):
-        query = """
-        SELECT 
-            ROW_NUMBER() OVER (ORDER BY t.town_id) AS serial_number,
-            t.town_id,
-            t.town_name,
-            t.town_name_mar,
-            COUNT(v.voter_id) AS voter_count,
-            GROUP_CONCAT(DISTINCT u.town_user_name SEPARATOR ', ') AS town_user_names,
-            GROUP_CONCAT(DISTINCT u.town_user_id SEPARATOR ', ') AS town_user_id,
-            t.town_area_type_id
-        FROM 
-            vw_voter_list v
-        LEFT JOIN 
-            tbl_user_town ut ON v.town_id = ut.user_town_town_id
-        LEFT JOIN 
-            tbl_town_user u ON ut.user_town_town_user_id = u.town_user_id
-        LEFT JOIN 
-            tbl_town t ON v.town_id = t.town_id
-        WHERE
-            t.town_area_type_id = 2
-        GROUP BY 
-            t.town_id, t.town_name
-        ORDER BY 
-            t.town_id;
-        """
-
+       
         with connection.cursor() as cursor:
-            cursor.execute(query)
+            # cursor.execute(query)
+            cursor.callproc('GetTownDetailsByAreaType')
             rows = cursor.fetchall()
-
+ 
         response_data = [
             {
                 'sr_no': row[0],
@@ -7184,14 +6812,14 @@ class TownRuralView(APIView):
                 'voter_count': row[4],
                 'town_user_names': row[5],  
                 'town_user_ids': [int(uid) for uid in row[6].split(',')] if row[6] else [],  
-                'town_type' : row[7]       
+                'town_type' : row[7]      
             }
             for row in rows
         ]
-
+ 
         return Response(response_data, status=status.HTTP_200_OK)
-
-
+    
+    
 def get_town_info_by_psc(request, circle_id):
     if circle_id is None:
         return JsonResponse({'error': 'circle_id parameter is required.'}, status=400)
@@ -7309,7 +6937,7 @@ def get_voter_current_location_details_by_town(requtownest, town_id, city_id):
 
 
 
-
+# register prabhag user
 class PrabhagUserCreate(generics.CreateAPIView):
     serializer_class = PrabhagUserSerializer
 
@@ -7377,9 +7005,6 @@ class GetVoterDetailsByPrabhagUserId(APIView):
 
 
 # Prabhag User Login
-
-
-
 
 class PrabhagUserLoginView(generics.CreateAPIView):
     serializer_class = PrabhagUserSerializer
@@ -7512,7 +7137,7 @@ class BoothUserListCreateByPrabhag(generics.ListCreateAPIView):
             user_serializer = UserSerializer(data=user_data)
             if user_serializer.is_valid():
                 session_id = request.session.get('prabhag_user_id')
-                print(session_id)
+                # print(session_id)
                 user = user_serializer.save(user_prabhag_user_id=session_id)
                 booth_ids = serializer.validated_data['booth_ids']
 
@@ -7524,89 +7149,6 @@ class BoothUserListCreateByPrabhag(generics.ListCreateAPIView):
                 return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-# @csrf_exempt
-# def edit_voter_data_by_booth_user(request):
-#     if request.method == 'POST':
-#         voter_data = json.loads(request.body)
-
-#         voter_id = voter_data.get('voter_id')
-
-#         with connection.cursor() as cursor:
-#             cursor.execute("SELECT voter_id, voter_name, voter_parent_name, voter_age, voter_gender, voter_contact_number, voter_cast_id, voter_marital_status_id, voter_live_status_id, voter_in_city_id, voter_current_location FROM tbl_voter WHERE voter_id = %s", [voter_id])
-#             existing_voter = cursor.fetchone()
-
-#         if not existing_voter:
-#             return JsonResponse({"error": "Voter not found."}, status=404)
-
-#         existing_voter_dict = {
-#             'voter_id': existing_voter[0],
-#             'voter_name': existing_voter[1],
-#             'voter_parent_name': existing_voter[2],
-#             'voter_age': existing_voter[3],
-#             'voter_gender': existing_voter[4],
-#             'voter_contact_number': existing_voter[5],
-#             'voter_cast_id': existing_voter[6],
-#             'voter_marital_status_id': existing_voter[7],
-#             'voter_live_status_id': existing_voter[8],
-#             'voter_in_city_id' : existing_voter[9],
-#             'voter_current_location' : existing_voter[10],
-#         }
-        
-#         temp_voter_data_updated_by_user_id = request.session.get('user_id') 
-#         temp_voter_data_updated_date = timezone.now()
-
-#         temp_data = {
-#             'temp_voter_data_voter_id': voter_id,
-#             'temp_voter_data_updated_by_user_id': temp_voter_data_updated_by_user_id,
-#             'temp_voter_data_updated_date' : temp_voter_data_updated_date
-#         }
-
-#         for field in ['voter_name', 'voter_parent_name', 'voter_age', 'voter_gender', 
-#               'voter_contact_number', 'voter_cast_id', 'voter_marital_status_id', 
-#               'voter_live_status_id', 'voter_in_city_id', 'voter_current_location']:
-#             if field in voter_data:
-#                 # Check if the field is either not present in existing data or is different
-#                 if existing_voter_dict[field] != voter_data[field]:
-#                     temp_data[f'temp_{field}'] = voter_data[field]
-
-#         if any(temp_data.get(f'temp_{field}') for field in ['voter_name', 'voter_parent_name', 
-#                                                               'voter_age', 'voter_gender', 
-#                                                               'voter_contact_number', 
-#                                                               'voter_cast_id', 
-#                                                               'voter_marital_status_id', 
-#                                                               'voter_live_status_id', 'voter_in_city_id', 'voter_current_location']):
-#             with connection.cursor() as cursor:
-#                 cursor.execute("""
-#                     INSERT INTO tbl_temp_voter_data_prabhag 
-#                     (temp_voter_data_voter_id, temp_voter_data_voter_name, temp_voter_data_voter_parent_name, temp_voter_data_voter_contact_number, 
-#                      temp_voter_data_voter_cast, temp_voter_data_voter_live_status, temp_voter_data_voter_marital_status, 
-#                      temp_voter_data_voter_age, temp_voter_data_voter_gender, temp_voter_data_updated_by_user_id, temp_voter_data_updated_date, temp_voter_data_voter_in_city_id, temp_voter_data_voter_current_location)
-#                     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s,%s)
-#                 """, (
-#                     temp_data['temp_voter_data_voter_id'],
-#                     temp_data.get('temp_voter_name'),
-#                     temp_data.get('temp_voter_parent_name'),
-#                     temp_data.get('temp_voter_contact_number'),
-#                     temp_data.get('temp_voter_cast_id'),
-#                     temp_data.get('temp_voter_live_status_id'),
-#                     temp_data.get('temp_voter_marital_status_id'),
-#                     temp_data.get('temp_voter_age'),
-#                     temp_data.get('temp_voter_gender'),
-#                     temp_voter_data_updated_by_user_id,
-#                     temp_voter_data_updated_date,
-#                     temp_data.get('temp_voter_in_city_id'),
-#                     temp_data.get('temp_voter_current_location')
-#                 ))
-               
-
-#             return JsonResponse({"success": "Data stored in temporary voter data."}, status=201)
-
-#         return JsonResponse({"message": "No changes detected."}, status=200)
-
-#     return JsonResponse({"error": "Invalid request method."}, status=405)
-
 
 
 @csrf_exempt
@@ -7650,17 +7192,15 @@ def edit_voter_data_by_booth_user(request):
                       'voter_contact_number', 'voter_cast_id', 'voter_marital_status_id', 
                       'voter_live_status_id', 'voter_in_city_id', 'voter_current_location']:
             if field in voter_data:
-                # Check if the field is either not present in existing data or is different
                 if existing_voter_dict[field] != voter_data[field]:
                     temp_data[f'temp_{field}'] = voter_data[field]
 
-        # Handle voter_in_city_id specifically
         temp_in_city_id = voter_data.get('voter_in_city_id')
         if temp_in_city_id is not None:
             try:
-                temp_in_city_id = int(temp_in_city_id)  # Ensure it's an integer
+                temp_in_city_id = int(temp_in_city_id) 
             except ValueError:
-                temp_in_city_id = None  # Handle invalid integer gracefully
+                temp_in_city_id = None  
 
         if any(temp_data.get(f'temp_{field}') for field in ['voter_name', 'voter_parent_name', 
                                                               'voter_age', 'voter_gender', 
@@ -7688,7 +7228,7 @@ def edit_voter_data_by_booth_user(request):
                     temp_data.get('temp_voter_gender'),
                     temp_voter_data_updated_by_user_id,
                     temp_voter_data_updated_date,
-                    temp_in_city_id,  # Use the validated/converted variable
+                    temp_in_city_id,  
                     temp_data.get('temp_voter_current_location')
                 ))
                
@@ -7877,82 +7417,47 @@ def update_reject_status_prabhag_user(request, temp_voter_data_voter_id):
 
 def get_temp_voter_data_prabhag_user(request, temp_voter_data_updated_by_user_id):
     with connection.cursor() as cursor:
-        cursor.execute("""
-            SELECT
-                t.temp_voter_data_id,
-                t.temp_voter_data_voter_id,
-                COALESCE(t.temp_voter_data_voter_name, v.voter_name) AS voter_name,
-                t.temp_voter_data_voter_parent_name,
-                t.temp_voter_data_voter_contact_number,
-                t.temp_voter_data_voter_cast,
-                t.temp_voter_data_voter_live_status,
-                t.temp_voter_data_voter_marital_status,
-                t.temp_voter_data_voter_age,
-                t.temp_voter_data_voter_gender,
-                t.temp_voter_data_updated_by_user_id,
-                t.temp_voter_data_voter_in_city_id,
-                t.temp_voter_data_voter_current_location
-            FROM tbl_temp_voter_data_prabhag t
-            LEFT JOIN tbl_voter v ON t.temp_voter_data_voter_id = v.voter_id
-            WHERE t.temp_voter_data_updated_by_user_id = %s 
-            AND (t.temp_voter_data_approved_status <> 1 OR t.temp_voter_data_approved_status IS NULL);
-        """, [temp_voter_data_updated_by_user_id])
-        
+ 
+        cursor.callproc('GetTempVoterDataByUser', [temp_voter_data_updated_by_user_id])
+       
         rows = cursor.fetchall()
-        
-        if not rows: 
+       
+        if not rows:
             return JsonResponse({"error": "No data found for this temp_voter_data_updated_by_user_id."}, status=404)
-
+ 
         columns = [col[0] for col in cursor.description] if cursor.description else []
-
+ 
         result = []
         for row in rows:
             row_dict = dict(zip(columns, row))
             row_dict = {k: v for k, v in row_dict.items() if v is not None}
             result.append(row_dict)
-
+ 
     return JsonResponse(result, safe=False)
 
 
 def get_temp_voter_data_user_prabhag_user(request, temp_voter_data_updated_by_user_id):
     with connection.cursor() as cursor:
-        cursor.execute("""
-            SELECT
-                temp_voter_data_id,
-                temp_voter_data_voter_id,
-                temp_voter_data_voter_name,
-                temp_voter_data_voter_parent_name,
-                temp_voter_data_voter_contact_number,
-                temp_voter_data_voter_cast,
-                temp_voter_data_voter_live_status,
-                temp_voter_data_voter_marital_status,
-                temp_voter_data_voter_age,
-                temp_voter_data_voter_gender,
-                temp_voter_data_updated_by_user_id,
-                temp_voter_data_voter_in_city_id,
-                temp_voter_data_voter_in_city_id
-            FROM tbl_temp_voter_data_prabhag
-            WHERE temp_voter_data_updated_by_user_id = %s AND (temp_voter_data_approved_status <> 1 OR temp_voter_data_approved_status IS NULL);
-        """, [temp_voter_data_updated_by_user_id])
-        
+   
+        cursor.callproc('GetTempVoterDataByUser', [temp_voter_data_updated_by_user_id])
+       
         rows = cursor.fetchall()
-        
-        if not rows: 
+       
+        if not rows:
             return JsonResponse({"error": "No data found for this temp_voter_data_voter_id."}, status=404)
-
+ 
         columns = [col[0] for col in cursor.description] if cursor.description else []
-
+ 
         result = []
         for row in rows:
             row_dict = dict(zip(columns, row))
             row_dict = {k: v for k, v in row_dict.items() if v is not None}
             result.append(row_dict)
-
-    return JsonResponse(result, safe=False) 
-
-
+ 
+    return JsonResponse(result, safe=False)
 
 
+# user booth details by prabhag user wise
 class GetUserBoothDetailsByPrabhagUserView(APIView):
 
     def get(self, request, prabhag_user_id):
@@ -7989,59 +7494,6 @@ class PrabhagUserLogoutView(APIView):
         else:
             return Response({"message": "User not logged in"}, status=status.HTTP_400_BAD_REQUEST)
 
-
-# class DeletePrabhagUserView(APIView):
-
-#     def delete(self, request, prabhag_user_id):
-#         with connection.cursor() as cursor:
-#             try:
-#                 # cursor.execute(
-#                 #     "UPDATE tbl_user SET user_prabhag_user_id = NULL WHERE user_prabhag_user_id = %s",
-#                 #     [prabhag_user_id]
-#                 # )
-
-#                 cursor.execute(
-#                     "DELETE FROM tbl_prabhag_user WHERE prabhag_user_id = %s",
-#                     [prabhag_user_id]
-#                 )
-
-#                 return Response({'status': 'User deleted successfully'}, status=status.HTTP_200_NO_CONTENT)
-
-#             except Exception as e:
-#                 print("Error deleting prabhag user:", e)
-#                 return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-# from django.db import connection, transaction, IntegrityError
-# from rest_framework.views import APIView
-# from rest_framework.response import Response
-# from rest_framework import status
-
-# class DeletePrabhagUserView(APIView):
-    
-#     def delete(self, request, prabhag_user_id):
-#         try:
-#             with transaction.atomic():  # Ensures all queries are atomic
-#                 with connection.cursor() as cursor:
-#                     # Set user_prabhag_user_id to NULL where prabhag_user_id matches
-#                     cursor.execute(
-#                         "UPDATE tbl_user SET user_prabhag_user_id = NULL WHERE user_prabhag_user_id = %s", 
-#                         [prabhag_user_id]
-#                     )
-                    
-#                     # Delete the prabhag_user record itself
-#                     cursor.execute(
-#                         "DELETE FROM tbl_prabhag_user WHERE prabhag_user_id = %s", 
-#                         [prabhag_user_id]
-#                     )
-            
-#             return Response({'status': 'User deleted successfully'}, status=status.HTTP_200_OK)
-        
-#         except IntegrityError as e:
-#             return Response({'error': 'Integrity error: ' + str(e)}, status=status.HTTP_400_BAD_REQUEST)
-#         except Exception as e:
-#             return Response({'error': 'An error occurred: ' + str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 import logging
 
 logger = logging.getLogger(__name__)
@@ -8051,14 +7503,11 @@ class DeletePrabhagUserView(APIView):
     def delete(self, request, prabhag_user_id):
         try:
             with transaction.atomic():
-                # Log the user ID being deleted
                 logger.info(f'Attempting to delete prabhag user with ID: {prabhag_user_id}')
                 
-                # Update the related user records
                 affected_rows = User.objects.filter(user_prabhag_user_id=prabhag_user_id).update(user_prabhag_user_id=None)
                 logger.info(f'Updated {affected_rows} user records to set user_prabhag_user_id to NULL')
 
-                # Delete the prabhag user record
                 deleted_rows = PrabhagUser.objects.filter(prabhag_user_id=prabhag_user_id).delete()
                 logger.info(f'Deleted {deleted_rows[0]} prabhag user records')
 
@@ -8227,8 +7676,6 @@ def generate_voter_pdf_by_town(request, town_id, city_id):
 
 # # generate current location of voter pdf by booth wise
 
-
-
 def generate_voter_pdf_by_booth(request, booth_id, city_id):
     try:
         with connection.cursor() as cursor:
@@ -8239,30 +7686,28 @@ def generate_voter_pdf_by_booth(request, booth_id, city_id):
         if not results:
             return JsonResponse({'error': 'No voter data found for the given booth and city.'}, status=404)
  
-        # Prepare table data (header + rows)
-        # Updated table headers: Serial Number, Voter Name, Voter Contact Number
-        table_data = [['Serial Number', 'Voter Name', 'Voter Contact Number']]  # Add headers
+        table_data = [['Serial Number', 'Voter Name', 'Voter Contact Number']]  
  
         for idx, row in enumerate(results, start=1):
-            voter_name = row[1]  # Assuming voter_name is in the second column
-            voter_contact_number = row[2]  # Assuming voter_contact_number is in the third column
-            table_data.append([idx, voter_name, voter_contact_number])  # Add serial number along with data
+            voter_name = row[1]  
+            voter_contact_number = row[2]  
+            table_data.append([idx, voter_name, voter_contact_number]) 
  
         buffer = BytesIO()
         doc = SimpleDocTemplate(buffer, pagesize=A4)
  
         table = Table(table_data)
         table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),  # Header background
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),  # Header text color
-            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),  # Left align all cells
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),  # Header font
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),  # Padding for header
-            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),  # Rows background
-            ('GRID', (0, 0), (-1, -1), 1, colors.black),  # Grid color and width
-            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),  # Rows font
-            ('FONTSIZE', (0, 0), (-1, -1), 10),  # Font size
-            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),  # Vertical alignment
+            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),  
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke), 
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),  
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),  
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),  
+            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),  
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),  
+            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),  
+            ('FONTSIZE', (0, 0), (-1, -1), 10),  
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),  
         ]))
  
         elements = [table]
@@ -8316,8 +7761,6 @@ def get_voter_current_location_details_by_prabhag_user(requtownest, prabhag_user
 
 # # get voter info by booth user
 
-
-
 def call_stored_procedure(procedure_name, params):
     """Helper function to call a stored procedure with parameters"""
     with connection.cursor() as cursor:
@@ -8325,36 +7768,6 @@ def call_stored_procedure(procedure_name, params):
         columns = [col[0] for col in cursor.description] 
         result = [dict(zip(columns, row)) for row in cursor.fetchall()]
     return result
-
-# @csrf_exempt
-# def get_voter_info_by_booth_user(request, user_booth_user_id, voter_favour_id, voter_vote_confirmation_id):
-#     """
-#     GET API to call stored procedures based on voter_vote_confirmation_id.
-#     - `user_booth_user_id` (integer)
-#     - `voter_favour_id` (integer)
-#     - `voter_vote_confirmation_id` (integer)
-#     """
-#     try:
-#         if voter_vote_confirmation_id not in [1, 2]:
-#             return JsonResponse({'error': 'Invalid voter_vote_confirmation_id. Must be 1 or 2.'}, status=400)
-
-#         if voter_vote_confirmation_id == 1:
-#             procedure_name = 'GetVoterInfoByUserAndFavourForVoted'
-#         elif voter_vote_confirmation_id == 2:
-#             procedure_name = 'GetVoterInfoByUserAndFavourForNonVoted'
-
-#         result = call_stored_procedure(procedure_name, [user_booth_user_id, voter_favour_id])
-
-#         return JsonResponse({'data': result}, safe=False)
-
-#     except ValueError as ve:
-#         return JsonResponse({'error': f'Invalid data format: {str(ve)}'}, status=400)
-#     except BadRequest as br:
-#         return JsonResponse({'error': str(br)}, status=400)
-#     except Exception as e:
-#         return JsonResponse({'error': f'Internal server error: {str(e)}'}, status=500)
-
-
 
 
 @csrf_exempt
@@ -8749,7 +8162,7 @@ class TownListByAreaTypeAPIView(APIView):
         """
         with connection.cursor() as cursor:
             cursor.execute("""
-                SELECT town_name, town_id FROM washim_bjp.tbl_town WHERE town_area_type_id = %s
+                SELECT town_name, town_id FROM tbl_town WHERE town_area_type_id = %s
             """, [town_area_type_id])
             rows = cursor.fetchall()
         
@@ -8889,7 +8302,7 @@ def create_voter_group_user(request):
                 with connection.cursor() as cursor:
                     cursor.execute(
                         """
-                        INSERT INTO tbl_voter_group_user (voter_group_user__name, voter_group_user_contact_number, voter_group_user_password)
+                        INSERT INTO tbl_voter_group_user (voter_group_user_name, voter_group_user_contact_number, voter_group_user_password)
                         VALUES (%s, %s, %s)
                         """, [voter_group_user_name, voter_group_user_contact_number, hashed_password]
                     )
@@ -8906,21 +8319,7 @@ def create_voter_group_user(request):
                     cursor.execute("SELECT LAST_INSERT_ID()")
                     voter_group_id = cursor.fetchone()[0]
  
-                #Updating voter_voter_group_id tbl_voter
-                # with connection.cursor() as cursor:
-                #     cursor.execute(
-                #         "UPDATE tbl_voter SET voter_voter_group_id = %s WHERE voter_id IN %s",
-                #         [voter_group_id, tuple(voter_ids)]
-                #     )
- 
-                #Deleting if the voter_ids already exist in tbl_user_voter_group
-                # with connection.cursor() as cursor:
-                #     cursor.execute(
-                #         """
-                #         DELETE FROM tbl_user_voter_group where user_voter_group_voter_id IN %s
-                #         """, [tuple(voter_ids)]
-                #     )
- 
+           
                 for voter_id in voter_ids:
                     with connection.cursor() as cursor:
                         cursor.execute(
@@ -8952,12 +8351,13 @@ def get_voters_by_voter_group_user(request, voter_group_user_id):
         try:
             with connection.cursor() as cursor:
                 cursor.callproc('GetVotersByVoterGroupUser', [voter_group_user_id])
-               
                 result = cursor.fetchall()
- 
+                
                 if result and 'No voter groups found for this user' in result[0]:
                     return JsonResponse({'message': result[0][0]}, status=404)
- 
+
+                voter_group_id = result[0][10] if result else None
+
                 voters = [
                     {
                         'voter_id': voter[0],
@@ -8968,22 +8368,24 @@ def get_voters_by_voter_group_user(request, voter_group_user_id):
                         'voter_vote_confirmation_id': voter[5],
                         'booth_name': voter[6],
                         'booth_name_mar': voter[7],
-                        'voter_serial_number':voter[8],
+                        'voter_serial_number': voter[8],
                         'voter_id_card_number': voter[9]
+                        # 'voter_group_id': voter[10]
                     }
                     for voter in result
                 ]
-               
+
                 return JsonResponse({
                     'voter_group_user_id': voter_group_user_id,
+                    'voter_group_id': voter_group_id,
                     'voters': voters
                 }, status=200)
- 
+
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
- 
-    return JsonResponse({'error': 'Invalid request method'}, status=405)
 
+    return JsonResponse({'error': 'Invalid request method'}, status=405) 
+ 
 # voter group user login and logout
 
 # @csrf_exempt
@@ -9098,16 +8500,18 @@ def logout_voter_group_user(request):
     return JsonResponse({'error': 'Invalid request method'}, status=405)
 
  
+ 
+# add voter to existing voter group (karyakarta group)
 @csrf_exempt
 def add_voter_to_existing_group(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
             voter_ids = data.get('voter_ids')
-            voter_group_user_id = data.get('voter_group_user_id')
+            voter_group_id = data.get('voter_group_id')
  
-            if not voter_ids or not voter_group_user_id:
-                return JsonResponse({'error': 'voter_ids and voter_group_user_id are required'}, status=400)
+            if not voter_ids or not voter_group_id:
+                return JsonResponse({'error': 'voter_ids and voter_group_id are required'}, status=400)
  
             if not isinstance(voter_ids, list):
                 voter_ids = [voter_ids]
@@ -9116,19 +8520,23 @@ def add_voter_to_existing_group(request):
                 cursor.execute("""
                     SELECT COUNT(*)
                     FROM tbl_voter_group
-                    WHERE voter_group_voter_group_user_id = %s
-                """, [voter_group_user_id])
+                    WHERE voter_group_id = %s
+                """, [voter_group_id])
  
                 group_exists = cursor.fetchone()[0]
  
                 if group_exists == 0:
                     return JsonResponse({'error': 'voter_group_user_id does not exist'}, status=404)
  
-                cursor.executemany("""
-                    UPDATE tbl_voter
-                    SET voter_voter_group_id = %s
-                    WHERE voter_id = %s
-                """, [(voter_group_user_id, voter_id) for voter_id in voter_ids])
+            
+ 
+                for voter_id in voter_ids:
+                    with connection.cursor() as cursor:
+                        cursor.execute(
+                            """INSERT INTO tbl_user_voter_group (user_voter_group_voter_id, user_voter_group_voter_group_id)
+                            VALUES (%s,%s)
+                            """, [voter_id, voter_group_id]
+                        )
  
             return JsonResponse({
                 'message': 'Voters added in group successfully!',
@@ -9141,7 +8549,7 @@ def add_voter_to_existing_group(request):
             return JsonResponse({'error': str(e)}, status=500)
  
     return JsonResponse({'error': 'Invalid request method'}, status=405)
- 
+  
    
  
 # remove voter from existing group
@@ -9149,34 +8557,41 @@ def add_voter_to_existing_group(request):
 def remove_voter_from_existing_group(request, voter_group_id, voter_id):
     if request.method == 'POST':
         try:
+ 
             if not voter_id or not voter_group_id:
                 return JsonResponse({'error': 'Both voter_id and voter_group_id are required'}, status=400)
  
             with connection.cursor() as cursor:
                 cursor.execute("""
-                    SELECT voter_voter_group_id
-                    FROM tbl_voter
-                    WHERE voter_id = %s
+                    SELECT user_voter_group_voter_group_id
+                    FROM tbl_user_voter_group
+                    WHERE user_voter_group_voter_id = %s;
                 """, [voter_id])
-               
-                current_group_id = cursor.fetchone()
+                current_groups = cursor.fetchall()  
  
-                if not current_group_id:
-                    return JsonResponse({'error': 'Voter not found'}, status=404)
+                if not current_groups:
+                    return JsonResponse({'error': 'Voter not found in any group'}, status=404)
  
-                if current_group_id[0] != int(voter_group_id):  
+                group_exists = False
+                for group in current_groups:
+                    if group[0] == int(voter_group_id):
+                        group_exists = True
+                        break
+ 
+                if not group_exists:
                     return JsonResponse({'error': 'Voter is not in the specified group'}, status=400)
  
+                # Remove the voter from the specified group by deleting the entry from tbl_user_voter_group
                 cursor.execute("""
-                    UPDATE tbl_voter
-                    SET voter_voter_group_id = NULL
-                    WHERE voter_id = %s AND voter_voter_group_id = %s
+                    DELETE FROM tbl_user_voter_group
+                    WHERE user_voter_group_voter_id = %s AND user_voter_group_voter_group_id = %s
                 """, [voter_id, voter_group_id])
  
+ 
             return JsonResponse({
-                'message': 'Voter removed from the group successfully!',
-                # 'voter_id': voter_id,
-                # 'voter_group_id': voter_group_id
+                'message': f'Voter removed from group successfully!',
+                'voter_id': voter_id,
+                'voter_group_id': voter_group_id
             }, status=200)
  
         except Exception as e:
@@ -9184,25 +8599,15 @@ def remove_voter_from_existing_group(request, voter_group_id, voter_id):
             return JsonResponse({'error': str(e)}, status=500)
  
     return JsonResponse({'error': 'Invalid request method'}, status=405)
-
+ 
 
 @csrf_exempt
 def get_voter_group_details_by_user(request, voter_group_user_id):
     if request.method == 'GET':
         try:
             with connection.cursor() as cursor:
-                # Step 1: Get voter group details for the specific voter_group_user_id
-                cursor.execute("""
-                    SELECT vg.voter_group_name,
-                           COUNT(v.voter_id) AS group_voter_count,
-                           vgu.voter_group_user_name,
-                           vgu.voter_group_user_contact_number
-                    FROM tbl_voter_group vg
-                    JOIN tbl_voter v ON vg.voter_group_id = v.voter_voter_group_id
-                    JOIN tbl_voter_group_user vgu ON vg.voter_group_voter_group_user_id = vgu.voter_group_user_id
-                    WHERE vgu.voter_group_user_id = %s
-                    GROUP BY vg.voter_group_name, vgu.voter_group_user_name, vgu.voter_group_user_contact_number
-                """, [voter_group_user_id])
+ 
+                cursor.callproc('GetVotersGroupDetailsByUser', [voter_group_user_id])
                
                 group_details = cursor.fetchone()
  
@@ -9223,7 +8628,7 @@ def get_voter_group_details_by_user(request, voter_group_user_id):
             return JsonResponse({'error': str(e)}, status=500)
  
     return JsonResponse({'error': 'Invalid request method'}, status=405)
-
+ 
 
 # get voted non voted voters by voter group user wise
  
@@ -9289,30 +8694,13 @@ def get_voter_group_details(request):
     if request.method == 'GET':
         try:
             with connection.cursor() as cursor:
-                query = """
-                SELECT
-                    vg.voter_group_name,
-                    COUNT(v.voter_id) AS group_voter_count,
-                    vgu.voter_group_user_id,
-                    vg.voter_group_id,
-                    vgu.voter_group_user__name,
-                    vgu.voter_group_user_contact_number
-                FROM tbl_voter_group vg
-                LEFT JOIN tbl_voter v ON vg.voter_group_id = v.voter_voter_group_id
-                LEFT JOIN tbl_voter_group_user vgu ON vg.voter_group_voter_group_user_id = vgu.voter_group_user_id
-                GROUP BY
-                    vg.voter_group_name,
-                    vgu.voter_group_user_id,
-                    vgu.voter_group_user__name,
-                    vgu.voter_group_user_contact_number,
-                    vg.voter_group_id
-                ORDER BY
-                    vg.voter_group_name,
-                    vgu.voter_group_user__name
-                """
-                cursor.execute(query)
+                # Call the stored procedure
+                cursor.callproc('GetVoterGroupDetails')
+ 
+                # Fetch all the results returned by the stored procedure
                 group_details = cursor.fetchall()
  
+            # If results are found, format them
             if group_details:
                 group_users = [
                     {
@@ -9327,14 +8715,15 @@ def get_voter_group_details(request):
                 ]
                 return JsonResponse(group_users, safe=False, status=200)
             else:
+                # Explicit message for no results found
                 return JsonResponse({'message': 'No voter groups found.'}, status=200)
  
         except Exception as e:
             logging.error(f"Error fetching voter group details: {str(e)}", exc_info=True)
             return JsonResponse({'error': 'An error occurred while fetching voter group details.'}, status=500)
  
+    # Return an error for unsupported methods
     return JsonResponse({'error': 'Invalid request method. Use GET.'}, status=405)
- 
 
 
 # # vote confirmation by voter group user wise
@@ -9393,6 +8782,59 @@ def get_voters_by_confirmation(request, voter_group_user_id, confirmation_id):
             return JsonResponse({'error': str(e)}, status=500)
  
     return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+
+@csrf_exempt
+def delete_voter_group(request, voter_group_id):
+    if request.method == 'DELETE':
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    SELECT voter_group_id, voter_group_voter_group_user_id
+                    FROM tbl_voter_group
+                    WHERE voter_group_id = %s
+                """, [voter_group_id])
+ 
+                group_result = cursor.fetchone()
+ 
+                if not group_result:
+                    return JsonResponse({'error': 'Voter group not found'}, status=404)
+ 
+                voter_group_user_id = group_result[1]
+ 
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    DELETE FROM tbl_user_voter_group
+                    WHERE user_voter_group_voter_group_id = %s
+                """, [voter_group_id])
+ 
+ 
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    DELETE FROM tbl_voter_group
+                    WHERE voter_group_id = %s
+                """, [voter_group_id])
+ 
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    DELETE FROM tbl_voter_group_user
+                    WHERE voter_group_user_id = %s
+                """, [voter_group_user_id])
+ 
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    DELETE FROM tbl_user_voter_group
+                    WHERE user_voter_group_voter_group_id = %s
+                """, [voter_group_id])
+ 
+            return JsonResponse({'message': 'Voter group and group user deleted successfully!'}, status=200)
+ 
+        except Exception as e:
+            logging.error(f"Error deleting voter group: {str(e)}")
+            return JsonResponse({'error': str(e)}, status=500)
+ 
+    return JsonResponse({'error': 'Invalid request method. Use DELETE.'}, status=405)
+ 
 
 
 
@@ -9470,35 +8912,12 @@ def get_voter_count_by_town_area_type(request, town_area_type_id=None):
             if not town_ids:
                 return JsonResponse({'message': 'No towns found for the given filters.'}, status=200)
  
+            town_ids_str = ",".join(map(str, town_ids))
+           
+ 
             with connection.cursor() as cursor:
-                cursor.execute(
-                    f"""
-                    SELECT
-                        b.booth_name,
-                        GROUP_CONCAT(DISTINCT u.user_name SEPARATOR ', ') AS booth_user_names,  -- Concatenate unique user names
-                        GROUP_CONCAT(DISTINCT u.user_phone SEPARATOR ', ') AS booth_user_phones,  -- Concatenate unique user phones
-                        (SELECT COUNT(voter_id) FROM tbl_voter WHERE voter_booth_id = b.booth_id) AS voter_count, -- Count voters per booth
-                        (SELECT COUNT(voter_id) FROM tbl_voter WHERE voter_booth_id = b.booth_id AND voter_favour_id = 1) AS favor_count, -- Favor voters
-                        (SELECT COUNT(voter_id) FROM tbl_voter WHERE voter_booth_id = b.booth_id AND voter_favour_id = 2) AS non_favor_count, -- Non-favor voters
-                        (SELECT COUNT(voter_id) FROM tbl_voter WHERE voter_booth_id = b.booth_id AND voter_favour_id = 3) AS not_confirm_count, -- Not confirmed voters
-                        (SELECT COUNT(voter_id) FROM tbl_voter WHERE voter_booth_id = b.booth_id AND voter_vote_confirmation_id = 1 AND voter_favour_id = 1) AS favor_voted, -- Favor voted
-                        (SELECT COUNT(voter_id) FROM tbl_voter WHERE voter_booth_id = b.booth_id AND voter_vote_confirmation_id IN (0, 2) AND voter_favour_id = 1) AS favor_non_voted, -- Favor not voted
-                        ROUND(
-                            (SELECT COUNT(voter_id) FROM tbl_voter WHERE voter_booth_id = b.booth_id AND voter_vote_confirmation_id = 1 AND voter_favour_id = 1) * 100.0 /
-                            NULLIF(
-                                (SELECT COUNT(voter_id) FROM tbl_voter WHERE voter_booth_id = b.booth_id AND voter_vote_confirmation_id IN (1, 0, 2)), 0
-                            ), 2
-                        ) AS favor_percentage,
-                        (SELECT COUNT(voter_id) FROM tbl_voter WHERE voter_booth_id = b.booth_id AND voter_vote_confirmation_id IN (1, 0, 2)) AS total_voted_count
-                    FROM tbl_booth b
-                    LEFT JOIN tbl_user_booth ub ON b.booth_id = ub.user_booth_booth_id
-                    LEFT JOIN tbl_user u ON ub.user_booth_user_id = u.user_id
-                    JOIN tbl_town t ON b.booth_town_id = t.town_id
-                    WHERE t.town_id IN %s  -- Filter by the list of towns of the specified area type (or all towns)
-                    GROUP BY b.booth_id, b.booth_name
-
-                    """, [tuple(town_ids)]  
-                )
+                
+                cursor.callproc('GetVoterCountByTownAreaType', [town_area_type_id, town_ids_str])
  
                 booths_voter_count = cursor.fetchall()
  
@@ -9544,7 +8963,7 @@ def get_voter_count_by_town_area_type(request, town_area_type_id=None):
  
             response_data = {
                 'booth_voter_counts': booth_voter_list,
-                'booth_count': len(booth_voter_list)  # Count of booths
+                'booth_count': len(booth_voter_list)  
             }
  
             return JsonResponse(response_data, status=200)
@@ -9554,126 +8973,7 @@ def get_voter_count_by_town_area_type(request, town_area_type_id=None):
             return JsonResponse({'error': str(e)}, status=500)
  
     return JsonResponse({'error': 'Invalid request method. Use GET method.'}, status=405)
-
  
-# @csrf_exempt
-# def get_voter_count_by_town_area_type(request, town_area_type_id=None):
-#     if request.method == 'GET':
-#         try:
-#             if town_area_type_id and town_area_type_id not in [0, 1, 2]:
-#                 return JsonResponse({'error': 'Invalid town_area_type_id. Must be 0 (All), 1 (Urban), or 2 (Rural).'}, status=400)
- 
-#             with connection.cursor() as cursor:
-#                 if town_area_type_id == 1:  
-#                     cursor.execute(
-#                         """
-#                         SELECT town_id
-#                         FROM tbl_town
-#                         WHERE town_area_type_id = 1
-#                         """
-#                     )
-#                 elif town_area_type_id == 2:  
-#                     cursor.execute(
-#                         """
-#                         SELECT town_id
-#                         FROM tbl_town
-#                         WHERE town_area_type_id = 2
-#                         """
-#                     )
-#                 elif town_area_type_id == 0 or not town_area_type_id: 
-#                     cursor.execute(
-#                         """
-#                         SELECT town_id
-#                         FROM tbl_town
-#                         """
-#                     )
- 
-#                 town_ids = [row[0] for row in cursor.fetchall()]
- 
-#             if not town_ids:
-#                 return JsonResponse({'message': 'No towns found for the given filters.'}, status=200)
- 
-#             with connection.cursor() as cursor:
-#                 cursor.execute(
-#                     f"""
-#                     SELECT
-#                         b.booth_name,
-#                         GROUP_CONCAT(DISTINCT u.user_name SEPARATOR ', ') AS booth_user_names,  -- Concatenate unique user names
-#                         GROUP_CONCAT(DISTINCT u.user_phone SEPARATOR ', ') AS booth_user_phones,  -- Concatenate unique user phones
-#                         COUNT(v.voter_id) AS voter_count,
-#                         COUNT(CASE WHEN v.voter_favour_id = 1 THEN 1 END) AS favor_count,
-#                         COUNT(CASE WHEN v.voter_favour_id = 2 THEN 1 END) AS non_favor_count,
-#                         COUNT(CASE WHEN v.voter_favour_id = 3 THEN 1 END) AS not_confirm_count,
-#                         COUNT(CASE WHEN v.voter_vote_confirmation_id = 1 AND v.voter_favour_id = 1 THEN 1 END) AS favor_voted,
-#                         COUNT(CASE WHEN v.voter_vote_confirmation_id IN (0, 2) AND v.voter_favour_id = 1 THEN 1 END) AS favor_non_voted,
-#                         ROUND((COUNT(CASE WHEN v.voter_vote_confirmation_id = 1 AND v.voter_favour_id = 1 THEN 1 END) * 100.0) /
-#                               NULLIF(COUNT(CASE WHEN v.voter_vote_confirmation_id IN (1, 0, 2) THEN 1 END), 0), 2) AS favor_percentage,
-#                         COUNT(CASE WHEN v.voter_vote_confirmation_id IN (1, 0, 2) THEN 1 END) AS total_voted_count
-#                     FROM tbl_booth b
-#                     LEFT JOIN tbl_user_booth ub ON b.booth_id = ub.user_booth_booth_id
-#                     LEFT JOIN tbl_user u ON ub.user_booth_user_id = u.user_id
-#                     JOIN tbl_town t ON b.booth_town_id = t.town_id
-#                     LEFT JOIN tbl_voter v ON b.booth_id = v.voter_booth_id
-#                     LEFT JOIN tbl_favour f ON v.voter_favour_id = f.favour_id
-#                     WHERE t.town_id IN %s  -- Filter by the list of towns of the specified area type (or all towns)
-#                     GROUP BY b.booth_id, b.booth_name
-#                     """, [tuple(town_ids)]  
-#                 )
- 
-#                 booths_voter_count = cursor.fetchall()
- 
-#             if not booths_voter_count:
-#                 return JsonResponse({'message': 'No booths or voters found for the given filters.'}, status=200)
- 
-#             booth_data = {}
- 
-#             for row in booths_voter_count:
-#                 booth_name = row[0]
-#                 user_names = row[1] if row[1] else "No User" 
-#                 user_phones = row[2] if row[2] else "No Phone"  
-#                 voter_count = row[3]
-#                 favor_count = row[4]
-#                 non_favor_count = row[5]
-#                 not_confirm_count = row[6]
-#                 favor_voted = row[7]
-#                 favor_non_voted = row[8]
-#                 favor_percentage = row[9]
-#                 total_voted_count = row[10]
- 
-#                 if booth_name not in booth_data:
-#                     booth_data[booth_name] = {
-#                         'booth_name': booth_name,
-#                         'booth_user_names': user_names,  
-#                         'booth_user_phones': user_phones,  
-#                         'voter_count': voter_count,
-#                         'favor_count': favor_count,
-#                         'non_favor_count': non_favor_count,
-#                         'not_confirm_count': not_confirm_count,
-#                         'favor_voted': favor_voted,
-#                         'favor_non_voted': favor_non_voted,
-#                         'favor_percentage': favor_percentage,
-#                         'total_voted_count': total_voted_count
-#                     }
-#                 else:
-#                     if user_names and user_names not in booth_data[booth_name]['booth_user_names']:
-#                         booth_data[booth_name]['booth_user_names'] += f", {user_names}"
-#                     if user_phones and user_phones not in booth_data[booth_name]['booth_user_phones']:
-#                         booth_data[booth_name]['booth_user_phones'] += f", {user_phones}"
- 
-#             booth_voter_list = list(booth_data.values())
- 
-#             response_data = {
-#                 'booth_voter_counts': booth_voter_list,
-#                 'booth_count': len(booth_voter_list)  
-#             }
- 
-#             return JsonResponse(response_data, status=200)
- 
-#         except Exception as e:
-#             logging.error(f"Error fetching voter count: {str(e)}")
-#             return JsonResponse({'error': str(e)}, status=500)
- 
-#     return JsonResponse({'error': 'Invalid request method. Use GET method.'}, status=405)
   
 
  # generate booth user favour count
@@ -9794,33 +9094,38 @@ def get_voter_count_pdf(request, town_area_type_id=None):
 def favour_wise_voter_list(request, favor_id):
     if request.method == 'GET':
         try:
+            if favor_id == 0:
+                query = """
+                SELECT voter_id, voter_name, voter_name_mar, voter_favour_id, voter_serial_number, voter_id_card_number
+                FROM tbl_voter
+                WHERE voter_favour_id = 0 OR voter_favour_id IS NULL
+                """
+                params = []
+            else:
+                query = """
+                SELECT voter_id, voter_name, voter_name_mar, voter_favour_id, voter_serial_number, voter_id_card_number
+                FROM tbl_voter
+                WHERE voter_favour_id = %s
+                """
+                params = [favor_id]
+ 
             with connection.cursor() as cursor:
-                cursor.execute(
-                    """
-                    SELECT voter_id, voter_name, voter_name_mar,voter_favour_id,voter_serial_number,voter_id_card_number
-                    FROM tbl_voter
-                    WHERE voter_favour_id = %s
-                    """, [favor_id]
-                )
-               
+                cursor.execute(query, params)
                 voters = cursor.fetchall()
  
             if not voters:
                 return JsonResponse({'message': 'No voters found for this favor_id.'}, status=404)
  
-            voter_list = [{'voter_id': row[0], 'voter_name': row[1], 'voter_name_mar': row[2], 'voter_favour_id': row[3], 'voter_serial_number':row[4], 'voter_id_card_number':row[5]} for row in voters]
+            voter_list = [{'voter_id': row[0], 'voter_name': row[1], 'voter_name_mar': row[2], 'voter_favour_id': row[3], 'voter_serial_number' : row[4],'voter_id_card_number':row[5]} for row in voters]
  
-            return JsonResponse({
-                # 'message': 'Voters retrieved successfully!',
-                # 'favor_id': favor_id,
-                'voters': voter_list
-            }, status=200)
+            return JsonResponse({'voters': voter_list}, status=200)
  
         except Exception as e:
             logging.error(f"Error retrieving voters by favor_id: {str(e)}")
             return JsonResponse({'error': str(e)}, status=500)
  
     return JsonResponse({'error': 'Invalid request method'}, status=405)
+ 
  
 # # all voted voters list 
 
@@ -9839,7 +9144,7 @@ def get_voters_by_vote_status(request, status):
             with connection.cursor() as cursor:
                 cursor.execute(
                     f"""
-                    SELECT voter_id, voter_name, favour_id, booth_id, town_id
+                    SELECT voter_id, voter_name, favour_id, booth_id, town_id, voter_serial_number, voter_id_card_number
                     FROM vw_voter_list
                     WHERE {condition}
                     """
@@ -9848,7 +9153,7 @@ def get_voters_by_vote_status(request, status):
                 voters = cursor.fetchall()
  
             voter_list = [{'voter_id': row[0], 'voter_name': row[1],
-                           'voter_favour_id': row[2], 'voter_booth_id': row[3], 'voter_town_id': row[4]}
+                           'voter_favour_id': row[2], 'voter_booth_id': row[3], 'voter_town_id': row[4], 'voter_serial_number' : row[5],'voter_id_card_number':row[6]}
                           for row in voters]
  
             return JsonResponse({
@@ -9933,39 +9238,32 @@ def get_town_wise_voter_percentage(request):
     if request.method == 'GET':
         try:
             with connection.cursor() as cursor:
-                cursor.execute("""
-                    SELECT 
-                        t.town_name,
-                        COUNT(v.voter_id) AS voter_count,
-                        ROUND((COUNT(v.voter_id) * 100.0) / (SELECT COUNT(*) FROM tbl_voter), 2) AS voter_percentage,
-                        t.town_id
-                    FROM tbl_town AS t
-                    LEFT JOIN tbl_voter AS v
-                    ON t.town_id = v.voter_town_id
-                    GROUP BY t.town_id, t.town_name
-                    ORDER BY t.town_id;
-                """)
-                
+                # Call the stored procedure
+                cursor.callproc('GetTownWiseVoterPercentage')
+               
+                # Fetch the results
                 results = cursor.fetchall()
-
+                columns = [desc[0] for desc in cursor.description]
+ 
+            # Prepare the result as a list of dictionaries
             town_voter_data = [
                 {
                     "town_name": row[0],
                     "voter_count": row[1],
                     "voter_percentage": row[2],
-                    "town_id":row[3],
+                    "town_id": row[3],
                 }
                 for row in results
             ]
-
+ 
             return JsonResponse({
                 "town_voter_statistics": town_voter_data,
             }, status=200)
-
+ 
         except Exception as e:
             logging.error(f"Error fetching town voter statistics: {str(e)}")
             return JsonResponse({'error': str(e)}, status=500)
-
+ 
     return JsonResponse({'error': 'Invalid request method'}, status=405)
 
 
@@ -10265,51 +9563,21 @@ def get_zp_circle_info(request, zp_circle_id=None):
 
 
 # get ps circle info
-@require_http_methods(["GET"])
 def get_panchayat_samiti_circle_info(request, panchayat_samiti_circle_id=None):
     try:
         with connection.cursor() as cursor:
-            if panchayat_samiti_circle_id:
-                cursor.execute('''
-                    SELECT 
-                        psc.panchayat_samiti_circle_id AS panchayat_samiti_circle_id, 
-                        psc.panchayat_samiti_circle_name AS panchayat_samiti_circle_name,
-                        pscu.panchayat_samiti_circle_user_name AS panchayat_samiti_circle_user_name,
-                        pscu.panchayat_samiti_circle_user_contact_number AS panchayat_samiti_circle_user_contact_number
-                    FROM 
-                        tbl_panchayat_samiti_circle psc
-                    LEFT JOIN 
-                        tbl_user_panchayat_samiti_circle upsc 
-                        ON psc.panchayat_samiti_circle_id = upsc.user_panchayat_samiti_circle_panchayat_samiti_circle_id
-                    LEFT JOIN 
-                        tbl_panchayat_samiti_circle_user pscu 
-                        ON upsc.user_panchayat_samiti_circle_id = pscu.panchayat_samiti_circle_user_id
-                    WHERE 
-                        psc.panchayat_samiti_circle_id = %s
-                ''', [panchayat_samiti_circle_id])
-            else:
-                cursor.execute('''
-                    SELECT 
-                        psc.panchayat_samiti_circle_id AS panchayat_samiti_circle_id, 
-                        psc.panchayat_samiti_circle_name AS panchayat_samiti_circle_name,
-                        pscu.panchayat_samiti_circle_user_name AS panchayat_samiti_circle_user_name,
-                        pscu.panchayat_samiti_circle_user_contact_number AS panchayat_samiti_circle_user_contact_number
-                    FROM 
-                        tbl_panchayat_samiti_circle psc
-                    LEFT JOIN 
-                        tbl_user_panchayat_samiti_circle upsc 
-                        ON psc.panchayat_samiti_circle_id = upsc.user_panchayat_samiti_circle_panchayat_samiti_circle_id
-                    LEFT JOIN 
-                        tbl_panchayat_samiti_circle_user pscu 
-                        ON upsc.user_panchayat_samiti_circle_id = pscu.panchayat_samiti_circle_user_id
-                ''')
-            
+            # Call the stored procedure with the optional panchayat_samiti_circle_id parameter
+            cursor.callproc('GetPanchayatSamitiCircleInfo', [panchayat_samiti_circle_id] if panchayat_samiti_circle_id else [None])
+           
+            # Fetch the results
             results = cursor.fetchall()
             columns = [desc[0] for desc in cursor.description]
-        
+       
+        # Prepare the result as a list of dictionaries
         psc_circle_list = [dict(zip(columns, row)) for row in results]
+       
         return JsonResponse(psc_circle_list, safe=False)
-
+ 
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
@@ -10330,7 +9598,7 @@ class common_login(APIView):
                 Returns a dictionary with table_name and user_id if successful, otherwise None.
                 """
                 user = model.objects.filter(**{phone_field: user_phone}).first()
-                print(user)
+                # print(user)
                 if user and check_password(user_password, getattr(user, password_field)):
                     return {
                         "user_id": getattr(user, user_id_field),
@@ -10340,13 +9608,13 @@ class common_login(APIView):
  
             try:
                 checks = [
+                    (VoterGroupUser, "voter_group_user_contact_number", "voter_group_user_password", "voter_group_user_id", "tbl_voter_group_user"),
                     (Politician, "politician_contact_number", "politician_password", "politician_id", "tbl_politician"),
+                    (Panchayat_samiti_circle_user, "panchayat_samiti_circle_user_contact_number", "panchayat_samiti_circle_user_password", "panchayat_samiti_circle_user_id", "tbl_panchayat_samiti_circle_user"),
                     (Zp_circle_user, "zp_circle_user_contact_number", "zp_circle_user_password", "zp_circle_user_id", "tbl_zp_circle_user"),
-                    (Panchayat_samiti_circle_user, "panchayat_samiti_circle_user_name", "panchayat_samiti_circle_user_password", "panchayat_samiti_circle_user_id", "tbl_panchayat_samiti_circle_user"),
+                    (PrabhagUser, "prabhag_user_contact_number", "prabhag_user_password", "prabhag_user_id", "tbl_prabhag_user"),
                     (Town_user, "town_user_contact_number", "town_user_password", "town_user_id", "tbl_town_user"),
                     (User, "user_phone", "user_password", "user_id", "tbl_user"),
-                    (PrabhagUser, "prabhag_user_contact_number", "prabhag_user_password", "prabhag_user_id", "tbl_prabhag_user"),
-                    # (VoterGroupUser, "voter_group_user_contact_number", "voter_group_user_password", "voter_group_user_id", "tbl_voter_group_user"),
                 ]
  
                 user_data = None
@@ -10767,7 +10035,7 @@ def surname_wise_voter_count(request):
            
             surname_ids = data.get('surname_ids', [])
            
-            print(surname_ids)
+            # print(surname_ids)
            
             all_voter_ids = []  
  
@@ -10892,7 +10160,7 @@ def surname_wise_favour_caste_assign_voters(request):
            
             if response.status_code == 200:
                 response_data = response.json()
-                print(response_data)
+                # print(response_data)
  
                 if isinstance(response_data, dict) and 'voter_ids' in response_data:
                     all_voter_ids = response_data['voter_ids']
@@ -10945,3 +10213,562 @@ def surname_wise_favour_caste_assign_voters(request):
  
         except requests.exceptions.RequestException as e:
             return JsonResponse({"error": f"Error making request: {str(e)}"}, status=500)
+        
+        
+# voter name, booth name, town name for local db
+
+def get_voters_by_booth_and_town_wise(request):
+    voted_query = """
+       select voter_id, voter_name, voter_name_mar, voter_serial_number, voter_id_card_number, booth_id, booth_name,booth_name_mar, town_name, town_name_mar
+        from tbl_voter inner join tbl_booth on voter_booth_id = booth_id inner join tbl_town on voter_town_id = town_id;
+    """
+ 
+    with connection.cursor() as cursor:
+        cursor.execute(voted_query)
+        columns = [col[0] for col in cursor.description]
+        voters = [dict(zip(columns, row)) for row in cursor.fetchall()]
+ 
+    return JsonResponse(voters, safe=False)
+
+
+
+
+
+# surname wise and booth wise voter count
+
+def get_voter_ids_by_surname_and_booth(surname, booth_id):
+    with connection.cursor() as cursor:
+        cursor.execute("""
+        SELECT voter_id
+        FROM tbl_voter inner join voter_view on voter_id = voter_view_voter_id
+            WHERE LOWER(memberlast) LIKE LOWER(%s) and voter_view_voter_booth_id = %s;
+    """, [f"{surname}", booth_id])
+ 
+        result = cursor.fetchall()
+ 
+    return [row[0] for row in result]
+ 
+ 
+@csrf_exempt  
+def booth_and_surname_wise_voter_count(request, booth_id):
+    if request.method == 'GET':
+        try:
+            with connection.cursor() as cursor:
+                query = """
+                     SELECT
+                        ts.serial_number AS surname_id,
+                        vv.memberlast AS surname,
+                        COUNT(vv.memberlast) AS surname_count
+                    FROM
+                        voter_view vv
+                    JOIN
+                        total_surname_view ts
+                        ON vv.memberlast = ts.surnames  
+                    WHERE
+                        vv.voter_view_voter_booth_id = %s
+                    GROUP BY
+                        vv.memberlast
+                    ORDER BY
+                        surname_id;
+                """
+                params = [booth_id]
+                cursor.execute(query, params)
+ 
+                columns = [col[0] for col in cursor.description]
+                surnames = [dict(zip(columns, row)) for row in cursor.fetchall()]
+ 
+                if not surnames:
+                    return JsonResponse({"error": "No voters found for this booth."}, status=404)
+ 
+                return JsonResponse(surnames, safe=False)
+ 
+        except Exception as e:
+            logging.error(f"Error retrieving booth-wise surname count: {str(e)}")
+            return JsonResponse({"error": str(e)}, status=500)
+ 
+    elif request.method == "POST":
+        try:
+            data = json.loads(request.body)
+           
+            surname_ids = data.get('surname_ids', [])
+           
+            print(surname_ids)
+           
+            all_voter_ids = []  
+ 
+            for surname_id in surname_ids:
+                surname = get_surname_by_serial(surname_id)
+ 
+                if surname:
+                    voter_ids = get_voter_ids_by_surname_and_booth(surname, booth_id)
+                    all_voter_ids.extend(voter_ids)
+ 
+            return JsonResponse({
+                "voter_ids": all_voter_ids,
+                "total_count": len(all_voter_ids)
+            })
+ 
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON format."}, status=400)
+ 
+    return JsonResponse({"error": "Invalid request method."}, status=405)
+ 
+ 
+ 
+@csrf_exempt  
+def booth_and_surname_wise_voter_details(request, booth_id, surname_id):
+    if request.method == 'GET':
+ 
+        surname = get_surname_by_serial(surname_id)
+ 
+        if not surname:
+            return JsonResponse({"error": "No surname found for the given surname_id."}, status=404)
+ 
+        try:
+            with connection.cursor() as cursor:
+ 
+                query = """
+                    SELECT voter_id, voter_name, voter_contact_number, voter_favour_id, voter_cast_id, voter_serial_number, voter_id_card_number
+                    FROM tbl_voter
+                    INNER JOIN voter_view ON voter_id = voter_view_voter_id
+                    WHERE LOWER(memberlast) LIKE LOWER(%s) AND voter_booth_id = %s;
+                """
+                params = [f"%{surname}%", booth_id]
+                cursor.execute(query, params)
+ 
+                columns = [col[0] for col in cursor.description]  # Get column names
+                voter_details = [dict(zip(columns, row)) for row in cursor.fetchall()]
+ 
+                if not voter_details:
+                    return JsonResponse({"error": f"No voters found for booth {booth_id} and surname '{surname}'."}, status=404)
+ 
+                return JsonResponse(voter_details, safe=False)
+ 
+        except Exception as e:
+            logging.error(f"Error retrieving booth and surname-wise voter details: {str(e)}")
+            return JsonResponse({"error": str(e)}, status=500)
+   
+    return JsonResponse({"error": "Invalid request method."}, status=405)
+ 
+ 
+ 
+ 
+@csrf_exempt
+def booth_and_surname_wise_voter_count_pdf(request, booth_id):
+    if request.method == 'GET':
+        api_url = f"http://192.168.1.38:8001/api/booth_and_surname_wise_voter_count/{booth_id}/"
+        response = requests.get(api_url)  
+ 
+        if response.status_code != 200:
+            return JsonResponse({"error": "Failed to fetch surname data from the external API."}, status=500)
+ 
+        response_data = response.json()  # Parse the JSON response
+       
+        # print(response_data)
+ 
+        if not response_data:
+            return JsonResponse({"error": "No surname data available."}, status=404)
+ 
+        surname_counts = response_data  
+ 
+        buffer = BytesIO()
+        pdf = SimpleDocTemplate(buffer, pagesize=letter)
+        elements = []
+ 
+        styles = getSampleStyleSheet()
+        title_style = ParagraphStyle(name='Title', fontSize=16, spaceAfter=14)
+        title = Paragraph(f"All Surnames with Voter Counts in booth_id: {booth_id}", title_style)
+        elements.append(title)
+ 
+        table_data = [['S/N', 'Surname', 'Voter Count']]  # Table header
+        for i, surname_data in enumerate(surname_counts, start=1):
+            table_data.append([i, surname_data['surname'], surname_data['surname_count']])
+ 
+        table = Table(table_data, colWidths=[50, 200, 100])
+        table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 10),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+        ]))
+ 
+        elements.append(table)
+        pdf.build(elements)
+ 
+        buffer.seek(0)
+        response = HttpResponse(buffer, content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="surname_voter_counts.pdf"'
+        return response
+ 
+    else:
+        return JsonResponse({"error": "Only GET requests are allowed for this endpoint."}, status=405)
+    
+# # PS circle use wise
+def get_booth_names_by_ps_circle_user_wise(request, panchayat_samiti_circle_user_id):
+    if request.method == "GET":
+        try:
+            with connection.cursor() as cursor:
+ 
+                query = """
+                SELECT booth_id, booth_name, booth_name_mar
+                FROM tbl_panchayat_samiti_circle_user 
+                INNER JOIN tbl_user_panchayat_samiti_circle on user_panchayat_samiti_circle_id = panchayat_samiti_circle_user_id
+                INNER JOIN tbl_panchayat_samiti_circle on user_panchayat_samiti_circle_panchayat_samiti_circle_id = panchayat_samiti_circle_id
+                INNER JOIN tbl_town ON panchayat_samiti_circle_id = town_panchayat_samiti_circle_id 
+                INNER JOIN tbl_booth ON booth_town_id = town_id
+                WHERE panchayat_samiti_circle_user_id = %s;
+                """
+ 
+                params = [panchayat_samiti_circle_user_id]
+ 
+                cursor.execute(query, params)
+ 
+                columns = [col[0] for col in cursor.description] 
+                result = [dict(zip(columns, row)) for row in cursor.fetchall()]
+ 
+                if not result:
+                    return JsonResponse({"error": "No booths found for the provided panchayat samiti circle user ID."}, status=404)
+ 
+                return JsonResponse(result, safe=False)
+ 
+        except Exception as e:
+            logging.error(f"Error retrieving booth names: {str(e)}")
+            return JsonResponse({"error": str(e)}, status=500)
+ 
+    return JsonResponse({"error": "Invalid request method. Only GET method is allowed."}, status=405)
+ 
+
+
+def ps_circle_user_vote_confirmation(request, panchayat_samiti_circle_user_id, vote_confirmation_id):
+    if request.method == "GET":
+        try:
+            if not panchayat_samiti_circle_user_id or vote_confirmation_id is None:
+                return JsonResponse({"error": "Missing panchayat samiti circle ID or vote confirmation ID."}, status=400)
+
+            with connection.cursor() as cursor:
+                query = """
+                SELECT voter_id, voter_name,voter_name_mar, voter_vote_confirmation_id, voter_serial_number, voter_id_card_number, voter_favour_id
+                FROM tbl_voter
+                INNER JOIN tbl_town ON voter_town_id = town_id
+                INNER JOIN tbl_panchayat_samiti_circle ON town_panchayat_samiti_circle_id = panchayat_samiti_circle_id
+                INNER JOIN tbl_user_panchayat_samiti_circle ON user_panchayat_samiti_circle_panchayat_samiti_circle_id = panchayat_samiti_circle_id
+                INNER JOIN tbl_panchayat_samiti_circle_user ON user_panchayat_samiti_circle_id = panchayat_samiti_circle_user_id
+                WHERE (voter_vote_confirmation_id = %s OR (%s = 2 AND voter_vote_confirmation_id IS NULL))
+                AND panchayat_samiti_circle_user_id = %s;
+                """
+                params = [vote_confirmation_id, vote_confirmation_id, panchayat_samiti_circle_user_id]
+
+                cursor.execute(query, params)
+
+                columns = [col[0] for col in cursor.description]  # Get column names
+                result = [dict(zip(columns, row)) for row in cursor.fetchall()]
+
+                if not result:
+                    return JsonResponse({"error": "No voters found for the provided vote confirmation ID and panchayat samiti circle ID."}, status=404)
+
+                voter_count = len(result)
+
+                response_data = {
+                    "voter_count": voter_count,
+                    "voters": result
+                }
+
+                return JsonResponse(response_data)
+
+        except Exception as e:
+            logging.error(f"Error retrieving vote confirmation details: {str(e)}")
+            return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
+
+    return JsonResponse({"error": "Invalid request method. Only GET method is allowed."}, status=405)
+   
+
+ 
+def ps_circle_user_cast_wise(request, panchayat_samiti_circle_user_id, cast_id):
+    if request.method == "GET":
+        try:
+            if not panchayat_samiti_circle_user_id or not cast_id:
+                return JsonResponse({"error": "Missing panchayat samiti circle ID or cast ID."}, status=400)
+ 
+            with connection.cursor() as cursor:
+                query = """
+                SELECT voter_id, voter_name, voter_name_mar, voter_cast_id, voter_serial_number, voter_id_card_number, voter_favour_id
+                FROM tbl_voter
+                INNER JOIN tbl_town ON voter_town_id = town_id
+                INNER JOIN tbl_panchayat_samiti_circle ON town_panchayat_samiti_circle_id = panchayat_samiti_circle_id
+                INNER JOIN tbl_user_panchayat_samiti_circle on user_panchayat_samiti_circle_panchayat_samiti_circle_id = panchayat_samiti_circle_id
+                INNER JOIN tbl_panchayat_samiti_circle_user on user_panchayat_samiti_circle_id = panchayat_samiti_circle_user_id
+                WHERE voter_cast_id = %s AND panchayat_samiti_circle_user_id = %s;
+                """
+                params = [cast_id, panchayat_samiti_circle_user_id]
+ 
+                cursor.execute(query, params)
+ 
+                columns = [col[0] for col in cursor.description]  
+                result = [dict(zip(columns, row)) for row in cursor.fetchall()]
+ 
+                if not result:
+                    return JsonResponse({"error": "No voters found for the provided cast ID and panchayat samiti circle ID."}, status=404)
+ 
+                voter_count = len(result)
+ 
+                response_data = {
+                    "voter_count": voter_count,
+                    "voters": result
+                }
+ 
+                return JsonResponse(response_data, safe=False)
+ 
+        except Exception as e:
+            logging.error(f"Error retrieving voter details: {str(e)}")
+            return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
+ 
+    return JsonResponse({"error": "Invalid request method. Only GET method is allowed."}, status=405)
+ 
+ 
+ 
+def ps_circle_user_religion_wise(request, panchayat_samiti_circle_user_id, religion_id):
+    if request.method == "GET":
+        try:
+            if not panchayat_samiti_circle_user_id or not religion_id:
+                return JsonResponse({"error": "Missing panchayat samiti circle ID or cast ID."}, status=400)
+ 
+            with connection.cursor() as cursor:
+                query = """
+                SELECT voter_id, voter_name,voter_name_mar, voter_serial_number, voter_id_card_number, voter_favour_id
+                FROM tbl_voter
+                INNER JOIN tbl_town ON voter_town_id = town_id
+                INNER JOIN tbl_panchayat_samiti_circle ON town_panchayat_samiti_circle_id = panchayat_samiti_circle_id
+                INNER JOIN tbl_user_panchayat_samiti_circle on user_panchayat_samiti_circle_panchayat_samiti_circle_id = panchayat_samiti_circle_id
+                INNER JOIN tbl_panchayat_samiti_circle_user on user_panchayat_samiti_circle_id = panchayat_samiti_circle_user_id
+                WHERE voter_favour_id = %s AND panchayat_samiti_circle_user_id = %s;
+                """
+                params = [religion_id, panchayat_samiti_circle_user_id]
+ 
+                cursor.execute(query, params)
+ 
+                columns = [col[0] for col in cursor.description]
+                result = [dict(zip(columns, row)) for row in cursor.fetchall()]
+ 
+                if not result:
+                    return JsonResponse({"error": "No voters found for the provided religion ID and panchayat samiti circle ID."}, status=404)
+ 
+                voter_count = len(result)
+ 
+                response_data = {
+                    "voter_count": voter_count,
+                    "voters": result
+                }
+ 
+                return JsonResponse(response_data, safe=False)
+ 
+        except Exception as e:
+            logging.error(f"Error retrieving voter details: {str(e)}")
+            return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
+ 
+    return JsonResponse({"error": "Invalid request method. Only GET method is allowed."}, status=405)
+ 
+ 
+ 
+def ps_circle_user_favour_wise(request, panchayat_samiti_circle_user_id, favour_id):
+    if request.method == "GET":
+        try:
+            if not panchayat_samiti_circle_user_id or not favour_id:
+                return JsonResponse({"error": "Missing panchayat samiti circle ID or favour ID."}, status=400)
+ 
+            with connection.cursor() as cursor:
+                query = """
+                SELECT voter_id, voter_name, voter_serial_number, voter_id_card_number, voter_favour_id
+                FROM tbl_voter
+                INNER JOIN tbl_town ON voter_town_id = town_id
+                INNER JOIN tbl_panchayat_samiti_circle ON town_panchayat_samiti_circle_id = panchayat_samiti_circle_id
+                INNER JOIN tbl_user_panchayat_samiti_circle on user_panchayat_samiti_circle_panchayat_samiti_circle_id = panchayat_samiti_circle_id
+                INNER JOIN tbl_panchayat_samiti_circle_user on user_panchayat_samiti_circle_id = panchayat_samiti_circle_user_id
+                WHERE voter_favour_id = %s AND panchayat_samiti_circle_user_id = %s;
+                """
+                params = [favour_id, panchayat_samiti_circle_user_id]
+ 
+                cursor.execute(query, params)
+ 
+                columns = [col[0] for col in cursor.description]  # Get column names
+                result = [dict(zip(columns, row)) for row in cursor.fetchall()]
+ 
+                if not result:
+                    return JsonResponse({"error": "No voters found for the provided favour ID and panchayat samiti circle ID."}, status=404)
+ 
+                voter_count = len(result)
+ 
+                response_data = {
+                    "voter_count": voter_count,
+                    "voters": result
+                }
+ 
+                return JsonResponse(response_data, safe=False)
+ 
+        except Exception as e:
+            logging.error(f"Error retrieving voter details: {str(e)}")
+            return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
+ 
+    return JsonResponse({"error": "Invalid request method. Only GET method is allowed."}, status=405)
+
+
+
+# ZP circle user
+
+class PanchayatSamitiCircleAPIView(APIView):
+    def get(self, request, *args, **kwargs):
+        zp_circle_user_id = self.kwargs.get("zp_circle_user_id", None)
+        if not zp_circle_user_id:
+            return JsonResponse({"error": "zp_circle_user_id is required"}, status=400)
+
+        with connection.cursor() as cursor:
+            query = """
+                SELECT psc.panchayat_samiti_circle_id, psc.panchayat_samiti_circle_name
+                FROM tbl_panchayat_samiti_circle AS psc
+                INNER JOIN tbl_zp_circle AS zc ON psc.panchayat_samiti_circle_zp_circle_id = zc.zp_circle_id
+                INNER JOIN tbl_zp_circle_user AS zcu ON zc.zp_circle_id = zc.zp_circle_id
+                INNER JOIN tbl_user_zp_circle AS uz ON uz.user_zp_circle_id = zcu.zp_circle_user_id
+                WHERE zcu.zp_circle_user_id = %s
+            """
+            cursor.execute(query, [zp_circle_user_id])
+            results = cursor.fetchall()
+
+        data = [
+            {"panchayat_samiti_circle_id": row[0], "panchayat_samiti_circle_name": row[1]}
+            for row in results
+        ]
+        return JsonResponse(data, safe=False)
+
+
+def zp_circle_user_vote_confirmation(request, zp_circle_user_id, vote_confirmation_id):
+    if request.method == "GET":
+        try:
+            if not zp_circle_user_id or vote_confirmation_id is None:
+                return JsonResponse({"error": "Missing zp circle ID or vote confirmation ID."}, status=400)
+
+            with connection.cursor() as cursor:
+                cursor.callproc('get_zp_circle_user_vote_confirmation', (zp_circle_user_id, vote_confirmation_id))
+                results = cursor.fetchall()
+
+                columns = [col[0] for col in cursor.description]
+                result_data = [dict(zip(columns, row)) for row in results]
+
+                if not result_data:
+                    return JsonResponse({"error": "No voters found for the provided criteria."}, status=404)
+
+                voter_count = len(result_data)
+
+                response_data = {
+                    "voter_count": voter_count,
+                    "voters": result_data
+                }
+
+                return JsonResponse(response_data)
+
+        except Exception as e:
+            logging.error(f"Error retrieving vote confirmation details: {str(e)}")
+            return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
+
+    return JsonResponse({"error": "Invalid request method. Only GET method is allowed."}, status=405)
+
+
+
+
+def zp_circle_user_cast_wise(request, zp_circle_user_id, cast_id):
+    if request.method == "GET":
+        try:
+            if not zp_circle_user_id or not cast_id:
+                return JsonResponse({"error": "Missing zp circle ID or cast ID."}, status=400)
+ 
+            with connection.cursor() as cursor:
+                query = """
+                    select voter_id, voter_name, voter_serial_number, voter_id_card_number from tbl_zp_circle
+                inner join tbl_user_zp_circle on user_zp_circle_zp_circle_id = zp_circle_id
+                inner join tbl_zp_circle_user on zp_circle_user_id = user_zp_circle_id
+                inner join tbl_panchayat_samiti_circle on zp_circle_id = panchayat_samiti_circle_zp_circle_id
+                inner join tbl_town on town_panchayat_samiti_circle_id = panchayat_samiti_circle_id
+                inner join tbl_booth on booth_town_id = town_id
+                inner join tbl_voter on voter_booth_id = booth_id where voter_cast_id = %s and zp_circle_user_id = %s;
+               
+                """
+                params = [cast_id, zp_circle_user_id]
+ 
+                cursor.execute(query, params)
+ 
+                columns = [col[0] for col in cursor.description]  
+                result = [dict(zip(columns, row)) for row in cursor.fetchall()]
+ 
+                if not result:
+                    return JsonResponse({"error": "No voters found for the provided cast ID and panchayat samiti circle ID."}, status=404)
+ 
+                voter_count = len(result)
+ 
+                response_data = {
+                    "voter_count": voter_count,
+                    "voters": result
+                }
+ 
+                return JsonResponse(response_data, safe=False)
+ 
+        except Exception as e:
+            logging.error(f"Error retrieving voter details: {str(e)}")
+            return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
+ 
+    return JsonResponse({"error": "Invalid request method. Only GET method is allowed."}, status=405)
+
+
+# # booth names by zp circle user wise
+class BoothListByZPCircleUser(APIView):
+
+    def get(self, request, zp_circle_user_id, format=None):
+        # Execute the raw SQL query to fetch booth names based on zp_circle_user_id
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT b.booth_id, b.booth_name
+                FROM tbl_booth AS b
+                INNER JOIN tbl_zp_circle AS zc ON zc.zp_circle_id = zc.zp_circle_id
+                INNER JOIN tbl_zp_circle_user AS zcu ON zc.zp_circle_id = zc.zp_circle_id
+                INNER JOIN tbl_user_zp_circle AS uz ON uz.user_zp_circle_id = zcu.zp_circle_user_id
+                INNER JOIN tbl_town AS t ON b.booth_town_id = t.town_id
+                WHERE zcu.zp_circle_user_id = %s
+            """, [zp_circle_user_id])
+            
+            booths = cursor.fetchall()
+
+        if booths:
+            # Prepare the data for serialization
+            booth_data = [{"booth_id": booth[0], "booth_name": booth[1]} for booth in booths]
+            return Response(booth_data, status=status.HTTP_200_OK)
+        else:
+            return Response({"message": "No booths found for this ZP Circle User"}, status=status.HTTP_404_NOT_FOUND)
+        
+        
+class VoterListByZPCircleUser(APIView):
+    
+    def get(self, request, zp_circle_user_id, favour_id, format=None):
+        # Execute the raw SQL query to fetch voter details based on zp_circle_user_id and voter_favour_id
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT v.voter_id, v.voter_name, v.voter_serial_number, v.voter_id_card_number, v.voter_favour_id
+                FROM tbl_voter AS v
+                INNER JOIN tbl_booth AS b ON v.voter_booth_id = b.booth_id
+                INNER JOIN tbl_zp_circle AS zc ON zc.zp_circle_id = zc.zp_circle_id
+                INNER JOIN tbl_zp_circle_user AS zcu ON zc.zp_circle_id = zc.zp_circle_id
+                INNER JOIN tbl_user_zp_circle AS uz ON uz.user_zp_circle_id = zcu.zp_circle_user_id
+                INNER JOIN tbl_town AS t ON b.booth_town_id = t.town_id
+                WHERE zcu.zp_circle_user_id = %s
+                  AND v.voter_favour_id = %s
+            """, [zp_circle_user_id, favour_id])
+            
+            voters = cursor.fetchall()
+
+        # If results are found, serialize them
+        if voters:
+            voter_data = [{"voter_id": voter[0], "voter_name": voter[1], "voter_serial_number": voter[2], 
+                           "voter_id_card_number": voter[3], "voter_favour_id": voter[4]} for voter in voters]
+            return Response(voter_data, status=status.HTTP_200_OK)
+        else:
+            return Response({"message": "No voters found for this ZP Circle User and Voter Favour ID"}, 
+                            status=status.HTTP_404_NOT_FOUND)

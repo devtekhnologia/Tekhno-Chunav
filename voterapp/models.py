@@ -63,6 +63,8 @@ class Voterlist(models.Model):
     voter_group_id = models.IntegerField(null=True, blank=True)
     voter_in_city_id = models.IntegerField(null=True, blank=True)
     voter_name_mar = models.CharField(max_length=255, null=True, blank=True)
+    voter_parent_name_mar = models.CharField(max_length=255, null=True, blank=True)
+    voter_gender_mar = models.CharField(max_length=255, null=True, blank=True)
 
     class Meta:
         db_table = 'tbl_voter'
@@ -150,6 +152,7 @@ class PanchayatSamiti(models.Model):
     panchayat_samiti_id = models.AutoField(primary_key=True)
     panchayat_samiti_name = models.CharField(max_length=255)
     panchayat_samiti_zp_id = models.IntegerField()
+    panchayat_samiti_name_mar = models.CharField(max_length=255)
 
     class Meta:
         db_table = 'tbl_panchayat_samiti'
@@ -163,6 +166,7 @@ class ZP(models.Model):
     zp_id = models.AutoField(primary_key=True)
     zp_name = models.CharField(max_length=255)
     zp_state_id = models.IntegerField()
+    zp_name_mar = models.CharField(max_length=255)
 
     class Meta:
         db_table = 'tbl_zp'
@@ -184,6 +188,7 @@ class Vidhansabha(models.Model):
 class State(models.Model):
     state_id = models.AutoField(primary_key=True)
     state_name = models.CharField(max_length=255)
+    state_name_mar = models.CharField(max_length=255)
 
     class Meta:
         db_table = 'tbl_state'
@@ -355,6 +360,11 @@ class Panchayat_samiti_circle_user(models.Model):
 
     class Meta:
         db_table = 'tbl_panchayat_samiti_circle_user'
+        
+    def save(self, *args, **kwargs):        
+        if self.panchayat_samiti_circle_user_password:
+            self.panchayat_samiti_circle_user_password = make_password(self.panchayat_samiti_circle_user_password)
+        super().save(*args, **kwargs)
 
 
 class User_panchayat_samiti_circle(models.Model):
@@ -377,13 +387,19 @@ class Zp_circle_user(models.Model):
     class Meta:
         db_table = 'tbl_zp_circle_user'
 
-
+    def save(self, *args, **kwargs):        
+        if self.zp_circle_user_password:
+            self.zp_circle_user_password = make_password(self.zp_circle_user_password)
+        super().save(*args, **kwargs)
+        
+        
 class User_zp_circle(models.Model):
     user_zp_circle_id =  models.IntegerField()
     user_zp_circle_zp_circle_id = models.IntegerField()
 
     class Meta:
         db_table = 'tbl_user_zp_circle'    
+
 
 
 # vote confirmation
@@ -415,3 +431,39 @@ class PrabhagUser(models.Model):
         return check_password(password, self.prabhag_user_password)
 
 
+
+class VoterGroup(models.Model):
+    voter_group_id = models.AutoField(primary_key=True)
+    voter_group_name = models.CharField(max_length=255)
+    voter_group_voter_group_user_id = models.IntegerField()
+ 
+    def __str__(self):
+        return self.voter_group_name
+   
+    class Meta:
+        db_table = 'tbl_voter_group'
+ 
+ 
+ 
+class VoterGroupUser(models.Model):
+    voter_group_user_id = models.AutoField(primary_key=True)
+    voter_group_user_name = models.CharField(max_length=255, unique=True)
+    voter_group_user_contact_number = models.BigIntegerField()
+    voter_group_user_password = models.CharField(max_length=255)
+ 
+    class Meta:
+        db_table = 'tbl_voter_group_user'
+ 
+    def save(self, *args, **kwargs):        
+        if self.voter_group_user_password:
+            self.voter_group_user_password = make_password(self.voter_group_user_password)
+        super().save(*args, **kwargs)
+ 
+ 
+class UserVoterGroup(models.Model):
+    user_voter_group_id = models.AutoField(primary_key=True)
+    user_voter_group_voter_id = models.IntegerField()
+    user_voter_group_voter_group_id = models.IntegerField()
+ 
+    class Meta:
+        db_table = 'tbl_user_voter_group'

@@ -3,6 +3,127 @@
 from rest_framework import serializers
 from .models import Voterlist, Town, Cast, Booth, User, LiveStatus, Religion
 
+# class VoterlistSerializer(serializers.ModelSerializer):
+#     town_name = serializers.SerializerMethodField()
+#     booth_name = serializers.SerializerMethodField()
+#     booth_id = serializers.SerializerMethodField()
+#     user_name = serializers.SerializerMethodField()
+#     voter_cast_name = serializers.SerializerMethodField()
+#     voter_updated_date = serializers.DateField(format='%Y-%m-%d', required=False, allow_null=True)
+#     live_status_type = serializers.SerializerMethodField()
+#     voter_religion_name = serializers.SerializerMethodField()
+#     booth_name_mar = serializers.SerializerMethodField()
+#     town_name_mar = serializers.SerializerMethodField()
+    
+#     class Meta:
+#         model = Voterlist
+#         fields = [
+#             'voter_id', 'voter_serial_number', 'voter_id_card_number','voter_name', 'voter_parent_name', 'voter_house_number', 'voter_age', 'voter_gender', 
+#             'town_name', 'booth_id', 'booth_name', 'voter_contact_number', 'voter_cast_id', 'voter_cast_name', 
+#             'voter_favour_id', 'voter_constituency_id', 'voter_dob', 'voter_marital_status_id', 'voter_updated_by', 
+#             'user_name', 'voter_updated_date', 'voter_live_status_id', 'live_status_type', 'voter_religion_name', 
+#             'voter_dead_year', 'voter_vote_confirmation_id', 'voter_in_city_id', 'voter_current_location', 
+#             'booth_name_mar', 'town_name_mar', 'voter_name_mar'  
+#         ]
+
+#         extra_kwargs = {
+#             'voter_house_number': {'allow_null': True, 'required': False},
+#             'voter_parent_name': {'allow_null': True, 'required': False},
+#             'voter_age': {'allow_null': True, 'required': False},
+#             'voter_gender': {'allow_null': True, 'required': False},
+#             'voter_contact_number': {'allow_null': True, 'required': False},
+#             'voter_cast_id': {'allow_null': True, 'required': False},
+#             'voter_favour_id': {'allow_null': True, 'required': False},
+#             'voter_constituency_id': {'allow_null': True, 'required': False},
+#             'voter_dob': {'allow_null': True, 'required': False},
+#             'voter_marital_status_id': {'allow_null': True, 'required': False},
+#             'voter_updated_by': {'allow_null': True, 'required': False},
+#             'voter_updated_date': {'allow_null': True, 'required': False},
+#             'voter_live_status_id': {'allow_null': True, 'required': False},
+#             'voter_dead_year': {'allow_null': True, 'required': False},
+#             'vote_confirmation_type': {'allow_null': True, 'required': False},
+#             'voter_in_city_id': {'allow_null': True, 'required': False},
+#             'voter_current_location': {'allow_null': True, 'required': False},
+#             'booth_name_mar': {'allow_null': True, 'required': False},
+#             'town_name_mar': {'allow_null': True, 'required': False},
+#             'voter_name_mar': {'allow_null': True, 'required': False},
+#             'voter_serial_number': {'allow_null': True, 'required': False},
+#             'voter_id_card_number': {'allow_null': True, 'required': False}
+#         }
+
+#     def get_town_name(self, obj):
+#         if obj.voter_town_id:
+#             try:
+#                 town = Town.objects.get(town_id=obj.voter_town_id)
+#                 return town.town_name
+#             except Town.DoesNotExist:
+#                 return None
+#         return None
+
+#     def get_voter_cast_name(self, obj):
+#         if obj.voter_cast_id:
+#             try:
+#                 cast = Cast.objects.get(cast_id=obj.voter_cast_id)
+#                 return cast.cast_name
+#             except Cast.DoesNotExist:
+#                 return None
+#         return None
+
+#     def get_booth_name(self, obj):
+#         if obj.voter_booth_id:
+#             try:
+#                 booth = Booth.objects.get(booth_id=obj.voter_booth_id)
+#                 return booth.booth_name
+#             except Booth.DoesNotExist:
+#                 return None
+#         return None
+
+#     def get_booth_id(self, obj):
+#         return obj.voter_booth_id
+
+#     def get_user_name(self, obj):
+#         try:
+#             user = User.objects.get(user_id=obj.voter_updated_by)
+#             return user.user_name
+#         except User.DoesNotExist:
+#             return None
+
+#     def get_live_status_type(self, obj):
+#         if obj.voter_live_status_id:
+#             try:
+#                 live_status = LiveStatus.objects.get(live_status_id=obj.voter_live_status_id)
+#                 return live_status.live_status_type
+#             except LiveStatus.DoesNotExist:
+#                 return None
+#         return None
+
+#     def get_voter_religion_name(self, obj):
+#         if obj.voter_religion_id:
+#             try:
+#                 religion = Religion.objects.get(religion_id=obj.voter_religion_id)
+#                 return religion.religion_name
+#             except Religion.DoesNotExist:
+#                 return None
+#         return None
+
+#     def get_booth_name_mar(self, obj):
+#         if obj.voter_booth_id:
+#             try:
+#                 booth = Booth.objects.get(booth_id=obj.voter_booth_id)
+#                 return booth.booth_name_mar 
+#             except Booth.DoesNotExist:
+#                 return None
+#         return None
+
+#     def get_town_name_mar(self, obj):
+#         if obj.voter_town_id:
+#             try:
+#                 town = Town.objects.get(town_id=obj.voter_town_id)
+#                 return town.town_name_mar  
+#             except Town.DoesNotExist:
+#                 return None
+#         return None
+
 class VoterlistSerializer(serializers.ModelSerializer):
     town_name = serializers.SerializerMethodField()
     booth_name = serializers.SerializerMethodField()
@@ -14,18 +135,21 @@ class VoterlistSerializer(serializers.ModelSerializer):
     voter_religion_name = serializers.SerializerMethodField()
     booth_name_mar = serializers.SerializerMethodField()
     town_name_mar = serializers.SerializerMethodField()
-    
+    voter_name_mar = serializers.SerializerMethodField()
+    voter_parent_name_mar = serializers.SerializerMethodField()
+    voter_gender_mar = serializers.SerializerMethodField()
+   
     class Meta:
         model = Voterlist
         fields = [
-            'voter_id', 'voter_serial_number', 'voter_id_card_number','voter_name', 'voter_parent_name', 'voter_house_number', 'voter_age', 'voter_gender', 
-            'town_name', 'booth_id', 'booth_name', 'voter_contact_number', 'voter_cast_id', 'voter_cast_name', 
-            'voter_favour_id', 'voter_constituency_id', 'voter_dob', 'voter_marital_status_id', 'voter_updated_by', 
-            'user_name', 'voter_updated_date', 'voter_live_status_id', 'live_status_type', 'voter_religion_name', 
-            'voter_dead_year', 'voter_vote_confirmation_id', 'voter_in_city_id', 'voter_current_location', 
-            'booth_name_mar', 'town_name_mar', 'voter_name_mar'  
+            'voter_id', 'voter_serial_number', 'voter_id_card_number','voter_name', 'voter_parent_name', 'voter_house_number', 'voter_age', 'voter_gender',
+            'town_name', 'booth_id', 'booth_name', 'voter_contact_number', 'voter_cast_id', 'voter_cast_name',
+            'voter_favour_id', 'voter_constituency_id', 'voter_dob', 'voter_marital_status_id', 'voter_updated_by',
+            'user_name', 'voter_updated_date', 'voter_live_status_id', 'live_status_type', 'voter_religion_name',
+            'voter_dead_year', 'voter_vote_confirmation_id', 'voter_in_city_id', 'voter_current_location',
+            'booth_name_mar', 'town_name_mar', 'voter_name_mar' , 'voter_parent_name_mar', 'voter_gender_mar'
         ]
-
+ 
         extra_kwargs = {
             'voter_house_number': {'allow_null': True, 'required': False},
             'voter_parent_name': {'allow_null': True, 'required': False},
@@ -48,9 +172,11 @@ class VoterlistSerializer(serializers.ModelSerializer):
             'town_name_mar': {'allow_null': True, 'required': False},
             'voter_name_mar': {'allow_null': True, 'required': False},
             'voter_serial_number': {'allow_null': True, 'required': False},
-            'voter_id_card_number': {'allow_null': True, 'required': False}
+            'voter_id_card_number': {'allow_null': True, 'required': False},
+            'voter_parent_name_mar': {'allow_null': True, 'required': False},
+            'voter_gender_mar': {'allow_null': True, 'required': False}
         }
-
+ 
     def get_town_name(self, obj):
         if obj.voter_town_id:
             try:
@@ -59,7 +185,7 @@ class VoterlistSerializer(serializers.ModelSerializer):
             except Town.DoesNotExist:
                 return None
         return None
-
+ 
     def get_voter_cast_name(self, obj):
         if obj.voter_cast_id:
             try:
@@ -68,7 +194,7 @@ class VoterlistSerializer(serializers.ModelSerializer):
             except Cast.DoesNotExist:
                 return None
         return None
-
+ 
     def get_booth_name(self, obj):
         if obj.voter_booth_id:
             try:
@@ -77,17 +203,17 @@ class VoterlistSerializer(serializers.ModelSerializer):
             except Booth.DoesNotExist:
                 return None
         return None
-
+ 
     def get_booth_id(self, obj):
         return obj.voter_booth_id
-
+ 
     def get_user_name(self, obj):
         try:
             user = User.objects.get(user_id=obj.voter_updated_by)
             return user.user_name
         except User.DoesNotExist:
             return None
-
+ 
     def get_live_status_type(self, obj):
         if obj.voter_live_status_id:
             try:
@@ -96,7 +222,7 @@ class VoterlistSerializer(serializers.ModelSerializer):
             except LiveStatus.DoesNotExist:
                 return None
         return None
-
+ 
     def get_voter_religion_name(self, obj):
         if obj.voter_religion_id:
             try:
@@ -105,16 +231,16 @@ class VoterlistSerializer(serializers.ModelSerializer):
             except Religion.DoesNotExist:
                 return None
         return None
-
+ 
     def get_booth_name_mar(self, obj):
         if obj.voter_booth_id:
             try:
                 booth = Booth.objects.get(booth_id=obj.voter_booth_id)
-                return booth.booth_name_mar 
+                return booth.booth_name_mar
             except Booth.DoesNotExist:
                 return None
         return None
-
+ 
     def get_town_name_mar(self, obj):
         if obj.voter_town_id:
             try:
@@ -123,6 +249,34 @@ class VoterlistSerializer(serializers.ModelSerializer):
             except Town.DoesNotExist:
                 return None
         return None
+   
+    def get_voter_name_mar(self, obj):
+        if obj.voter_id:
+            try:
+                voter = Voterlist.objects.get(voter_id=obj.voter_id)
+                return voter.voter_name_mar
+            except Voterlist.DoesNotExist:
+                return None
+        return None
+    
+    def get_voter_parent_name_mar(self, obj):
+        if obj.voter_id:  # Assuming voter_id is the primary key
+            try:
+                voter = Voterlist.objects.get(voter_id=obj.voter_id)
+                return voter.voter_parent_name_mar
+            except Voterlist.DoesNotExist:
+                return None
+        return None
+
+    def get_voter_gender_mar(self, obj):
+        if obj.voter_id:  # Assuming voter_id is the primary key
+            try:
+                voter = Voterlist.objects.get(voter_id=obj.voter_id)
+                return voter.voter_gender_mar
+            except Voterlist.DoesNotExist:
+                return None
+        return None
+
 
 
    
@@ -427,6 +581,27 @@ class Zp_circle_userRegistrationSerializer(serializers.Serializer):
     zp_circle_ids = serializers.ListField(
         child=serializers.IntegerField()
     )
+
+# class Zp_circle_userRegistrationSerializer(serializers.Serializer):
+#     zp_circle_user_name = serializers.CharField(max_length=255)
+#     zp_circle_user_password = serializers.CharField(max_length=255)
+#     zp_circle_user_contact_number = serializers.IntegerField()
+#     zp_circle_ids = serializers.ListField(
+#         child=serializers.IntegerField(),  # List of zp_circle IDs
+#         allow_empty=False,
+#         help_text="List of ZP Circle IDs to associate with the user."
+#     )
+
+#     def validate_zp_circle_ids(self, value):
+#         """
+#         Validate that the provided ZP Circle IDs exist in the database.
+#         """
+#         from .models import Zp_circle
+#         invalid_ids = [circle_id for circle_id in value if not Zp_circle.objects.filter(zp_circle_id=circle_id).exists()]
+#         if invalid_ids:
+#             raise serializers.ValidationError(f"The following ZP Circle IDs are invalid: {invalid_ids}")
+#         return value    
+    
 
 # # PS Circle User Login API
 
