@@ -79,7 +79,8 @@
                     </li>
                     <li class="breadcrumb-item custom-text-light" aria-current="page" style="cursor: default;">ZP
                     </li>
-                    <li class="breadcrumb-item" aria-current="page" style="cursor: default;">Zilla Parishad Circle Details
+                    <li class="breadcrumb-item" aria-current="page" style="cursor: default;">Zilla Parishad Circle
+                        Details
                     </li>
                 </ol>
             </nav>
@@ -145,7 +146,7 @@
                     <div class="modal-dialog modal-dialog-scrollable modal-lg">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="PSCircleDetailsModalLabel">PS Circle's Town List</h5>
+                                <h5 class="modal-title" id="PSCircleDetailsModalLabel">PS Circle Details List</h5>
                             </div>
                             <div class="modal-body">
                                 <table class="table p-1">
@@ -199,10 +200,60 @@
                                             </td>
                                             <td>{{ zp.voter_count }}</td>
                                             <td>
-                                                <a href="/zpwisevoterlist/{{zp.zp_id}}/"
-                                                    class="btn btn-primary btn-sm" data-bs-toggle="tooltip"
-                                                    data-bs-placement="right" title="View Voter List">
+                                                <a href="/zpwisevoterlist/{{zp.zp_id}}/" class="btn btn-primary btn-sm"
+                                                    data-bs-toggle="tooltip" data-bs-placement="right"
+                                                    title="View Voter List">
                                                     <i class="fa-solid fa-users-line"></i></a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                        {% endif %}
+                                    </tbody>
+                                </table>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Town Details Modal -->
+                <div class="modal fade" id="townDetailsModal" tabindex="-1" aria-labelledby="townDetailsModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-scrollable modal-lg d-none d-md-block">
+                        <!-- Large modal for medium and up -->
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="townDetailsModalLabel">Town Details List</h5>
+                            </div>
+                            <div class="modal-body">
+                                <table class="table p-1">
+                                    <thead class="text-muted text-uppercase">
+                                        <tr>
+                                            <th class="text-center fw-bolder">Sr. No.</th>
+                                            <th class="fw-bolder">Town Name</th>
+                                            <th class="fw-bolder">Assigned User</th>
+                                            <th class="fw-bolder">Voter Count</th>
+                                            <th class="fw-bolder">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="town-table-body">
+                                        {% if page_obj %}
+                                        {% for booth in page_obj %}
+                                        <tr>
+                                            <td class="text-center">{{ forloop.counter }}</td>
+                                            <td>{{ booth.booth_name }}</td>
+                                            <td>{% if booth.user_names %}{{ booth.user_names|safe }}{% else %}
+                                                N/A {% endif %}</td>
+                                            <td>{{ booth.mycount }}</td>
+                                            <td>
+                                                <a href="zpwisevoterlist/{{zp.zp_id}}/" class="btn btn-primary btn-sm"
+                                                    data-bs-toggle="tooltip" data-bs-placement="right"
+                                                    title="View Voter List">
+                                                    <i class="fa-solid fa-users-line"></i>
+                                                </a>
                                             </td>
                                         </tr>
                                         {% endfor %}
@@ -248,9 +299,9 @@
                                                 N/A {% endif %}</td>
                                             <td>{{ booth.mycount }}</td>
                                             <td>
-                                                <a href="zpwisevoterlist/{{zp.zp_id}}/"
-                                                    class="btn btn-primary btn-sm" data-bs-toggle="tooltip"
-                                                    data-bs-placement="right" title="View Voter List">
+                                                <a href="zpwisevoterlist/{{zp.zp_id}}/" class="btn btn-primary btn-sm"
+                                                    data-bs-toggle="tooltip" data-bs-placement="right"
+                                                    title="View Voter List">
                                                     <i class="fa-solid fa-users-line"></i>
                                                 </a>
                                             </td>
@@ -360,8 +411,8 @@
         });
 
         // Fetch zp details based on PSC id
-        function fetchPSDetails(psId) {
-            fetch(`http://192.168.1.38:8000/api/get_panchayat_samiti_circle_by_zp_circle/${parseInt(psId)}/`)
+        function fetchPSDetails(zpId) {
+            fetch(`http://192.168.1.20:8001/api/get_panchayat_samiti_circle_by_zp_circle/${parseInt(zpId)}/`)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Network response was not ok');
@@ -408,7 +459,7 @@
 
         // Fetch zp details based on PSC id
         function fetchzpDetails(PSCId, PSCName) {
-            fetch(`http://192.168.1.38:8000/api/get_zp_info_by_psc/${parseInt(PSCId)}/`)
+            fetch(`http://192.168.1.20:8001/api/get_town_info_by_psc/${parseInt(PSCId)}/`)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Network response was not ok');
@@ -416,25 +467,25 @@
                     return response.json();
                 })
                 .then(data => {
-                    const zpTableBody = document.getElementById('zp-table-body');
-                    zpTableBody.innerHTML = ''; // Clear previous data
+                    const townTableBody = document.getElementById('town-table-body');
+                    townTableBody.innerHTML = ''; // Clear previous data
 
                     // Set the modal title to the zp name
-                    const modalTitle = document.getElementById('zpDetailsModalLabel');
-                    modalTitle.textContent = `${PSCName} PSC's zp List`; // Update the title
+                    const modalTitle = document.getElementById('boothDetailsModalLabel');
+                    modalTitle.textContent = `${PSCName} PSC's Town List`; // Update the title
 
                     // Check if 'data' exists and is an array
                     if (Array.isArray(data)) {  // Adjusted to directly check if 'data' is an array
-                        data.forEach((zp) => {
+                        data.forEach((town) => {
                             const row = `
                                     <tr>
-                                        <td class="text-center">${zp.serial_number}</td>
-                                        <td data-booth-id="${zp.zp_id}" data-booth-name="${zp.zp_name}" class="booth-name"><a class="link-underline-primary text-dark" style="cursor: pointer;">
-                                                ${zp.zp_name}</a></td>
-                                        <td>${zp.zp_user_names || '--'}</td> 
-                                        <td>${zp.voter_count || '--'}</td>
+                                        <td class="text-center">${town.serial_number}</td>
+                                        <td data-booth-id="${town.town_id}" data-booth-name="${town.town_name}" class="booth-name"><a class="link-underline-primary text-dark" style="cursor: pointer;">
+                                                ${town.town_name}</a></td>
+                                        <td>${town.town_user_names || '--'}</td> 
+                                        <td>${town.voter_count || '--'}</td>
                                         <td>
-                                            <a href="/zpwisevoterlist/${zp.zp_id}/" 
+                                            <a href="/townwisevoterlist/${town.town_id}/" 
                                             class="btn btn-primary btn-sm" 
                                             data-bs-toggle="tooltip" 
                                             data-bs-placement="right" 
@@ -444,20 +495,21 @@
                                         </td>
                                     </tr>
                                 `;
-                            zpTableBody.innerHTML += row;
+                            townTableBody.innerHTML += row;
                         });
                     }
-                    // Show the zp details modal
-                    const zpDetailsModal = new bootstrap.Modal(document.getElementById('zpDetailsModal'));
-                    zpDetailsModal.show();
+                    // Show the booth details modal
+                    const townDetailsModal = new bootstrap.Modal(document.getElementById('townDetailsModal'));
+                    townDetailsModal.show();
 
-                    // Add event listener for zp names
-                    zpTableBody.addEventListener('click', function (event) {
+                    // Add event listener for town names
+                    townTableBody.addEventListener('click', function (event) {
                         if (event.target.closest('.booth-name')) {
-                            const zpId = event.target.closest('.booth-name').getAttribute('data-booth-id');
-                            const zpName = event.target.closest('.booth-name').getAttribute('data-booth-name');
-                            
-                            fetchBoothDetails(zpId, zpName);
+                            const townId = event.target.closest('.booth-name').getAttribute('data-booth-id');
+                            const townName = event.target.closest('.booth-name').getAttribute('data-booth-name');
+                            console.log("tid-", townId);
+
+                            fetchBoothDetails(townId, townName);
                         }
                     });
                 })
@@ -467,8 +519,10 @@
         }
 
         // Function to fetch booth details from the API
-        function fetchBoothDetails(zpId, zpName) {
-            fetch(`http://192.168.1.38:8000/api/get_booth_details_by_zp_id/${parseInt(zpId)}/`)
+        function fetchBoothDetails(townId, townName) {
+            console.log("tid-", townId);
+
+            fetch(`http://192.168.1.20:8001/api/get_booth_details_by_town_id/${parseInt(townId)}/`)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Network response was not ok');
@@ -481,7 +535,7 @@
 
                     // Set the modal title to the zp name
                     const modalTitle = document.getElementById('boothDetailsModalLabel');
-                    modalTitle.textContent = `${zpName} zp's Booth List`; // Update the title
+                    modalTitle.textContent = `${townName} Town's Booth List`; // Update the title
 
                     // Check if 'data' exists and is an array
                     if (Array.isArray(data.data)) {
@@ -506,7 +560,7 @@
                                     <td>${usersDisplay || '--'}</td>
                                     <td>${booth.voter_count || '--'}</td>
                                     <td>
-                                        <a href="/boothwisevoterlist/${zpId}/${booth.booth_id}/" 
+                                        <a href="/boothwisevoterlist/${townId}/${booth.booth_id}/" 
                                         class="btn btn-primary btn-sm" 
                                         data-bs-toggle="tooltip" 
                                         data-bs-placement="right" 

@@ -456,13 +456,18 @@
         document.getElementById("add-voters-button").addEventListener("click", function () {
             // Redirect to the totalvoterlist page with the groupId parameter
             const groupId = getStoredGroupId();
+            console.log("gid----------",getStoredGroupId);
+            console.log("guid----------",getStoredGroupUserId);
+            
             window.location.href = `/totalvoterlist/${groupId}/`;
         });
 
         // Function to fetch and display voter details for a given group user ID
         async function loadVoterDetails(event, groupUserId) {
+            console.log("gid-",groupUserId);
+            
             // Define the API URL dynamically based on the group user ID
-            const apiUrl = `http://192.168.1.38:8000/api/voters_by_group_user/${groupUserId}/`;
+            const apiUrl = `http://192.168.1.20:8001/api/voters_by_group_user/${groupUserId}/`;
 
             // Get the modal table body
             const tableBody = document.getElementById('voter-table-body');
@@ -568,7 +573,7 @@
                         detailsButton.onclick = function () {
                             currentVoterId = voter.voter_id;
                             // Fetch voter details from the API
-                            fetch(`http://192.168.1.38:8000/api/voters/${voter.voter_id}/`)
+                            fetch(`http://192.168.1.20:8001/api/voters/${voter.voter_id}/`)
                                 .then((response) => {
                                     if (!response.ok) {
                                         throw new Error("Network response was not ok");
@@ -636,19 +641,20 @@
                                     voterDetailsModal.show();
                                 });
                         };
-
+                        
                         // Action for the Delete Button
                         deleteButton.onclick = function () {
                             if (confirm("Are you sure you want to delete this voter?")) {
                                 console.log(parseInt(getStoredGroupId()), voter.voter_id);
 
                                 // Delete the voter via the API
-                                fetch(`http://192.168.1.38:8000/api/remove_voter_from_existing_group/${parseInt(getStoredGroupId())}/${voter.voter_id}/`, {
+                                fetch(`http://192.168.1.20:8001/api/remove_voter_from_existing_group/${parseInt(getStoredGroupId())}/${voter.voter_id}/`, {
                                     method: 'POST',
                                 })
                                     .then(response => response.json()) // Parse JSON response
                                     .then(data => {
-                                        if (data.message === "Voter removed from the group successfully!") {
+                                        
+                                        if (data.message === "Voter removed from group successfully!") {
                                             // Remove the voter row from the table after successful deletion
                                             row.remove();
                                             alert(data.message); // Show success message from the API
@@ -728,7 +734,7 @@
         });
 
         async function loadVotersForSelection(groupUserId) {
-            const apiUrl = 'http://192.168.1.38:8000/api/total_voters/';
+            const apiUrl = 'http://192.168.1.20:8001/api/total_voters/';
             const voterSelect = document.getElementById('voterSelect');
 
             // Show loading message in the select dropdown until data is loaded
@@ -763,7 +769,7 @@
         // Delete Group
         function deleteGroup(groupId) {
             showMessage('Confirmation', 'Are you sure you want to delete this group?', function () {
-                fetch(`http://192.168.1.38:8000/api/delete_voter_group/${parseInt(groupId)}/`, {
+                fetch(`http://192.168.1.20:8001/api/delete_voter_group/${parseInt(groupId)}/`, {
                     method: 'DELETE',
                     headers: {
                         'X-CSRFToken': getCsrfToken(),

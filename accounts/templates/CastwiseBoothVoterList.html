@@ -103,16 +103,19 @@
                                     <div class="row justify-content-center text-center">
                                         <div class="col-4">
                                             <h6 class="mt-1" style="cursor: default;"><strong>Total Voters:</strong>
-                                                <span id="totalCount">0</span></h6>
+                                                <span id="totalCount">0</span>
+                                            </h6>
                                         </div>
                                         <div class="col-4">
                                             <h6 class="mt-1" style="cursor: default;"><strong>Voted Voters:</strong>
-                                                <span id="votedCount">0</span></h6>
+                                                <span id="votedCount">0</span>
+                                            </h6>
                                             <p id="votedCountParcent"><i>percent: 0%</i></p>
                                         </div>
                                         <div class="col-4">
                                             <h6 class="mt-1" style="cursor: default;"><strong>Non-voted Voters:</strong>
-                                                <span id="nonVotedCount">0</span></h6>
+                                                <span id="nonVotedCount">0</span>
+                                            </h6>
                                             <p id="non-votedCountParcent"><i>percent: 0%</i></p>
                                         </div>
                                     </div>
@@ -171,7 +174,7 @@
                     <div class="search" style="width: 300px;">
                         <div class="input-group">
                             <input type="text" id="search-input" name="search" class="form-control bg-light"
-                                placeholder="Search by Name" value="{{ request.GET.search }}" />
+                                placeholder="Search by Name or Card No" value="{{ request.GET.search }}" />
                             <button type="button" id="clear-button" class="btn-close" aria-label="Close"></button>
                             <button class="btn btn-success" type="submit">
                                 <i class="fa-solid fa-magnifying-glass"></i>
@@ -192,11 +195,13 @@
                                     <tr>
                                         <th><input class="form-check-input" type="checkbox" value=""
                                                 id="select-all-checkbox"></th>
-                                        <th class="text-center fw-bolder" style="width: 15%;">Sr. No.</th>
-                                        <th class="fw-bolder" style="width: 40%;">Voter Name</th>
-                                        <th class="fw-bolder" style="width: 30%;">Contact No.</th>
-                                        <th class="fw-bolder" style="width: 15%;">Actions</th>
-                                        <th class="fw-bolder"></th>
+                                        <th class="bg-blue fw-bolder text-center" style="width: 10%;">Sr. No.</th>
+                                        <th class="bg-blue fw-bolder" style="width: 15%;">Reg. No.</th>
+                                        <th class="bg-blue fw-bolder" style="width: 15%;">CARD No.</th>
+                                        <th class="bg-blue fw-bolder" style="width: 30%;">Voter Name</th>
+                                        <th class="bg-blue fw-bolder" style="width: 20%;">Contact Number</th>
+                                        <th class="bg-blue fw-bolder" style="width: 15%;">Actions</th>
+                                        <th></th>
                                     </tr>
                                 </thead>
                                 <tbody id="votersTableBody">
@@ -322,7 +327,7 @@
             let votersData = []; // Store the fetched voters data
 
             // Fetch town data
-            fetch('http://192.168.1.38:8000/api/towns/')
+            fetch('http://192.168.1.20:8001/api/towns/')
                 .then(response => response.json())
                 .then(data => {
                     data.forEach(town => {
@@ -346,7 +351,7 @@
                 .catch(error => console.error('Error fetching town data:', error));
 
             function fetchBoothData(townId) {
-                fetch(`http://192.168.1.38:8000/api/booths_by_town/${townId}/`)
+                fetch(`http://192.168.1.20:8001/api/booths_by_town/${townId}/`)
                     .then(response => response.json())
                     .then(data => {
                         boothSelect.innerHTML = '<option selected>Select Booth</option>'; // Reset booth select
@@ -370,7 +375,7 @@
             }
 
             // Fetch religion data
-            fetch('http://192.168.1.38:8000/api/get_all_religion/')
+            fetch('http://192.168.1.20:8001/api/get_all_religion/')
                 .then(response => response.json())
                 .then(data => {
                     data.forEach(religion => {
@@ -385,7 +390,7 @@
 
                         if (selectedReligionId) {
                             castSelect.disabled = false;
-                            fetch(`http://192.168.1.38:8000/api/cast_by_religion/${selectedReligionId}/`)
+                            fetch(`http://192.168.1.20:8001/api/cast_by_religion/${selectedReligionId}/`)
                                 .then(response => response.json())
                                 .then(data => {
                                     castSelect.innerHTML = '<option selected>Select Caste</option>'; // Reset options
@@ -411,7 +416,7 @@
                 const selectedCastId = this.value;
 
                 if (selectedBoothId && selectedReligionId && selectedCastId) {
-                    fetch(`http://192.168.1.38:8000/api/booth/${selectedBoothId}/cast/${selectedCastId}/`)
+                    fetch(`http://192.168.1.20:8001/api/booth/${selectedBoothId}/cast/${selectedCastId}/`)
                         .then(response => response.json())
                         .then(data => {
                             votersData = data; // Store the data for filtering
@@ -429,11 +434,11 @@
                 const votedCount = data.filter(voter => voter.voter_vote_confirmation_id == 1).length;
                 const nonVotedCount = totalVoters - votedCount;
                 // console.log(totalVoters, votedCount, nonVotedCount);
-                
+
                 const votedPercentage = ((votedCount / totalVoters) * 100).toFixed(2);
                 const nonVotedPercentage = ((nonVotedCount / totalVoters) * 100).toFixed(2);
                 // console.log(votedPercentage, nonVotedPercentage);
-                
+
 
                 // Update the HTML elements with the calculated values
                 document.getElementById('totalCount').textContent = totalVoters;
@@ -474,6 +479,16 @@
                     srNoCell.textContent = index + 1;
                     row.appendChild(srNoCell);
 
+                    const VsrNOCell = document.createElement('td');
+                    VsrNOCell.style.textAlign = 'start';
+                    VsrNOCell.textContent = voter.voter_serial_number || 'None';
+                    row.appendChild(VsrNOCell);
+
+                    const VidNOCell = document.createElement('td');
+                    VidNOCell.style.textAlign = 'start';
+                    VidNOCell.textContent = voter.voter_id_card_number || 'None';
+                    row.appendChild(VidNOCell);
+
                     const nameCell = document.createElement('td');
                     nameCell.textContent = capitalizeWords(voter.voter_name);
                     row.appendChild(nameCell);
@@ -510,7 +525,7 @@
                         const newConfirmationStatus = voter.voter_vote_confirmation_id === null ? 1 : null; // Toggle logic
 
                         try {
-                            const response = await fetch(`http://192.168.1.38:8000/api/voter_confirmation/${voter.voter_id}/`, {
+                            const response = await fetch(`http://192.168.1.20:8001/api/voter_confirmation/${voter.voter_id}/`, {
                                 method: 'PUT',
                                 headers: {
                                     'Content-Type': 'application/json'
@@ -550,7 +565,7 @@
                         currentVoterId = voter.voter_id;
 
                         // Fetch voter details from the API
-                        fetch(`http://192.168.1.38:8000/api/voters/${voter.voter_id}/`)
+                        fetch(`http://192.168.1.20:8001/api/voters/${voter.voter_id}/`)
                             .then(response => {
                                 if (!response.ok) {
                                     throw new Error('Network response was not ok');
@@ -672,7 +687,7 @@
                 // Add event listener for the export button in Voter Details Modal
                 document.getElementById('export-pdf-button').addEventListener('click', function () {
                     if (currentVoterId) {
-                        const pdfUrl = `http://192.168.1.38:8000/api/generate_voter_pdf/${currentVoterId}/`;
+                        const pdfUrl = `http://192.168.1.20:8001/api/generate_voter_pdf/${currentVoterId}/`;
                         fetch(pdfUrl)
                             .then(response => {
                                 if (!response.ok) {
@@ -708,7 +723,7 @@
                         return;
                     }
 
-                    const pdfUrl = `http://192.168.1.38:8000/api/booth_pdf/${selectedBoothId}/cast/${selectedCastId}/`;
+                    const pdfUrl = `http://192.168.1.20:8001/api/booth_pdf/${selectedBoothId}/cast/${selectedCastId}/`;
 
                     // Fetch PDF
                     fetch(pdfUrl)
@@ -741,17 +756,37 @@
 
 
             // Event listener for the search input
+            // searchInput.addEventListener('input', function () {
+            //     const searchTerm = searchInput.value.toLowerCase();
+            //     const filteredVoters = votersData.filter(voter =>
+            //         voter.voter_name.toLowerCase().includes(searchTerm)
+            //     );
+            //     renderVoters(filteredVoters);
+            //     updateVoterCounts(filteredVoters);
+
+            //     // Show "no data" message if no voters match
+            //     document.getElementById('noDataMessage').style.display = filteredVoters.length ? 'none' : 'block';
+            // });
+            // Event listener for the search input
             searchInput.addEventListener('input', function () {
                 const searchTerm = searchInput.value.toLowerCase();
-                const filteredVoters = votersData.filter(voter =>
-                    voter.voter_name.toLowerCase().includes(searchTerm)
-                );
+
+                // Filter votersData based on both voter_name and voter_id_card_number
+                const filteredVoters = votersData.filter(voter => {
+                    const name = voter.voter_name ? voter.voter_name.toLowerCase() : ''; // Handle null/undefined voter_name
+                    const cardNumber = voter.voter_id_card_number ? voter.voter_id_card_number.toLowerCase() : ''; // Handle null/undefined voter_id_card_number
+
+                    // Check if either the name or the card number contains the search term
+                    return name.includes(searchTerm) || cardNumber.includes(searchTerm);
+                });
+
                 renderVoters(filteredVoters);
                 updateVoterCounts(filteredVoters);
 
                 // Show "no data" message if no voters match
                 document.getElementById('noDataMessage').style.display = filteredVoters.length ? 'none' : 'block';
             });
+
 
             // Clear button functionality
             document.getElementById('clear-button').addEventListener('click', function () {
@@ -889,7 +924,7 @@
                 console.log('Payload:', JSON.stringify(payload));
 
                 // Make the PUT request to assign favour to voters
-                fetch('http://192.168.1.38:8000/api/favour/', {
+                fetch('http://192.168.1.20:8001/api/favour/', {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',

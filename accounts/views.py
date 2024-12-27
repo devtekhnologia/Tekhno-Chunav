@@ -14,8 +14,8 @@ from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_http_methods
 import logging
 
-BASE_URL = "http://192.168.1.38:8000/"
-LOCAL_URL = "http://192.168.1.38:8000/"
+BASE_URL = "http://192.168.1.20:8001/"
+LOCAL_URL = "http://192.168.1.20:8001/"
 
 
 API_LOGIN_ENDPOINT = f"{BASE_URL}api/politician_login/"
@@ -156,7 +156,7 @@ def dashboard(request):
 # Navbar
 @login_required(login_url='login')
 def navbar(request):
-    return render(request, 'navbar.html')
+    return render(request, 'navbar - NP.html')
 
 #  User profile
 @login_required(login_url='login')
@@ -211,15 +211,6 @@ def BoothDetails(request):
         data = []
 
     # Search functionality
-    # search_query = request.GET.get('search', '')
-    # if search_query:
-    #     booth_data = [
-    #         booth for booth in booth_data 
-    #         if search_query.lower() in booth['booth_name'].lower() or 
-    #            search_query.lower() in booth['town_name'].lower()
-    #     ]
-
-    # Search functionality
     search_query = request.GET.get('search', '')
     if search_query:
         booth_data = [
@@ -250,7 +241,7 @@ def BoothDetails(request):
         'page_obj': page_obj,
         'search_query': search_query  # Ensure this is passed
     }
-    return render(request, 'BoothDetails.html', context)
+    return render(request, 'BoothDetails - NP.html', context)
 
 
 # PrabhagWiseBoothList
@@ -846,7 +837,7 @@ def TownUserList(request):
 def SurnameWiseVoterList(request):
     search_query = request.GET.get('search', '')  # Get search query if provided
     sort_order = request.GET.get('sort', '')  # Get the sort query (a-z)
-    url = "http://192.168.1.38:8000/api/surname_wise_voter_count/"
+    url = "http://192.168.1.20:8001/api/surname_wise_voter_count/"
     
     response = requests.get(url)
     response.raise_for_status()
@@ -1293,20 +1284,20 @@ def TotalVoterList(request):
     }
     return render(request, 'TotalVoterList.html', context)
 
-
 # Total Voter List with group Id
 @login_required(login_url='login')
 def TotalVoterListWithGroupId(request, id):
+    sort_order = request.GET.get('sort', '')  # Get the sort query (a-z)
     response = requests.get(f"{BASE_URL}api/total_voters/")
     voters_list = []
-
+ 
     if response.status_code == 200:
         data = response.json()
         if isinstance(data, list):
             voters_list = data
         elif isinstance(data, dict):
             voters_list = data.get('voters', [])
-
+ 
     # Capitalize each word in the 'voter_name' field
     # for voter in voters_list:
     #     voter_name = voter.get('voter_name', '')
@@ -1314,12 +1305,25 @@ def TotalVoterListWithGroupId(request, id):
     for voter in voters_list:
         if isinstance(voter.get('voter_name'), str):
             voter['voter_name'] = format_name(voter['voter_name'])
-
-    # Check for the sorting parameter
-    sort_order = request.GET.get('sort', '').strip().lower()
+   
+    # Define the color mapping for each `voter_favour_id`
+    favour_colors = {
+        1: '#2d8c61',
+        2: '#dc3545',
+        3: '#ffc107',
+        4: '#3683fd',
+        5: '#35befd',
+        6: '#dc7093',
+        7: '#8f0080',
+    }
+ 
+    # If sort_order is 'a-z', sort surnames alphabetically (A-Z)
     if sort_order == 'a-z':
-        voters_list.sort(key=lambda voter: voter.get('voter_name', '').lower())
-
+        voters_list.sort(key=lambda x: (x.get('voter_name', '').lower() if x.get('voter_name') else ''))
+    else:
+        # Default sort by voter ID
+        voters_list.sort(key=lambda x: x.get('voter_id', 0))
+ 
     # Search functionality
     search_query = request.GET.get('search', '').strip().lower()
     if search_query:
@@ -1327,19 +1331,70 @@ def TotalVoterListWithGroupId(request, id):
             voter for voter in voters_list
             if search_query in voter.get('voter_name', '').lower()
         ]
-
+ 
     # Pagination
     paginator = Paginator(voters_list, 500)  # Show 500 voters per page
     page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
-
+    # print("id--------------",id)
     context = {
         'voters_list': page_obj,
         'paginator': paginator,
         'page_obj': page_obj,
-        'group_id': int(id)
+        'group_id': int(id),
+        'sort_order': sort_order,
+        'favour_colors': favour_colors,
     }
     return render(request, 'TotalVoterList.html', context)
+
+
+# # Total Voter List with group Id
+# @login_required(login_url='login')
+# def TotalVoterListWithGroupId(request, id):
+#     sort_order = request.Get.get('sort','') #sort
+#     response = requests.get(f"{BASE_URL}api/total_voters/")
+#     voters_list = []
+
+#     if response.status_code == 200:
+#         data = response.json()
+#         if isinstance(data, list):
+#             voters_list = data
+#         elif isinstance(data, dict):
+#             voters_list = data.get('voters', [])
+
+#     # Capitalize each word in the 'voter_name' field
+#     # for voter in voters_list:
+#     #     voter_name = voter.get('voter_name', '')
+#     #     voter['voter_name'] = voter_name.title() if voter_name else ''
+#     for voter in voters_list:
+#         if isinstance(voter.get('voter_name'), str):
+#             voter['voter_name'] = format_name(voter['voter_name'])
+
+#     # Check for the sorting parameter
+#     sort_order = request.GET.get('sort', '').strip().lower()
+#     if sort_order == 'a-z':
+#         voters_list.sort(key=lambda voter: voter.get('voter_name', '').lower())
+
+#     # Search functionality
+#     search_query = request.GET.get('search', '').strip().lower()
+#     if search_query:
+#         voters_list = [
+#             voter for voter in voters_list
+#             if search_query in voter.get('voter_name', '').lower()
+#         ]
+
+#     # Pagination
+#     paginator = Paginator(voters_list, 500)  # Show 500 voters per page
+#     page_number = request.GET.get('page', 1)
+#     page_obj = paginator.get_page(page_number)
+
+#     context = {
+#         'voters_list': page_obj,
+#         'paginator': paginator,
+#         'page_obj': page_obj,
+#         'group_id': int(id)
+#     }
+#     return render(request, 'TotalVoterList.html', context)
 
 # @login_required(login_url='login')
 # def TotalVoterList(request):
@@ -1515,6 +1570,11 @@ def UnderCons(request):
 @login_required(login_url='login')
 def BoothWiseVoterList(request):
     return render(request, 'BoothWiseVoterList.html')
+
+ #Booth Wise Surname List
+@login_required(login_url='login')
+def BoothwiseSurname(request):
+    return render(request, 'BoothwiseSurname.html')
 
 # Prabhag Wise Voters List
 @login_required(login_url='login')

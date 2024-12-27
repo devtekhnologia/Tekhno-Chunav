@@ -216,15 +216,35 @@
                         <i class="fa-brands fa-whatsapp"></i>
                       </button>
                     </td>
-                    <td {% if voter.voter_favour_id==1 %} style="background-color: #2d8c61;" {% elif
-                      voter.voter_favour_id==2 %} style="background-color: #dc3545;" {% elif voter.voter_favour_id==3 %}
-                      style="background-color: #ffc107;" {% elif voter.voter_favour_id==4 %}
-                      style="background-color: #3683fd;" {% elif voter.voter_favour_id==5 %}
-                      style="background-color: #35befd;" {% elif voter.voter_favour_id==6 %}
-                      style="background-color: #dc7093;" {% elif voter.voter_favour_id==7 %}
-                      style="background-color: #8f0080;" {% else %} style="background-color: rgb(218, 217, 217);" {%
-                      endif %}>
-                    </td>
+                    <td {% if voter.voter_favour_id == 1 %} 
+                style="background-color: #2d8c61;" 
+              {% elif voter.voter_favour_id == 2 %} 
+                style="background-color: #dc3545;" 
+              {% elif voter.voter_favour_id == 3 %}
+                style="background-color: #ffc107;" 
+              {% elif voter.voter_favour_id == 4 %}
+                style="background-color: #3683fd;" 
+              {% elif voter.voter_favour_id == 5 %}
+                style="background-color: #35befd;" 
+              {% elif voter.voter_favour_id == 6 %}
+                style="background-color: #dc7093;" 
+              {% elif voter.voter_favour_id == 7 %}
+                style="background-color: #8f0080;" 
+              {% else %} 
+                style="background-color: rgb(218, 217, 217);" 
+              {% endif %}>
+          </td>
+                    <!-- <td class="
+                      {% if voter.voter_favour_id == 1 %}bg-success
+                      {% elif voter.voter_favour_id == 2 %}bg-danger
+                      {% elif voter.voter_favour_id == 3 %}bg-warning
+                      {% elif voter.voter_favour_id == 4 %}bg-primary
+                      {% elif voter.voter_favour_id == 5 %}light-primary
+                      {% elif voter.voter_favour_id == 6 %}pink
+                      {% elif voter.voter_favour_id == 7 %}purple
+                      {% else %}bg-custom-table-light
+                      {% endif %}">
+                    </td> -->
                   </tr>
                   {% endfor %}
                   {% else %}
@@ -306,6 +326,14 @@
             <div class="modal-body">
               <table class="table p-1">
                 <tbody>
+                  <tr>
+                    <th class="bg-light fw-semibold">Registration No.</th>
+                    <td id="voter_serial_number"></td>
+                  </tr>
+                  <tr>
+                    <th class="bg-light fw-semibold">Voter Card No.</th>
+                    <td id="voter_id_card_number"></td>
+                  </tr>
                   <tr>
                     <th class="bg-light fw-semibold">Voter Name</th>
                     <td id="voter_name"></td>
@@ -486,13 +514,15 @@
           voterId = this.getAttribute('data-voter-id');
 
           // Fetch voter details from the API
-          fetch(`http://192.168.1.38:8000/api/voters/${voterId}/`)
+          fetch(`http://192.168.1.20:8001/api/voters/${voterId}/`)
             .then(response => response.json())
             .then(data => {
               // Helper function to capitalize each word
               const capitalizeEachWord = str => str.replace(/\b\w+/g, l => l.charAt(0).toUpperCase() + l.slice(1).toLowerCase());
 
               // Populate modal with API data
+              document.getElementById('voter_serial_number').textContent = data.voter_serial_number || '--';
+              document.getElementById('voter_id_card_number').textContent = data.voter_id_card_number || '--';
               document.getElementById('voter_name').textContent = capitalizeEachWord(data.voter_name) || '--';
               document.getElementById('voter_parent_name').textContent = capitalizeEachWord(data.voter_parent_name) || '--';
               document.getElementById('voter_dob').textContent = data.voter_dob || '--';
@@ -580,7 +610,7 @@
       document.getElementById('export-pdf-button').addEventListener('click', function () {
 
         if (voterId) {
-          fetch(`http://192.168.1.38:8000/api/generate_voter_pdf/${voterId}`, {
+          fetch(`http://192.168.1.20:8001/api/generate_voter_pdf/${voterId}`, {
             method: 'GET',
             headers: {
               'Content-Type': 'application/pdf'
@@ -620,7 +650,7 @@
           };
 
           // Make a POST request to the WhatsApp API
-          fetch('http://192.168.1.38:8000/api/send_whatsapp_message/', {
+          fetch('http://192.168.1.20:8001/api/send_whatsapp_message/', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -648,7 +678,7 @@
     const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
     const getCsrfToken = () => csrfToken;
 
-    fetch('http://192.168.1.38:8000/api/total_voters/') // Replace with your actual API endpoint
+    fetch('http://192.168.1.20:8001/api/total_voters/') // Replace with your actual API endpoint
       .then(response => response.json())
       .then(data => {
         const favourId = data[0].voter_favour_id;
@@ -720,7 +750,7 @@
           console.log('payload-', data);
 
           // Make API request
-          fetch('http://192.168.1.38:8000/api/create_voter_group_user/', {
+          fetch('http://192.168.1.20:8001/api/create_voter_group_user/', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -728,6 +758,9 @@
             body: JSON.stringify(data),
           })
             .then(response => {
+              console.log("response-",response);
+              console.log("response.status-",response.status);
+              
               if (response.status === 201) {
                 return response.json();
               } else {
@@ -805,11 +838,12 @@
           return;
         }
 
-        const apiUrl = 'http://192.168.1.38:8000/api/add_voter_to_existing_group/';
+        console.log('Selected Voter IDs:', selectedVoterIds);
+        const apiUrl = 'http://192.168.1.20:8001/api/add_voter_to_existing_group/';
 
         const requestBody = {
           voter_ids: selectedVoterIds,
-          voter_group_user_id: groupId
+          voter_group_id: groupId
         };
 
         // console.log('Request Body:', requestBody);
@@ -853,7 +887,7 @@
     // Assign multiple Castes
     document.addEventListener('DOMContentLoaded', function () {
       // Fetch caste data from the API and populate the caste select options
-      fetch('http://192.168.1.38:8000/api/cast/')
+      fetch('http://192.168.1.20:8001/api/cast/')
         .then(response => response.json())
         .then(data => {
           const casteSelect = document.getElementById('caste-select-container');
@@ -911,7 +945,7 @@
         // console.log('payload-', payload);
 
         // Make the PUT request to assign caste to voters
-        fetch('http://192.168.1.38:8000/api/assign_voter_cast/', {
+        fetch('http://192.168.1.20:8001/api/assign_voter_cast/', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -980,7 +1014,7 @@
 
 
         // Make the PUT request to assign caste to voters
-        fetch('http://192.168.1.38:8000/api/favour/', {
+        fetch('http://192.168.1.20:8001/api/favour/', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',

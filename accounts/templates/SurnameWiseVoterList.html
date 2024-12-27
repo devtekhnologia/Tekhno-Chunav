@@ -128,7 +128,7 @@
                     </form>
                 </div>
 
-                <a href="http://192.168.1.38:8000/api/surname_wise_voter_count_pdf/"
+                <a href="http://192.168.1.20:8001/api/surname_wise_voter_count_pdf/"
                     class="btn btn-light border me-4 mb-3">
                     <i class="fa-solid fa-arrow-up-from-bracket"></i>&nbsp;Export
                 </a>
@@ -238,6 +238,14 @@
                             <div class="modal-body">
                                 <table class="table p-1">
                                     <tbody>
+                                        <tr>
+                                            <th class="bg-light fw-semibold">Registration No.</th>
+                                            <td id="voter_serial_number"></td>
+                                          </tr>
+                                          <tr>
+                                            <th class="bg-light fw-semibold">Voter Card No.</th>
+                                            <td id="voter_id_card_number"></td>
+                                          </tr>
                                         <tr>
                                             <th class="bg-light fw-semibold">Voter Name</th>
                                             <td id="voter_name"></td>
@@ -407,7 +415,7 @@
             document.getElementById('voter-details-table').style.display = 'none';
 
             // Fetch Voter details for the surname
-            fetch(`http://192.168.1.38:8000/api/get_voter_details_by_surname/${parseInt(surnameId)}/`)
+            fetch(`http://192.168.1.20:8001/api/get_voter_details_by_surname/${parseInt(surnameId)}/`)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Network response was not ok');
@@ -487,7 +495,7 @@
             console.log('Viewing voter details for voter ID:', voterId);
 
             // Fetch voter details from the API
-            fetch(`http://192.168.1.38:8000/api/voters/${voterId}/`)
+            fetch(`http://192.168.1.20:8001/api/voters/${voterId}/`)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Network response was not ok');
@@ -496,6 +504,8 @@
                 })
                 .then(voterDetails => {
                     // Populate the modal with voter details
+                    document.getElementById('voter_serial_number').textContent = voterDetails.voter_serial_number || '--';
+                    document.getElementById('voter_id_card_number').textContent = voterDetails.voter_id_card_number || '--';
                     document.getElementById('voter_name').textContent = capitalizeWords(voterDetails.voter_name) || '--';
                     document.getElementById('voter_parent_name').textContent = capitalizeWords(voterDetails.voter_parent_name) || '--';
                     document.getElementById('voter_dob').textContent = voterDetails.voter_dob || '--';
@@ -578,7 +588,7 @@
         // Add event listener for the export button in Voter Details
         document.getElementById('export-pdf-button').addEventListener('click', function () {
             if (currentVoterId) {
-                const pdfUrl = `http://192.168.1.38:8000/api/generate_voter_pdf/${currentVoterId}/`;
+                const pdfUrl = `http://192.168.1.20:8001/api/generate_voter_pdf/${currentVoterId}/`;
                 fetch(pdfUrl)
                     .then(response => {
                         if (!response.ok) {
@@ -605,7 +615,7 @@
         // Assign caste to selected surnames
         document.addEventListener('DOMContentLoaded', function () {
             // Fetch caste data from the API
-            fetch('http://192.168.1.38:8000/api/cast/')
+            fetch('http://192.168.1.20:8001/api/cast/')
                 .then(response => response.json())
                 .then(data => {
                     const casteSelect = document.getElementById('caste-select');
@@ -649,7 +659,7 @@
                 };
 
                 // Send data to the first API
-                fetch('http://192.168.1.38:8000/api/surname_wise_voter_count/', {
+                fetch('http://192.168.1.20:8001/api/surname_wise_voter_count/', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -676,7 +686,7 @@
                                 };
 
                                 // Send data to the second API (surname_wise_favour_caste_assign_voters)
-                                fetch('http://192.168.1.38:8000/api/surname_wise_favour_caste_assign_voters/', {
+                                fetch('http://192.168.1.20:8001/api/surname_wise_favour_caste_assign_voters/', {
                                     method: 'POST',
                                     headers: {
                                         'Content-Type': 'application/json',
@@ -716,7 +726,7 @@
         // // Assign caste to selected surnames
         // document.addEventListener('DOMContentLoaded', function () {
         //     // Fetch caste data from the API
-        //     fetch('http://192.168.1.38:8000/api/cast/')
+        //     fetch('http://192.168.1.20:8001/api/cast/')
         //         .then(response => response.json())
         //         .then(data => {
         //             const casteSelect = document.getElementById('caste-select');
@@ -762,7 +772,7 @@
         //         };
 
         //         // Send data to the first API
-        //         fetch('http://192.168.1.38:8000/api/surname_wise_voter_count/', {
+        //         fetch('http://192.168.1.20:8001/api/surname_wise_voter_count/', {
         //             method: 'POST',
         //             headers: {
         //                 'Content-Type': 'application/json',
@@ -798,7 +808,7 @@
         //             };
 
         //             // Send data to the second API (surname_wise_favour_caste_assign_voters)
-        //             fetch('http://192.168.1.38:8000/api/surname_wise_favour_caste_assign_voters/', {
+        //             fetch('http://192.168.1.20:8001/api/surname_wise_favour_caste_assign_voters/', {
         //                 method: 'POST',
         //                 headers: {
         //                     'Content-Type': 'application/json',
@@ -857,7 +867,7 @@
             };
 
             // Send data to the first API
-            fetch('http://192.168.1.38:8000/api/surname_wise_voter_count/', {
+            fetch('http://192.168.1.20:8001/api/surname_wise_voter_count/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -899,7 +909,7 @@
                     "voter_favour_id": parseInt(selectedFavourId) // Ensure favour ID is an integer
                 };
                 // Make the PUT request to assign favour to voters
-                fetch('http://192.168.1.38:8000/api/favour/', {
+                fetch('http://192.168.1.20:8001/api/favour/', {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -933,9 +943,9 @@
         }
         // Helper function to get CSRF token from the page
         const getCsrfToken = () => {
-                const csrfTokenElement = document.querySelector('[name=csrfmiddlewaretoken]');
-                return csrfTokenElement ? csrfTokenElement.value : ''; // Ensure CSRF token is returned if available
-            };
+            const csrfTokenElement = document.querySelector('[name=csrfmiddlewaretoken]');
+            return csrfTokenElement ? csrfTokenElement.value : ''; // Ensure CSRF token is returned if available
+        };
 
     </script>
 </body>

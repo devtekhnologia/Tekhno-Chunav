@@ -170,14 +170,13 @@
                     </div>
                 </div>
 
-
-                <!-- Town Details Modal -->
-                <div class="modal fade" id="boothDetailsModal" tabindex="-1" aria-labelledby="boothDetailsModalLabel"
+                    <!-- Town Details Modal -->
+                    <div class="modal fade" id="townDetailsModal" tabindex="-1" aria-labelledby="townDetailsModalLabel"
                     aria-hidden="true">
                     <div class="modal-dialog modal-dialog-scrollable modal-lg">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="boothDetailsModalLabel">Town Details List</h5>
+                                <h5 class="modal-title" id="townDetailsModalLabel">Town Details List</h5>
                             </div>
                             <div class="modal-body">
                                 <table class="table p-1">
@@ -185,6 +184,56 @@
                                         <tr>
                                             <th class="text-center fw-bolder">Sr. No.</th>
                                             <th class="fw-bolder">Town Name</th>
+                                            <th class="fw-bolder">Assigned User</th>
+                                            <th class="fw-bolder">Voter Count</th>
+                                            <th class="fw-bolder">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="town-table-body">
+                                        {% if page_obj %}
+                                        {% for town in page_obj %}
+                                        <tr>
+                                            <td class="text-center">{{ forloop.counter }}</td>
+                                            <td>{{ town.town_name }}</td>
+                                            <td>{% if town.town_user_names %}{{ town.town_user_names|safe }}{% else
+                                                %}N/A
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ town.voter_count }}</td>
+                                            <td>
+                                                <a href="/townwisevoterlist/{{town.town_id}}/"
+                                                    class="btn btn-primary btn-sm" data-bs-toggle="tooltip"
+                                                    data-bs-placement="right" title="View Voter List">
+                                                    <i class="fa-solid fa-users-line"></i></a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                        {% endif %}
+                                    </tbody>
+                                </table>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- booth Details Modal -->
+                <div class="modal fade" id="boothDetailsModal" tabindex="-1" aria-labelledby="boothDetailsModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="boothDetailsModalLabel">Booth Details List</h5>
+                            </div>
+                            <div class="modal-body">
+                                <table class="table p-1">
+                                    <thead class="text-muted text-uppercase">
+                                        <tr>
+                                            <th class="text-center fw-bolder">Sr. No.</th>
+                                            <th class="fw-bolder">Booth Name</th>
                                             <th class="fw-bolder">Assigned User</th>
                                             <th class="fw-bolder">Voter Count</th>
                                             <th class="fw-bolder">Actions</th>
@@ -312,7 +361,7 @@
 
             // Fetch Town details based on PSC id
             function fetchTownDetails(PSCId, PSCName) {
-                fetch(`http://192.168.1.38:8000/api/get_town_info_by_psc/${parseInt(PSCId)}/`)
+                fetch(`http://192.168.1.20:8001/api/get_town_info_by_psc/${parseInt(PSCId)}/`)
                     .then(response => {
                         if (!response.ok) {
                             throw new Error('Network response was not ok');
@@ -320,11 +369,11 @@
                         return response.json();
                     })
                     .then(data => {
-                        const boothTableBody = document.getElementById('booth-table-body');
-                        boothTableBody.innerHTML = ''; // Clear previous data
+                        const townTableBody = document.getElementById('town-table-body');
+                        townTableBody.innerHTML = ''; // Clear previous data
 
                         // Set the modal title to the town name
-                        const modalTitle = document.getElementById('boothDetailsModalLabel');
+                        const modalTitle = document.getElementById('townDetailsModalLabel');
                         modalTitle.textContent = `${PSCName} PSC's Town List`; // Update the title
 
                         // Check if 'data' exists and is an array
@@ -348,15 +397,15 @@
                                         </td>
                                     </tr>
                                 `;
-                                boothTableBody.innerHTML += row;
+                                townTableBody.innerHTML += row;
                             });
                         }
                         // Show the booth details modal
-                        const boothDetailsModal = new bootstrap.Modal(document.getElementById('boothDetailsModal'));
-                        boothDetailsModal.show();
+                        const townDetailsModal = new bootstrap.Modal(document.getElementById('townDetailsModal'));
+                        townDetailsModal.show();
 
                         // Add event listener for town names
-                        boothTableBody.addEventListener('click', function (event) {
+                        townTableBody.addEventListener('click', function (event) {
                             if (event.target.closest('.booth-name')) {
                                 const townId = event.target.closest('.booth-name').getAttribute('data-booth-id');
                                 const townName = event.target.closest('.booth-name').getAttribute('data-booth-name');
@@ -371,7 +420,7 @@
 
             // Function to fetch booth details from the API
             function fetchBoothDetails(townId, townName) {
-                fetch(`http://192.168.1.38:8000/api/get_booth_details_by_town_id/${parseInt(townId)}/`)
+                fetch(`http://192.168.1.20:8001/api/get_booth_details_by_town_id/${parseInt(townId)}/`)
                     .then(response => {
                         if (!response.ok) {
                             throw new Error('Network response was not ok');
@@ -498,7 +547,7 @@
                     };
 
                     // Send data to the API
-                    fetch("http://192.168.1.38:8000/api/add_zp_circle_town/", {
+                    fetch("http://192.168.1.20:8001/api/add_zp_circle_town/", {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

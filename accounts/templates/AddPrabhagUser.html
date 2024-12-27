@@ -181,62 +181,66 @@
       });
 
       // Fetch and populate town list
-      fetch('http://192.168.1.38:8000/api/towns_by_town_area_type/1/')
+      fetch('http://192.168.1.20:8001/api/towns_by_town_area_type/1/')
         .then(response => response.json())
         .then(data => {
           const townSelect = document.getElementById('townSelect');
           // Clear any existing options (except the default placeholder)
           townSelect.innerHTML = '<option selected>Open this select menu</option>';
           // Populate towns
-          data.forEach(town => {
-            const option = document.createElement('option');
-            option.value = town.town_id;
-            option.textContent = town.town_name;
-            townSelect.appendChild(option);
-          });
-        })
-        .catch(error => {
-          console.error('Error fetching towns:', error);
-        });
-
-      // Event listener to fetch prabhags based on selected town
-      document.getElementById('townSelect').addEventListener('change', function () {
-        const selectedTownId = this.value;
-        if (selectedTownId) {
-          // Fetch prabhags for the selected town
-          fetch(`http://192.168.1.38:8000/api/get_prabhag_by_town/${selectedTownId}/`)
-            .then(response => response.json())
-            .then(data => {
-              const prabhagSelect = document.getElementById('prabhagSelect');
-              // Clear any existing options (except the default placeholder)
-              prabhagSelect.innerHTML = '<option selected>Open this select menu</option>';
-              // Check if data is an array and populate the prabhag dropdown
-              if (Array.isArray(data)) {
-                data.forEach(prabhag => {
-                  const option = document.createElement('option');
-                  option.value = prabhag.prabhag_id; // Set value as prabhag_id
-                  option.textContent = prabhag.prabhag_name; // Set display text as prabhag_name
-                  prabhagSelect.appendChild(option);
-                });
-              } else {
-                console.error('No prabhag data available');
-              }
-            })
-            .catch(error => {
-              console.error('Error fetching prabhags:', error);
+          if (Array.isArray(data)) {
+            data.forEach(town => {
+              const option = document.createElement('option');
+              option.value = town.town_id;
+              option.textContent = town.town_name;
+              townSelect.appendChild(option);
             });
-        } else {
-          // Clear prabhag options if no town is selected
-          document.getElementById('prabhagSelect').innerHTML = '<option selected>Open this select menu</option>';
-        }
+          } else {
+            console.error('No prabhag data available');
+          }
+    })
+      .catch(error => {
+        console.error('Error fetching towns:', error);
       });
 
-      // Initialize and Show Toasts
-      const toastElList = [].slice.call(document.querySelectorAll('.toast'));
-      const toastList = toastElList.map(function (toastEl) {
-        return new bootstrap.Toast(toastEl);
-      });
-      toastList.forEach(toast => toast.show());
+    // Event listener to fetch prabhags based on selected town
+    document.getElementById('townSelect').addEventListener('change', function () {
+      const selectedTownId = this.value;
+      if (selectedTownId) {
+        // Fetch prabhags for the selected town
+        fetch(`http://192.168.1.20:8001/api/get_prabhag_by_town/${selectedTownId}/`)
+          .then(response => response.json())
+          .then(data => {
+            const prabhagSelect = document.getElementById('prabhagSelect');
+            // Clear any existing options (except the default placeholder)
+            prabhagSelect.innerHTML = '<option selected>Open this select menu</option>';
+            // Check if data is an array and populate the prabhag dropdown
+            if (Array.isArray(data)) {
+              data.forEach(prabhag => {
+                const option = document.createElement('option');
+                option.value = prabhag.prabhag_id; // Set value as prabhag_id
+                option.textContent = prabhag.prabhag_name; // Set display text as prabhag_name
+                prabhagSelect.appendChild(option);
+              });
+            } else {
+              console.error('No prabhag data available');
+            }
+          })
+          .catch(error => {
+            console.error('Error fetching prabhags:', error);
+          });
+      } else {
+        // Clear prabhag options if no town is selected
+        document.getElementById('prabhagSelect').innerHTML = '<option selected>Open this select menu</option>';
+      }
+    });
+
+    // Initialize and Show Toasts
+    const toastElList = [].slice.call(document.querySelectorAll('.toast'));
+    const toastList = toastElList.map(function (toastEl) {
+      return new bootstrap.Toast(toastEl);
+    });
+    toastList.forEach(toast => toast.show());
 
     });
   </script>
@@ -281,7 +285,7 @@
       });
 
       // Dynamically load towns into the multi-select dropdown
-      fetch('http://192.168.1.38:8000/api/get_prabhags/')
+      fetch('http://192.168.1.20:8001/api/get_prabhags/')
         .then(response => response.json())
         .then(data => {
             const select = document.getElementById('prabhagSelect');

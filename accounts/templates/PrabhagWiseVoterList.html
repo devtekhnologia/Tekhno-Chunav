@@ -85,6 +85,7 @@
                                             <option value="" disabled selected>Select Ward</option>
                                         </select>
                                     </div>
+
                                     <div class="row justify-content-center text-center">
                                         <div class="col-4">
                                             <h6 class="mt-1" style="cursor: default;"><strong>Total Voters:</strong>
@@ -95,15 +96,34 @@
                                             <h6 class="mt-1" style="cursor: default;"><strong>Voted Voters:</strong>
                                                 <span id="votedCount">0</span>
                                             </h6>
-                                            <p id="votedCountParcent"><i>Percent: 0%</i></p>
+                                            <p id="votedCountParcent"><i>percent: 0%</i></p>
                                         </div>
                                         <div class="col-4">
                                             <h6 class="mt-1" style="cursor: default;"><strong>Non-voted Voters:</strong>
                                                 <span id="non-votedCount">0</span>
                                             </h6>
-                                            <p id="non-votedCountParcent"><i>Percent: 0%</i></p>
+                                            <p id="non-votedCountParcent"><i>percent: 0%</i></p>
                                         </div>
                                     </div>
+                                    <!--<div class="row justify-content-center text-center">
+                                        <div class="col-4">
+                                            <h5 class="mt-1" style="cursor: default;"><strong>Total Voters:</strong>
+                                                <span id="voterCount">0</span>
+                                            </h5>
+                                        </div>
+                                        <div class="col-4">
+                                            <h5 class="mt-1" style="cursor: default;"><strong>Voted Voters:</strong>
+                                                <span id="votedCount">0</span>
+                                            </h5>
+                                            <p id="votedCountParcent"><i><b>Percent:</b></i></p>
+                                        </div>
+                                        <div class="col-4">
+                                            <h5 class="mt-1" style="cursor: default;"><strong>Non-voted Voters:</strong>
+                                                <span id="non-votedCount">0</span>
+                                            </h5>
+                                            <p id="non-votedCountParcent"><i><b>Percent:</b></i></p>
+                                        </div>
+                                    </div> -->
                                 </div>
                             </div>
                         </div>
@@ -190,10 +210,10 @@
                     </div>
 
                     <!-- Search -->
-                    <div class="search" style="width: 260px;">
+                    <div class="search" style="width: 285px;">
                         <div class="input-group">
                             <input type="text" id="search-input" name="search" class="form-control bg-light"
-                                placeholder="Search by Name" />
+                                placeholder="Search by Name or Card No" />
                             <button type="button" id="clear-button" class="btn-close" aria-label="Close"></button>
                             <button class="btn btn-success" type="button" id="search-button">
                                 <i class="fa-solid fa-magnifying-glass"></i>
@@ -213,9 +233,11 @@
                                             <th><input class="form-check-input" type="checkbox" value=""
                                                     id="select-all-checkbox"></th>
                                             <!-- Select All Checkbox -->
-                                            <th class="text-center fw-bolder" style="width: 20%;">Sr. No.</th>
-                                            <th class="fw-bolder" style="width: 35%;">Voter Name</th>
-                                            <th class="fw-bolder" style="width: 30%;">Contact Number</th>
+                                            <th class="text-center fw-bolder" style="width: 10%;">Sr. No.</th>
+                                            <th class="fw-bolder" style="width: 10%;">Reg. No.</th>
+                                            <th class="fw-bolder" style="width: 15%;">CARD No.</th>
+                                            <th class="fw-bolder" style="width: 30%;">Voter Name</th>
+                                            <th class="fw-bolder" style="width: 20%;">Contact Number</th>
                                             <th class="fw-bolder" style="width: 15%;">Actions</th>
                                             <th></th>
                                         </tr>
@@ -245,6 +267,14 @@
                             <div class="modal-body">
                                 <table class="table p-1">
                                     <tbody>
+                                        <tr>
+                                            <th class="bg-light fw-semibold">Registration No.</th>
+                                            <td id="voter_serial_number"></td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light fw-semibold">Voter Card No.</th>
+                                            <td id="voter_id_card_number"></td>
+                                        </tr>
                                         <tr>
                                             <th class="bg-light fw-semibold">Voter Name</th>
                                             <td id="voter_name"></td>
@@ -344,7 +374,7 @@
 
             // Function to fetch towns and set up the select dropdown
             function fetchPrabhags() {
-                fetch('http://192.168.1.38:8000/api/get_prabhags/')
+                fetch('http://192.168.1.20:8001/api/get_prabhags/')
                     .then(response => response.json())
                     .then(data => {
                         const wardSelect = document.getElementById('wardSelect');
@@ -369,7 +399,7 @@
             // Function to fetch voters based on town_id
             async function fetchVoters(prabhagId) {
                 try {
-                    const response = await fetch(`http://192.168.1.38:8000/api/get_voters_by_prabhagh/${prabhagId}/`);
+                    const response = await fetch(`http://192.168.1.20:8001/api/get_voters_by_prabhagh/${prabhagId}/`);
                     const data = await response.json();
                     votersData = data;  // Store the fetched voters data
                     renderVoters(votersData);  // Render voters in the table
@@ -432,6 +462,16 @@
                     srNoCell.textContent = index + 1;
                     row.appendChild(srNoCell);
 
+                    const VsrNOCell = document.createElement('td');
+                    VsrNOCell.style.textAlign = 'start';
+                    VsrNOCell.textContent = voter.voter_serial_number || 'None';
+                    row.appendChild(VsrNOCell);
+
+                    const VidNOCell = document.createElement('td');
+                    VidNOCell.style.textAlign = 'start';
+                    VidNOCell.textContent = voter.voter_id_card_number || 'None';
+                    row.appendChild(VidNOCell);
+
                     const nameCell = document.createElement('td');
                     nameCell.textContent = capitalizeWords(voter.voter_name);
                     row.appendChild(nameCell);
@@ -468,7 +508,7 @@
                         const newConfirmationStatus = voter.voter_vote_confirmation_id === null ? 1 : null; // Toggle logic
 
                         try {
-                            const response = await fetch(`http://192.168.1.38:8000/api/voter_confirmation/${voter.voter_id}/`, {
+                            const response = await fetch(`http://192.168.1.20:8001/api/voter_confirmation/${voter.voter_id}/`, {
                                 method: 'PUT',
                                 headers: {
                                     'Content-Type': 'application/json'
@@ -522,7 +562,7 @@
                     detailsButton.onclick = function () {
                         currentVoterId = voter.voter_id;
                         // Fetch voter details from the API
-                        fetch(`http://192.168.1.38:8000/api/voters/${voter.voter_id}/`)
+                        fetch(`http://192.168.1.20:8001/api/voters/${voter.voter_id}/`)
                             .then(response => {
                                 if (!response.ok) {
                                     throw new Error('Network response was not ok');
@@ -531,6 +571,8 @@
                             })
                             .then(voterDetails => {
                                 // Populate the modal with voter details
+                                document.getElementById('voter_serial_number').textContent = voterDetails.voter_serial_number || '--';
+                                document.getElementById('voter_id_card_number').textContent = voterDetails.voter_id_card_number || '--';
                                 document.getElementById('voter_name').textContent = capitalizeWords(voterDetails.voter_name) || '--';
                                 document.getElementById('voter_parent_name').textContent = capitalizeWords(voterDetails.voter_parent_name) || '--';
                                 document.getElementById('voter_dob').textContent = voterDetails.voter_dob || '--';
@@ -644,7 +686,7 @@
             // Add event listener for the export button in Voter Details
             document.getElementById('export-pdf-button').addEventListener('click', function () {
                 if (currentVoterId) {
-                    const pdfUrl = `http://192.168.1.38:8000/api/generate_voter_pdf/${currentVoterId}/`;
+                    const pdfUrl = `http://192.168.1.20:8001/api/generate_voter_pdf/${currentVoterId}/`;
                     fetch(pdfUrl)
                         .then(response => {
                             if (!response.ok) {
@@ -713,13 +755,23 @@
             init();  // Initialize the page
 
             // Search functionality
+            // document.getElementById('search-input').addEventListener('input', function () {
+            //     const searchTerm = this.value.toLowerCase();
+            //     const filteredVoters = votersData.filter(voter =>
+            //         voter.voter_name.toLowerCase().includes(searchTerm)
+            //     );
+            //     renderVoters(filteredVoters);
+            // });
+            // Search functionality
             document.getElementById('search-input').addEventListener('input', function () {
                 const searchTerm = this.value.toLowerCase();
                 const filteredVoters = votersData.filter(voter =>
-                    voter.voter_name.toLowerCase().includes(searchTerm)
+                    voter.voter_name.toLowerCase().includes(searchTerm) ||
+                    voter.voter_id_card_number.toLowerCase().includes(searchTerm)
                 );
                 renderVoters(filteredVoters);
             });
+
 
             // Clear search input
             document.getElementById('clear-button').addEventListener('click', () => {
@@ -732,7 +784,7 @@
         // // Multi Caste assign function
         // document.addEventListener('DOMContentLoaded', function () {
         //     // Fetch caste data from the API and populate the caste select options
-        //     fetch('http://192.168.1.38:8000/api/cast/')
+        //     fetch('http://192.168.1.20:8001/api/cast/')
         //         .then(response => response.json())
         //         .then(data => {
         //             const casteSelect = document.getElementById('caste-select');
@@ -806,7 +858,7 @@
         //     console.log('Payload:', JSON.stringify(payload));
 
         //     // Make the PUT request to assign caste to voters
-        //     fetch('http://192.168.1.38:8000/api/assign_voter_cast/', {
+        //     fetch('http://192.168.1.20:8001/api/assign_voter_cast/', {
         //         method: 'PUT',
         //         headers: {
         //             'Content-Type': 'application/json',
@@ -844,7 +896,7 @@
 
         document.addEventListener('DOMContentLoaded', function () {
             // Fetch caste data from the API and populate the caste select options
-            fetch('http://192.168.1.38:8000/api/cast/')
+            fetch('http://192.168.1.20:8001/api/cast/')
                 .then(response => response.json())
                 .then(data => {
                     const casteSelect = document.getElementById('caste-select');
@@ -955,7 +1007,7 @@
                 console.log('Payload:', JSON.stringify(payload));
 
                 // Make the PUT request to assign caste to voters
-                fetch('http://192.168.1.38:8000/api/favour/', {
+                fetch('http://192.168.1.20:8001/api/favour/', {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1009,7 +1061,7 @@
                 console.log('Payload:', JSON.stringify(payload));
 
                 // Make the PUT request to assign caste to voters
-                fetch('http://192.168.1.38:8000/api/assign_voter_cast/', {
+                fetch('http://192.168.1.20:8001/api/assign_voter_cast/', {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',

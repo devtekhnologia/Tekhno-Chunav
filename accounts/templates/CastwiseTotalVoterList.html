@@ -98,16 +98,19 @@
                                     <div class="row justify-content-center text-center">
                                         <div class="col-4">
                                             <h6 class="mt-1" style="cursor: default;"><strong>Total Voters:</strong>
-                                                <span id="totalCount">0</span></h6>
+                                                <span id="totalCount">0</span>
+                                            </h6>
                                         </div>
                                         <div class="col-4">
                                             <h6 class="mt-1" style="cursor: default;"><strong>Voted Voters:</strong>
-                                                <span id="votedCount">0</span></h6>
+                                                <span id="votedCount">0</span>
+                                            </h6>
                                             <p id="votedCountParcent"><i>percent: 0%</i></p>
                                         </div>
                                         <div class="col-4">
                                             <h6 class="mt-1" style="cursor: default;"><strong>Non-voted Voters:</strong>
-                                                <span id="nonVotedCount">0</span></h6>
+                                                <span id="nonVotedCount">0</span>
+                                            </h6>
                                             <p id="nonVotedCountParcent"><i>percent: 0%</i></p>
                                         </div>
                                     </div>
@@ -168,7 +171,7 @@
                     <div class="search" style="width: 300px;">
                         <div class="input-group">
                             <input type="text" id="search-input" name="search" class="form-control bg-light"
-                                placeholder="Search by Name" value="{{ request.GET.search }}" />
+                                placeholder="Search by Name or Card No" value="{{ request.GET.search }}" />
                             <button type="button" id="clear-button" class="btn-close" aria-label="Close"></button>
                             <button class="btn btn-success" type="submit">
                                 <i class="fa-solid fa-magnifying-glass"></i>
@@ -189,11 +192,13 @@
                                     <tr>
                                         <th><input class="form-check-input" type="checkbox" value=""
                                                 id="select-all-checkbox"></th>
-                                        <th class="text-center fw-bolder" style="width: 15%;">Sr. No.</th>
-                                        <th class="fw-bolder" style="width: 40%;">Voter Name</th>
-                                        <th class="fw-bolder" style="width: 30%;">Contact No.</th>
-                                        <th class="fw-bolder" style="width: 15%;">Actions</th>
-                                        <th class="fw-bolder"></th>
+                                        <th class="bg-blue fw-bolder" style="width: 10%;">Sr. No.</th>
+                                        <th class="bg-blue fw-bolder" style="width: 15%;">Reg. No.</th>
+                                        <th class="bg-blue fw-bolder" style="width: 15%;">CARD No.</th>
+                                        <th class="bg-blue fw-bolder" style="width: 30%;">Voter Name</th>
+                                        <th class="bg-blue fw-bolder" style="width: 20%;">Contact Number</th>
+                                        <th class="bg-blue fw-bolder" style="width: 15%;">Actions</th>
+                                        <th></th>
                                     </tr>
                                 </thead>
                                 <tbody id="votersTableBody">
@@ -224,6 +229,14 @@
                             <div class="modal-body">
                                 <table class="table p-1">
                                     <tbody>
+                                        <tr>
+                                            <th class="bg-light fw-semibold">Registration No.</th>
+                                            <td id="voter_serial_number"></td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light fw-semibold">Voter Card No.</th>
+                                            <td id="voter_id_card_number"></td>
+                                        </tr>
                                         <tr>
                                             <th class="bg-light fw-semibold">Voter Name</th>
                                             <td id="voter_name"></td>
@@ -306,7 +319,7 @@
             var liveStatus = 1;
 
             // Fetch religion data
-            fetch('http://192.168.1.38:8000/api/religion/')
+            fetch('http://192.168.1.20:8001/api/religion/')
                 .then(response => response.json())
                 .then(data => {
                     const religionSelect = document.getElementById('religionSelect');
@@ -326,7 +339,7 @@
 
                 if (selectedReligionId) {
                     castSelect.disabled = false;
-                    fetch(`http://192.168.1.38:8000/api/cast_by_religion/${selectedReligionId}/`)
+                    fetch(`http://192.168.1.20:8001/api/cast_by_religion/${selectedReligionId}/`)
                         .then(response => response.json())
                         .then(data => {
                             castSelect.innerHTML = '<option selected>Select Caste</option>';
@@ -353,7 +366,7 @@
 
             // Function to fetch and display voters based on cast_id
             function fetchVoters(castId) {
-                fetch(`http://192.168.1.38:8000/api/cast_wise_voter_list/${castId}/`)
+                fetch(`http://192.168.1.20:8001/api/cast_wise_voter_list/${castId}/`)
                     .then(response => response.json())
                     .then(data => {
                         fetchedVoters = data; // Store the fetched voter data
@@ -403,7 +416,13 @@
                     tableContainer.style.display = 'block';
                     noDataMessage.style.display = 'none';
 
-                    data.sort((a, b) => a.voter_name.localeCompare(b.voter_name));
+                    // data.sort((a, b) => a.voter_name.localeCompare(b.voter_name));
+                    data.sort((a, b) => {
+                        const nameA = a.voter_name || ''; // Default to empty string if null or undefined
+                        const nameB = b.voter_name || ''; // Default to empty string if null or undefined
+                        return nameA.localeCompare(nameB);
+                    });
+
 
                     data.forEach((voter, index) => {
                         const row = document.createElement('tr');
@@ -423,6 +442,17 @@
                         srNoCell.textContent = index + 1;
                         row.appendChild(srNoCell);
 
+
+                        const VsrNOCell = document.createElement('td');
+                        VsrNOCell.style.textAlign = 'start';
+                        VsrNOCell.textContent = voter.voter_serial_number || 'None';
+                        row.appendChild(VsrNOCell);
+
+                        const VidNOCell = document.createElement('td');
+                        VidNOCell.style.textAlign = 'start';
+                        VidNOCell.textContent = voter.voter_id_card_number || 'None';
+                        row.appendChild(VidNOCell);
+
                         const nameCell = document.createElement('td');
                         nameCell.textContent = capitalizeWords(voter.voter_name);
                         row.appendChild(nameCell);
@@ -434,68 +464,68 @@
 
                         // Actions Cell
                         const actionsCell = document.createElement('td');
-                    let detailsButton;
-                    detailsButton = document.createElement('button');
-                    detailsButton.className = 'btn voter-detail-link btn-light btn-sm m-1';
-                    detailsButton.innerHTML = '<i class="fa-solid fa-circle-info"></i>';
+                        let detailsButton;
+                        detailsButton = document.createElement('button');
+                        detailsButton.className = 'btn voter-detail-link btn-light btn-sm m-1';
+                        detailsButton.innerHTML = '<i class="fa-solid fa-circle-info"></i>';
 
-                    // Create a toggle button for vote confirmation
-                    const voteConfirmationButton = document.createElement('button');
+                        // Create a toggle button for vote confirmation
+                        const voteConfirmationButton = document.createElement('button');
 
-                    // Set the button icon based on the current confirmation status
-                    if (voter.voter_vote_confirmation_id === null) {
-                        voteConfirmationButton.className = 'btn btn-secondary btn-sm m-1';
-                        voteConfirmationButton.innerHTML = '<i class="fa-regular fa-thumbs-up"></i>'; // Icon for "Confirm Vote"
-                    } else {
-                        voteConfirmationButton.className = 'btn btn-primary btn-sm m-1';
-                        voteConfirmationButton.innerHTML = '<i class="fa-solid fa-thumbs-up"></i>'; // Icon for "Undo Confirmation"
-                    }
-
-                    // Add event listener for toggling vote confirmation
-                    voteConfirmationButton.addEventListener('click', async () => {
-                        const newConfirmationStatus = voter.voter_vote_confirmation_id === null ? 1 : null; // Toggle logic
-
-                        try {
-                            const response = await fetch(`http://192.168.1.38:8000/api/voter_confirmation/${voter.voter_id}/`, {
-                                method: 'PUT',
-                                headers: {
-                                    'Content-Type': 'application/json'
-                                },
-                                body: JSON.stringify({ voter_vote_confirmation_id: newConfirmationStatus })
-                            });
-
-                            if (!response.ok) {
-                                throw new Error('Failed to update vote confirmation status');
-                            }
-
-                            // Update the button icon and voter object
-                            voter.voter_vote_confirmation_id = newConfirmationStatus; // Update the current status
-                            // voteConfirmationButton.innerHTML = newConfirmationStatus === null
-                            //     ? '<i class="fa-regular fa-thumbs-up"></i>' // Icon for "Confirm Vote"
-                            //     : '<i class="fa-solid fa-thumbs-up"></i>'; // Icon for "Undo Confirmation"
-                            // Set the button icon based on the current confirmation status
-                            console.log('After status', newConfirmationStatus);
-
-                            if (newConfirmationStatus === null) {
-                                voteConfirmationButton.className = 'btn btn-secondary btn-sm m-1';
-                                voteConfirmationButton.innerHTML = '<i class="fa-regular fa-thumbs-up"></i>'; // Icon for "Confirm Vote"
-                            } else {
-                                voteConfirmationButton.className = 'btn btn-primary btn-sm m-1';
-                                voteConfirmationButton.innerHTML = '<i class="fa-solid fa-thumbs-up"></i>'; // Icon for "Undo Confirmation"
-                            }
-
-                        } catch (error) {
-                            console.error('Error toggling vote confirmation:', error);
-                            alert('Error toggling vote confirmation. Please try again.');
+                        // Set the button icon based on the current confirmation status
+                        if (voter.voter_vote_confirmation_id === null) {
+                            voteConfirmationButton.className = 'btn btn-secondary btn-sm m-1';
+                            voteConfirmationButton.innerHTML = '<i class="fa-regular fa-thumbs-up"></i>'; // Icon for "Confirm Vote"
+                        } else {
+                            voteConfirmationButton.className = 'btn btn-primary btn-sm m-1';
+                            voteConfirmationButton.innerHTML = '<i class="fa-solid fa-thumbs-up"></i>'; // Icon for "Undo Confirmation"
                         }
-                    });
-                    actionsCell.appendChild(voteConfirmationButton);
+
+                        // Add event listener for toggling vote confirmation
+                        voteConfirmationButton.addEventListener('click', async () => {
+                            const newConfirmationStatus = voter.voter_vote_confirmation_id === null ? 1 : null; // Toggle logic
+
+                            try {
+                                const response = await fetch(`http://192.168.1.20:8001/api/voter_confirmation/${voter.voter_id}/`, {
+                                    method: 'PUT',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify({ voter_vote_confirmation_id: newConfirmationStatus })
+                                });
+
+                                if (!response.ok) {
+                                    throw new Error('Failed to update vote confirmation status');
+                                }
+
+                                // Update the button icon and voter object
+                                voter.voter_vote_confirmation_id = newConfirmationStatus; // Update the current status
+                                // voteConfirmationButton.innerHTML = newConfirmationStatus === null
+                                //     ? '<i class="fa-regular fa-thumbs-up"></i>' // Icon for "Confirm Vote"
+                                //     : '<i class="fa-solid fa-thumbs-up"></i>'; // Icon for "Undo Confirmation"
+                                // Set the button icon based on the current confirmation status
+                                console.log('After status', newConfirmationStatus);
+
+                                if (newConfirmationStatus === null) {
+                                    voteConfirmationButton.className = 'btn btn-secondary btn-sm m-1';
+                                    voteConfirmationButton.innerHTML = '<i class="fa-regular fa-thumbs-up"></i>'; // Icon for "Confirm Vote"
+                                } else {
+                                    voteConfirmationButton.className = 'btn btn-primary btn-sm m-1';
+                                    voteConfirmationButton.innerHTML = '<i class="fa-solid fa-thumbs-up"></i>'; // Icon for "Undo Confirmation"
+                                }
+
+                            } catch (error) {
+                                console.error('Error toggling vote confirmation:', error);
+                                alert('Error toggling vote confirmation. Please try again.');
+                            }
+                        });
+                        actionsCell.appendChild(voteConfirmationButton);
 
 
                         detailsButton.onclick = function () {
                             currentVoterId = voter.voter_id;
                             // Fetch voter details from the API
-                            fetch(`http://192.168.1.38:8000/api/voters/${voter.voter_id}/`)
+                            fetch(`http://192.168.1.20:8001/api/voters/${voter.voter_id}/`)
                                 .then(response => {
                                     if (!response.ok) {
                                         throw new Error('Network response was not ok');
@@ -504,6 +534,8 @@
                                 })
                                 .then(voterDetails => {
                                     // Populate the modal with voter details
+                                    document.getElementById('voter_serial_number').textContent = voterDetails.voter_serial_number || '--';
+                                    document.getElementById('voter_id_card_number').textContent = voterDetails.voter_id_card_number || '--';
                                     document.getElementById('voter_name').textContent = capitalizeWords(voterDetails.voter_name) || '--';
                                     document.getElementById('voter_parent_name').textContent = capitalizeWords(voterDetails.voter_parent_name) || '--';
                                     document.getElementById('voter_dob').textContent = voterDetails.voter_dob || '--';
@@ -634,7 +666,7 @@
                     return;
                 }
 
-                const pdfUrl = `http://192.168.1.38:8000/api/cast_pdf/${selectedCastId}/`;
+                const pdfUrl = `http://192.168.1.20:8001/api/cast_pdf/${selectedCastId}/`;
 
                 // Fetch PDF
                 fetch(pdfUrl)
@@ -659,14 +691,32 @@
             });
 
             // Filter voters based on search input
+            // function filterVoters() {
+            //     const searchInput = document.getElementById('search-input').value.toLowerCase();
+            //     const filteredVoters = fetchedVoters.filter(voter =>
+            //         voter.voter_name.toLowerCase().includes(searchInput)
+            //     );
+            //     displayVoters(filteredVoters);
+            //     updateCounts(filteredVoters); // Update counts based on filtered voters
+            // }
+
+            // Filter voters based on search input
             function filterVoters() {
-                const searchInput = document.getElementById('search-input').value.toLowerCase();
-                const filteredVoters = fetchedVoters.filter(voter =>
-                    voter.voter_name.toLowerCase().includes(searchInput)
-                );
-                displayVoters(filteredVoters);
-                updateCounts(filteredVoters); // Update counts based on filtered voters
-            }
+                const input = document.getElementById('search-input').value.toLowerCase();
+
+                // Filter fetchedVoters based on name or card number
+                const filteredData = fetchedVoters.filter(voter => {
+                    // Check if voter_name or voter_id_card_number is null/undefined and provide default empty string if true
+                    const name = voter.voter_name ? voter.voter_name.toLowerCase() : '';
+                    const cardNumber = voter.voter_id_card_number ? voter.voter_id_card_number.toLowerCase() : '';
+
+                    // Check if either the name or card number includes the search input
+                    return name.includes(input) || cardNumber.includes(input);
+                });
+
+                displayVoters(filteredData);
+                updateCounts(filteredData); // Repopulate the table with filtered data
+            };
 
             // Favor type filter
             document.getElementById('town-type-select').addEventListener('change', function () {
@@ -689,7 +739,7 @@
             // Add event listener for the export button in Voter Details
             document.getElementById('export-pdf-button').addEventListener('click', function () {
                 if (currentVoterId) {
-                    const pdfUrl = `http://192.168.1.38:8000/api/generate_voter_pdf/${currentVoterId}/`;
+                    const pdfUrl = `http://192.168.1.20:8001/api/generate_voter_pdf/${currentVoterId}/`;
                     fetch(pdfUrl)
                         .then(response => {
                             if (!response.ok) {
@@ -713,12 +763,22 @@
                 }
             });
 
-            // Function to capitalize first letter of each word
+            // // Function to capitalize first letter of each word
+            // function capitalizeWords(str) {
+            //     return str.replace(/\w\S*/g, function (txt) {
+            //         return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+            //     });
+            // }
+
             function capitalizeWords(str) {
+                if (typeof str !== 'string' || str === null) {
+                    return ''; // Return an empty string or handle the error as needed
+                }
                 return str.replace(/\w\S*/g, function (txt) {
                     return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
                 });
             }
+
 
             // Attach input event listener to the search input
             document.getElementById('search-input').addEventListener('input', filterVoters);
@@ -829,7 +889,7 @@
                 // console.log('Payload:', JSON.stringify(payload));
 
                 // Make the PUT request to assign favour to voters
-                fetch('http://192.168.1.38:8000/api/favour/', {
+                fetch('http://192.168.1.20:8001/api/favour/', {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',

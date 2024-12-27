@@ -1,7 +1,7 @@
 
 from django.urls import path
 from django.conf.urls import handler404, handler500
-from .views import register, login_view, AddBoothUser, SurnameWiseVoterList, VotedNonvotedList, TotalVoterListWithGroupId, RUExitPoll, GroupDetails, BoothWiseVoterListWithOnlyBID, PrabhagDetails, PrabhagUserList, AddPrabhagUser, PrabhagWiseVoterListWithID, PrabhagWiseVoterList, ZillaParishadCircleList, PanchayatSamitiCircleList, PrabhagWiseBoothList, TownCategory, GraminList, ShaharList, FamilyDetails, BoothWiseVoterList, BoothWiseVoterListWithID, TownWiseVoterListID, TownExitPoll, BoothExitPoll, FAQs, TownDetails, delete_town_user, delete_booth_user, religionwiseBoothVoterList, religionwiseTownVoterList, religionwiseTotalVoterList, castwiseBoothVoterList, castwiseTotalVoterList, castwiseTownVoterList, boothUserActivityLog, ActivityLog, logout_view, ContactUs, user_profile, dashboard, user_list, AddTownUser, ExitPoll, TownUserList, BoothDetails, BoothUser, navbar, index, TotalVoterList
+from .views import register, login_view, AddBoothUser, SurnameWiseVoterList, VotedNonvotedList, TotalVoterListWithGroupId, RUExitPoll, GroupDetails, BoothWiseVoterListWithOnlyBID, PrabhagDetails, PrabhagUserList, AddPrabhagUser, PrabhagWiseVoterListWithID, PrabhagWiseVoterList, ZillaParishadCircleList, PanchayatSamitiCircleList, PrabhagWiseBoothList, TownCategory, GraminList, ShaharList, FamilyDetails, BoothWiseVoterList,BoothwiseSurname, BoothWiseVoterListWithID, TownWiseVoterListID, TownExitPoll, BoothExitPoll, FAQs, TownDetails, delete_town_user, delete_booth_user, religionwiseBoothVoterList, religionwiseTownVoterList, religionwiseTotalVoterList, castwiseBoothVoterList, castwiseTotalVoterList, castwiseTownVoterList, boothUserActivityLog, ActivityLog, logout_view, ContactUs, user_profile, dashboard, user_list, AddTownUser, ExitPoll, TownUserList, BoothDetails, BoothUser, navbar, index, TotalVoterList
 from .views import EditPSUser, EditVoterDetails, EditBoothUser, EditTownUser, EditZPUser, EditPSUser
 from .views import TownWiseVoterList
 from .views import CastWiseVoter
@@ -20,7 +20,7 @@ urlpatterns = [
     path('logout/', logout_view, name='logout'),
 
     # Main Pages
-    path('navbar/', navbar, name='navbar'),
+    # path('navbar/', navbar, name='navbar'),
     path('dashboard/', dashboard, name='dashboard'),
     path('user/', user_profile, name='user_profile'),
 
@@ -59,10 +59,11 @@ urlpatterns = [
     path('totalvoterlist/<str:id>/', TotalVoterListWithGroupId, name = 'TotalVoterListWithGroupId'),
     path('votednonvotedlist/', VotedNonvotedList, name = 'VotedNonvotedList'),
     path('surnamewisevoterlist/', SurnameWiseVoterList, name = 'SurnameWisevoterList'),
-    # TownWiseVoterList
+    path('boothwisesurname/', BoothwiseSurname, name = 'BoothwiseSurname'),
+
     path('townwisevoterlist/', TownWiseVoterList, name='TownWiseVoterList'),
     path('townwisevoterlist/<str:id>/', TownWiseVoterListID, name='TownWiseVoterListID'),
-    # BoothWiseVoterList
+
     path('boothwisevoterlist/', BoothWiseVoterList, name='BoothWiseVoterList'),
     path('boothwisevoterlist/<str:b_id>/', BoothWiseVoterListWithOnlyBID, name='BoothWiseVoterListWithOnlyBID'),
     path('boothwisevoterlist/<str:t_id>/<str:b_id>/', BoothWiseVoterListWithID, name='BoothWiseVoterListWithID'),
@@ -97,12 +98,11 @@ urlpatterns = [
     path('castwisevoter/', CastWiseVoter, name = 'CastWiseVoter'),
 
     # Edit
-    path('editvoter/<str:id>/', EditVoterDetails, name='EditVoterDetails'),
+    path('editzpuser/<int:id>/', EditZPUser, name='EditZPUser'),
     path('editpsuser/<int:id>/', EditPSUser, name='EditPSUser'),
     path('edittownuser/<int:id>/', EditTownUser, name='EditTownUser'),
     path('editboothuser/<int:id>/', EditBoothUser, name='EditBoothUser'),
-    path('editzpuser/<int:id>/', EditZPUser, name='EditZPUser'),
-    path('editpsuser/<int:id>/', EditPSUser, name='EditPSUser'),
+    path('editvoter/<str:id>/', EditVoterDetails, name='EditVoterDetails'),
 
     # Delete
     path('delete_town_user/<str:user_id>/', delete_town_user, name='delete_town_user'),
