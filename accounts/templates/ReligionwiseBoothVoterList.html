@@ -167,7 +167,7 @@
                     <div class="search">
                         <div class="input-group">
                             <input type="text" id="search-input" name="search" class="form-control bg-light"
-                                placeholder="Search by Name" value="{{ request.GET.search }}" />
+                                placeholder="Search by Name or Card No" value="{{ request.GET.search }}" />
                             <button type="button" id="clear-button" class="btn-close" aria-label="Close"></button>
                             <button class="btn btn-success" type="submit">
                                 <i class="fa-solid fa-magnifying-glass"></i>
@@ -188,11 +188,13 @@
                                     <tr>
                                         <th><input class="form-check-input" type="checkbox" value=""
                                                 id="select-all-checkbox"></th>
-                                        <th class="text-center fw-bolder" style="width: 15%;">Sr. No.</th>
-                                        <th class="fw-bolder" style="width: 40%;">Voter Name</th>
-                                        <th class="fw-bolder" style="width: 30%;">Contact No.</th>
+                                        <th class="text-center fw-bolder" style="width: 10%;">Sr. No.</th>
+                                        <th class="fw-bolder" style="width: 15%;">Reg. No.</th>
+                                        <th class="fw-bolder" style="width: 15%;">CARD No.</th>
+                                        <th class="fw-bolder" style="width: 30%;">Voter Name</th>
+                                        <th class="fw-bolder" style="width: 20%;">Contact Number</th>
                                         <th class="fw-bolder" style="width: 15%;">Actions</th>
-                                        <th class="fw-bolder"></th>
+                                        <th></th>
                                     </tr>
                                 </thead>
                                 <tbody id="votersTableBody">
@@ -219,6 +221,14 @@
                             <div class="modal-body">
                                 <table class="table p-1">
                                     <tbody>
+                                        <tr>
+                                            <th class="bg-light fw-semibold">Registration No.</th>
+                                            <td id="voter_serial_number"></td>
+                                          </tr>
+                                          <tr>
+                                            <th class="bg-light fw-semibold">Voter Card No.</th>
+                                            <td id="voter_id_card_number"></td>
+                                          </tr>
                                         <tr>
                                             <th class="bg-light fw-semibold">Voter Name</th>
                                             <td id="voter_name"></td>
@@ -311,7 +321,7 @@
             let votersData = []; // Store all voters data for searching
 
             // Fetch town data
-            fetch('http://192.168.1.38:8000/api/towns/')
+            fetch('http://192.168.1.20:8001/api/towns/')
                 .then(response => response.json())
                 .then(data => {
                     data.forEach(town => {
@@ -329,7 +339,7 @@
                 if (selectedTownId) {
                     boothSelect.disabled = false;
 
-                    fetch(`http://192.168.1.38:8000/api/booths_by_town/${selectedTownId}/`)
+                    fetch(`http://192.168.1.20:8001/api/booths_by_town/${selectedTownId}/`)
                         .then(response => response.json())
                         .then(data => {
                             boothSelect.innerHTML = '<option selected>Select Booth</option>';
@@ -350,7 +360,7 @@
                 if (selectedBoothId) {
                     religionSelect.disabled = false;
 
-                    fetch('http://192.168.1.38:8000/api/get_all_religion/')
+                    fetch('http://192.168.1.20:8001/api/get_all_religion/')
                         .then(response => response.json())
                         .then(data => {
                             religionSelect.innerHTML = '<option selected>Select Religion</option>';
@@ -371,7 +381,7 @@
                 const selectedReligionId = religionSelect.value;
 
                 if (selectedBoothId && selectedReligionId) {
-                    fetch(`http://192.168.1.38:8000/api/booth/${selectedBoothId}/religion/${selectedReligionId}/`)
+                    fetch(`http://192.168.1.20:8001/api/booth/${selectedBoothId}/religion/${selectedReligionId}/`)
                         .then(response => response.json())
                         .then(data => {
                             if (data.length === 0) {
@@ -436,6 +446,17 @@
                     srNoCell.textContent = index + 1;
                     row.appendChild(srNoCell);
 
+                    
+                    const VsrNOCell = document.createElement('td');
+                    VsrNOCell.style.textAlign = 'start';
+                    VsrNOCell.textContent = voter.voter_serial_number || 'None';
+                    row.appendChild(VsrNOCell);
+
+                    const VidNOCell = document.createElement('td');
+                    VidNOCell.style.textAlign = 'start';
+                    VidNOCell.textContent = voter.voter_id_card_number || 'None';
+                    row.appendChild(VidNOCell);
+
                     const nameCell = document.createElement('td');
                     const capitalizedName = capitalizeWords(voter.voter_name)
                     nameCell.textContent = capitalizedName;
@@ -473,7 +494,7 @@
                         const newConfirmationStatus = voter.voter_vote_confirmation_id === null ? 1 : null; // Toggle logic
 
                         try {
-                            const response = await fetch(`http://192.168.1.38:8000/api/voter_confirmation/${voter.voter_id}/`, {
+                            const response = await fetch(`http://192.168.1.20:8001/api/voter_confirmation/${voter.voter_id}/`, {
                                 method: 'PUT',
                                 headers: {
                                     'Content-Type': 'application/json'
@@ -511,7 +532,7 @@
                     detailsButton.onclick = function () {
                         currentVoterId = voter.voter_id;
                         // Fetch voter details from the API
-                        fetch(`http://192.168.1.38:8000/api/voters/${voter.voter_id}/`)
+                        fetch(`http://192.168.1.20:8001/api/voters/${voter.voter_id}/`)
                             .then(response => {
                                 if (!response.ok) {
                                     throw new Error('Network response was not ok');
@@ -520,6 +541,8 @@
                             })
                             .then(voterDetails => {
                                 // Populate the modal with voter details
+                                document.getElementById('voter_serial_number').textContent = voterDetails.voter_serial_number || '--';
+                                document.getElementById('voter_id_card_number').textContent = voterDetails.voter_id_card_number || '--';
                                 document.getElementById('voter_name').textContent = capitalizeWords(voterDetails.voter_name) || '--';
                                 document.getElementById('voter_parent_name').textContent = capitalizeWords(voterDetails.voter_parent_name) || '--';
                                 document.getElementById('voter_dob').textContent = voterDetails.voter_dob || '--';
@@ -650,7 +673,7 @@
             // Add event listener for the export button in Voter Details
             document.getElementById('export-pdf-button').addEventListener('click', function () {
                 if (currentVoterId) {
-                    const pdfUrl = `http://192.168.1.38:8000/api/generate_voter_pdf/${currentVoterId}/`;
+                    const pdfUrl = `http://192.168.1.20:8001/api/generate_voter_pdf/${currentVoterId}/`;
                     fetch(pdfUrl)
                         .then(response => {
                             if (!response.ok) {
@@ -677,12 +700,27 @@
             
             
             // Search functionality
+            // searchInput.addEventListener('input', function () {
+            //     const searchValue = searchInput.value.toLowerCase();
+            //     const filteredVoters = votersData.filter(voter => {
+            //         return voter.voter_name.toLowerCase().includes(searchValue);
+            //     });
+            //     displayVoters(filteredVoters);
+            // });
             searchInput.addEventListener('input', function () {
-                const searchValue = searchInput.value.toLowerCase();
-                const filteredVoters = votersData.filter(voter => {
-                    return voter.voter_name.toLowerCase().includes(searchValue);
+                const input = this.value.toLowerCase();
+
+                // Filter votersData based on name or card number
+                const filteredData = votersData.filter(voter => {
+                    // Check if voter_name or voter_id_card_number is null/undefined and provide default empty string if true
+                    const name = voter.voter_name ? voter.voter_name.toLowerCase() : '';
+                    const cardNumber = voter.voter_id_card_number ? voter.voter_id_card_number.toLowerCase() : '';
+
+                    // Check if either the name or card number includes the search input
+                    return name.includes(input) || cardNumber.includes(input);
                 });
-                displayVoters(filteredVoters);
+
+                displayVoters(filteredData); // Repopulate the table with filtered data
             });
             
             // Clear button functionality
@@ -703,7 +741,7 @@
                     return;
                 }
 
-                const pdfUrl = `http://192.168.1.38:8000/api/booth_pdf/${selectedBoothId}/religion/${selectedReligionId}/`;
+                const pdfUrl = `http://192.168.1.20:8001/api/booth_pdf/${selectedBoothId}/religion/${selectedReligionId}/`;
 
                 // Fetch PDF
                 fetch(pdfUrl)
@@ -847,7 +885,7 @@
                 console.log('Payload:', JSON.stringify(payload));
 
                 // Make the PUT request to assign favour to voters
-                fetch('http://192.168.1.38:8000/api/favour/', {
+                fetch('http://192.168.1.20:8001/api/favour/', {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',

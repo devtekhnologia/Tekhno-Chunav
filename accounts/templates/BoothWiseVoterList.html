@@ -132,6 +132,25 @@
 
                   <div class="row justify-content-center text-center">
                     <div class="col-4">
+                      <h6 class="mt-1" style="cursor: default;"><strong>Total Voters:</strong>
+                        <span id="totalCount">0</span>
+                      </h6>
+                    </div>
+                    <div class="col-4">
+                      <h6 class="mt-1" style="cursor: default;"><strong>Voted Voters:</strong>
+                        <span id="votedCount">0</span>
+                      </h6>
+                      <p id="votedCountParcent"><i>percent: 0%</i></p>
+                    </div>
+                    <div class="col-4">
+                      <h6 class="mt-1" style="cursor: default;"><strong>Non-voted Voters:</strong>
+                        <span id="non-votedCount">0</span>
+                      </h6>
+                      <p id="non-votedCountParcent"><i>percent: 0%</i></p>
+                    </div>
+                  </div>
+                  <!-- <div class="row justify-content-center text-center">
+                    <div class="col-4">
                       <h5 class="mt-1" style="cursor: default;"><strong>Total Voters:</strong>
                         <span id="voterCount">0</span>
                       </h5>
@@ -148,7 +167,7 @@
                       </h5>
                       <p id="non-votedCountParcent"><i><b>Percent:</b></i></p>
                     </div>
-                  </div>
+                  </div> -->
 
                 </div>
               </div>
@@ -231,11 +250,13 @@
                     <th class="bg-blue fw-bolder text-center" style="width: 0%;">
                       <input class="form-check-input booth-checkbox" type="checkbox" value="1" id="townCheck">
                     </th>
-                    <th class="bg-blue fw-bolder text-center" style="width: 15%;">Sr. No.</th>
-                    <th class="bg-blue fw-bolder" style="width: 30%;">Voter Name</th>
-                    <th class="bg-blue fw-bolder" style="width: 20%;">Contact Number</th>
+                    <th class="text-center fw-bolder bg-blue" style="width: 10%;">Sr. No.</th>
+                    <th class="bg-blue fw-bolder" style="width: 10%;">Reg. No.</th>
+                    <th class="bg-blue fw-bolder" style="width: 15%;">CARD No.</th>
+                    <th class="bg-blue fw-bolder" style="width: 20%;">Voter Name</th>
+                    <th class="bg-blue fw-bolder" style="width: 15%;">Contact Number</th>
                     <th class="bg-blue fw-bolder" style="width: 20%;">Current Location</th>
-                    <th class="bg-blue fw-bolder text-center" style="width: 15%;">Actions</th>
+                    <th class="bg-blue fw-bolder" style="width: 15%;">Actions</th>
                     <th class="bg-blue"></th>
                   </tr>
                 </thead>
@@ -273,6 +294,14 @@
         <div class="modal-body">
           <table class="table p-1">
             <tbody>
+              <tr>
+                <th class="bg-light fw-semibold">Registration No.</th>
+                <td id="voter_serial_number"></td>
+              </tr>
+              <tr>
+                <th class="bg-light fw-semibold">Voter Card No.</th>
+                <td id="voter_id_card_number"></td>
+              </tr>
               <tr>
                 <th class="bg-light fw-semibold">Voter Name</th>
                 <td id="voter_name"></td>
@@ -347,6 +376,9 @@
 
     // Capitalize function
     function capitalizeWords(str) {
+      if (typeof str !== 'string' || str === null) {
+        return ''; // Return an empty string or handle the error as needed
+      }
       return str.split(' ')
         .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
         .join(' ');
@@ -388,7 +420,7 @@
 
       // Fetch towns data
       function fetchTowns() {
-        fetch('http://192.168.1.38:8000/api/towns/')
+        fetch('http://192.168.1.20:8001/api/towns/')
           .then(response => response.json())
           .then(data => {
             data.forEach(town => {
@@ -405,7 +437,7 @@
         const selectedTownId = townSelect.value;
         if (!selectedTownId) return;
 
-        fetch(`http://192.168.1.38:8000/api/booths_by_town/${selectedTownId}/`)
+        fetch(`http://192.168.1.20:8001/api/booths_by_town/${selectedTownId}/`)
           .then(response => response.json())
           .then(data => {
             boothSelect.innerHTML = '<option value="" disabled selected>Select Booth</option>';
@@ -424,7 +456,7 @@
         const selectedTownId = townSelect.value;
         if (!selectedBoothId || !selectedTownId) return;
 
-        fetch(`http://192.168.1.38:8000/api/get_voters_by_booth/${selectedBoothId}/`)
+        fetch(`http://192.168.1.20:8001/api/get_voters_by_booth/${selectedBoothId}/`)
           .then(response => response.json())
           .then(data => {
             votersData = data;
@@ -479,6 +511,17 @@
           srNoCell.textContent = index + 1;
           row.appendChild(srNoCell);
 
+
+          const VsrNOCell = document.createElement('td');
+          VsrNOCell.style.textAlign = 'start';
+          VsrNOCell.textContent = voter.voter_serial_number || 'None';
+          row.appendChild(VsrNOCell);
+
+          const VidNOCell = document.createElement('td');
+          VidNOCell.style.textAlign = 'start';
+          VidNOCell.textContent = voter.voter_id_card_number || 'None';
+          row.appendChild(VidNOCell);
+
           const nameCell = document.createElement('td');
           nameCell.className = 'text-start';
           nameCell.textContent = capitalizeWords(voter.voter_name);
@@ -518,13 +561,14 @@
       }
 
       function updateCounts(total, voted, nonVoted, totalvotedCountParcent, totalnonVotedCountParcent) {
-        document.getElementById('voterCount').textContent = total;
+        document.getElementById('totalCount').textContent = total;
         document.getElementById('votedCount').textContent = voted;
         document.getElementById('non-votedCount').textContent = nonVoted;
-        document.getElementById('votedCountParcent').innerHTML = "<b>Percent:</b> <i>" + totalvotedCountParcent + "%</i>";
-        document.getElementById('votedCountParcent').style.fontStyle = "italic"; // Optional for the overall style
 
-        document.getElementById('non-votedCountParcent').innerHTML = "<b>Percent:</b> <i>" + totalnonVotedCountParcent + "%</i>";
+        // Update the percentage display for voted and non-voted
+        document.getElementById('votedCountParcent').innerHTML = "percent: <i>" + totalvotedCountParcent + "%</i>";
+        document.getElementById('votedCountParcent').style.fontStyle = "italic"; // Optional for the overall style
+        document.getElementById('non-votedCountParcent').innerHTML = "percent: <i>" + totalnonVotedCountParcent + "%</i>";
         document.getElementById('non-votedCountParcent').style.fontStyle = "italic"; // Optional for the overall style
       }
 
@@ -571,7 +615,7 @@
         const newConfirmationStatus = voteStatusId === 1 ? null : 1; // Toggle logic
 
         try {
-          fetch(`http://192.168.1.38:8000/api/voter_confirmation/${voter.voter_id}/`, {
+          fetch(`http://192.168.1.20:8001/api/voter_confirmation/${voter.voter_id}/`, {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json'
@@ -607,9 +651,11 @@
       // Fetch and populate voter details in the modal
       window.showVoterDetails = function (voterId) {
         currentVoterId = voterId; // Save the current voter ID
-        fetch(`http://192.168.1.38:8000/api/voters/${voterId}/`)
+        fetch(`http://192.168.1.20:8001/api/voters/${voterId}/`)
           .then(response => response.json())
           .then(data => {
+            document.getElementById('voter_serial_number').textContent = data.voter_serial_number || '--';
+            document.getElementById('voter_id_card_number').textContent = data.voter_id_card_number || '--';
             document.getElementById('voter_name').textContent = capitalizeWords(data.voter_name) || '--';
             document.getElementById('voter_parent_name').textContent = capitalizeWords(data.voter_parent_name) || '--';
             document.getElementById('voter_dob').textContent = data.voter_dob || '--';
@@ -684,7 +730,7 @@
           return;
         }
 
-        const pdfUrl = `http://192.168.1.38:8000/api/generate_voter_pdf_by_booth/booth_id/${selectedBoothId}/city_id/${selectedLocationId}/`;
+        const pdfUrl = `http://192.168.1.20:8001/api/generate_voter_pdf_by_booth/booth_id/${selectedBoothId}/city_id/${selectedLocationId}/`;
 
         if (selectedBoothId || selectedLocationId) {
           // Fetch PDF
@@ -747,7 +793,7 @@
       }
 
       function fetchVoters_by_tid_AND_bid(townId, boothId) {
-        fetch(`http://192.168.1.38:8000/api/town/${townId}/booth/${boothId}/`)
+        fetch(`http://192.168.1.20:8001/api/town/${townId}/booth/${boothId}/`)
           .then(response => response.json())
           .then(data => {
             votersData = data; // Store fetched voters data
@@ -757,7 +803,7 @@
       }
 
       function fetchVoters_by_bid(boothId) {
-        fetch(`http://192.168.1.38:8000/api/get_voters_by_booth/${parseInt(boothId)}/`)
+        fetch(`http://192.168.1.20:8001/api/get_voters_by_booth/${parseInt(boothId)}/`)
           .then(response => response.json())
           .then(data => {
             votersData = data; // Store fetched voters data
@@ -775,7 +821,7 @@
           alert('Please select a voter first to export.');
           return;
         }
-        const pdfUrl = `http://192.168.1.38:8000/api/generate_voter_pdf/${currentVoterId}/`;
+        const pdfUrl = `http://192.168.1.20:8001/api/generate_voter_pdf/${currentVoterId}/`;
         fetch(pdfUrl)
           .then(response => {
             if (!response.ok) throw new Error('Network response was not ok');
@@ -794,10 +840,20 @@
       });
 
       // Search functionality
+      // document.getElementById('search-input').addEventListener('input', function () {
+      //   const searchTerm = this.value.toLowerCase();
+      //   const filteredVoters = votersData.filter(voter =>
+      //     voter.voter_name.toLowerCase().includes(searchTerm)
+      //   );
+      //   renderVoters(filteredVoters);
+      // });
+      
+      // Search functionality
       document.getElementById('search-input').addEventListener('input', function () {
         const searchTerm = this.value.toLowerCase();
         const filteredVoters = votersData.filter(voter =>
-          voter.voter_name.toLowerCase().includes(searchTerm)
+          voter.voter_name.toLowerCase().includes(searchTerm) ||
+          voter.voter_id_card_number.toLowerCase().includes(searchTerm)
         );
         renderVoters(filteredVoters);
       });
@@ -818,7 +874,7 @@
       let selectedVoters = []; // This will track the selected voters
 
       // Fetch caste data from the API and populate the caste select options
-      fetch('http://192.168.1.38:8000/api/cast/')
+      fetch('http://192.168.1.20:8001/api/cast/')
         .then(response => response.json())
         .then(data => {
           const casteSelect = document.getElementById('caste-select');
@@ -919,7 +975,7 @@
         console.log('Payload:', JSON.stringify(payload));
 
         // Make the PUT request to assign caste to voters
-        fetch('http://192.168.1.38:8000/api/assign_voter_cast/', {
+        fetch('http://192.168.1.20:8001/api/assign_voter_cast/', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -957,7 +1013,7 @@
       let selectedVoters = []; // This will track the selected voters
 
       // Fetch caste data from the API and populate the caste select options
-      // fetch('http://192.168.1.38:8000/api/cast/')
+      // fetch('http://192.168.1.20:8001/api/cast/')
       //   .then(response => response.json())
       //   .then(data => {
       //     const casteSelect = document.getElementById('caste-select');
@@ -1058,7 +1114,7 @@
         console.log('Payload:', JSON.stringify(payload));
 
         // Make the PUT request to assign caste to voters
-        fetch('http://192.168.1.38:8000/api/favour/', {
+        fetch('http://192.168.1.20:8001/api/favour/', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',

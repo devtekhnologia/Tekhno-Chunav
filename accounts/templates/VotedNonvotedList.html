@@ -40,7 +40,7 @@
 
         .btn-close {
             position: absolute;
-            right: 45px;
+            right: 5px;
             top: 50%;
             transform: translateY(-50%);
             cursor: pointer;
@@ -59,6 +59,23 @@
 
         .custom-text-light {
             color: gray;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .page-label {
+            margin: 0 10px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        button[disabled] {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
     </style>
 </head>
@@ -88,17 +105,17 @@
                 </div>
 
                 <!-- Search Form -->
-                <div class="search" style="width: 260px;">
+                <div class="search" style="width: 250px;">
                     <form class="d-flex" id="search-form" method="GET" action="#">
                         <div class="input-group">
                             <input type="text" id="search-input" name="search" class="form-control bg-light"
-                                placeholder="Search by Voter" value="{{ request.GET.search }}"
+                                placeholder="Search by Name or Card No" value="{{ request.GET.search }}"
                                 aria-label="Search by Booth" />
                             <button type="button" id="clear-button" class="btn-close" aria-label="Clear Search">
                             </button>
-                            <button type="submit" class="btn btn-success" aria-label="Submit Search">
+                            <!-- <button type="submit" class="btn btn-success" aria-label="Submit Search">
                                 <i class="fa-solid fa-magnifying-glass"></i>
-                            </button>
+                            </button> -->
                         </div>
                     </form>
                 </div>
@@ -112,6 +129,8 @@
                                 <thead class="text-muted text-uppercase">
                                     <tr>
                                         <th class="text-center fw-bolder">Sr. No.</th>
+                                        <th class="fw-bolder">Reg. No.</th>
+                                        <th class="fw-bolder">Card No.</th>
                                         <th class="fw-bolder">Voter Name</th>
                                         <th class="fw-bolder" style="width: 0%;"></th>
                                     </tr>
@@ -122,12 +141,14 @@
                                     <tr>
                                         <td class="text-center">{{ forloop.counter|add:page_obj.start_index|add:"-1" }}
                                         </td>
+                                        <td class="text-center">{{ voter.voter_serial_number }}</td>
+                                        <td>{{ voter.voter_id_card_number }}</td>
                                         <td>{{ voter.voter_name }}</td>
                                         <td></td>
                                     </tr>
                                     {% empty %}
                                     <tr>
-                                        <td colspan="5" class="text-center">No results found.</td>
+                                        <td colspan="6" class="text-center">No results found.</td>
                                     </tr>
                                     {% endfor %}
                                     {% endif %}
@@ -135,9 +156,19 @@
                             </table>
                         </div>
                     </div>
+                    <div id="paginationControls" class="pagination"></div>
                 </div>
-
             </div>
+
+            <!-- Pagination controls -->
+            <div class="d-flex justify-content-center">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center mx-4" id="paginationControls">
+                        <!-- Pagination buttons will be dynamically inserted here -->
+                    </ul>
+                </nav>
+            </div>
+
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
@@ -153,10 +184,10 @@
 
             // Fetch voter data based on voter status
             function fetchVoterData(voteStatus = 1) {
-                console.log('Fetching data for voteStatus:', parseInt(voteStatus));
+                // console.log('Fetching data for voteStatus:', parseInt(voteStatus));
 
-                const apiUrl = `http://192.168.1.38:8000/api/get_voters_by_vote_status/${parseInt(voteStatus)}/`;
-                voterTableBody.innerHTML = '<tr><td colspan="3" class="text-center">Loading voters...</td></tr>';
+                const apiUrl = `http://192.168.1.20:8001/api/get_voters_by_vote_status/${parseInt(voteStatus)}/`;
+                voterTableBody.innerHTML = '<tr><td colspan="5" class="text-center">Loading voters...</td></tr>';
 
                 fetch(apiUrl)
                     .then(response => response.json())
@@ -181,7 +212,12 @@
                                 </tr>
                             `;
                     });
+
             }
+
+            const votersPerPage = 1000;
+            let currentPage = 1;
+            let totalPages = 0;
 
             // Function to render voters in the table
             function displayVoters(voters) {
@@ -189,28 +225,185 @@
                 if (voters.length === 0) {
                     voterTableBody.innerHTML = `
                             <tr>
-                                <td colspan="3" class="text-center">No results found.</td>
+                                <td colspan="6" class="text-center">No results found.</td>
                             </tr>
                         `;
                 } else {
-                    voters.forEach((voter, index) => {
+
+                    const totalVoters = voters.length;  // Total number of voters
+                    totalPages = Math.ceil(totalVoters / votersPerPage);  // Correctly calculate total pages
+                    const startIndex = (currentPage - 1) * votersPerPage;
+                    const endIndex = startIndex + votersPerPage;
+                    const paginatedVoters = voters.slice(startIndex, endIndex);
+
+                    paginatedVoters.forEach((voter, index) => {
+                        // Calculate the serial number based on current page
+                        const serialNumber = startIndex + index + 1;
                         voterTableBody.innerHTML += `
                                 <tr>
-                                    <td class="text-center">${index + 1}</td>
+                                    <td class="text-center">${serialNumber}</td>
+                                    <td>${voter.voter_serial_number}</td>
+                                    <td>${voter.voter_id_card_number}</td>
                                     <td>${capitalizeWords(voter.voter_name)}</td>
                                     <td style="background-color: ${getBackgroundColorBasedOnFavor(voter.voter_favour_id)};"></td>
                                 </tr>
                             `;
                     });
                 }
+                // Update pagination controls
+                updatePaginationControls(currentPage, totalPages);
             }
 
-            // Helper function to capitalize words
-            function capitalizeWords(str) {
-                return str.replace(/\w\S*/g, function (txt) {
-                    return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-                });
+            // Function to update pagination controls (Only Prev and Next)
+            // function updatePaginationControls(page, totalPages) {
+            //     const paginationContainer = document.getElementById('paginationControls');
+            //     paginationContainer.innerHTML = ''; // Clear previous pagination controls
+
+            //     // Previous button
+            //     const prevButton = document.createElement('button');
+            //     prevButton.textContent = 'Previous';
+            //     prevButton.classList.add('btn', 'btn-light');
+            //     prevButton.disabled = currentPage === 1; // Disable if on the first page
+            //     prevButton.onclick = () => {
+            //         if (currentPage > 1) {
+            //             currentPage--;
+            //             displayVoters(fetchedVoters); // Re-render with new page data
+            //         }
+            //     };
+            //     paginationContainer.appendChild(prevButton);
+
+            //     // Current page label
+            //     const currentPageLabel = document.createElement('span');
+            //     currentPageLabel.classList.add('page-label');
+            //     currentPageLabel.textContent = `Page ${currentPage}`;
+            //     paginationContainer.appendChild(currentPageLabel);
+
+            //     // Next button
+            //     const nextButton = document.createElement('button');
+            //     nextButton.textContent = 'Next';
+            //     nextButton.classList.add('btn', 'btn-light');
+            //     nextButton.disabled = currentPage === totalPages; // Disable if on the last page
+
+            //     nextButton.onclick = () => {
+            //         if (currentPage < totalPages) {
+            //             currentPage++;
+            //             displayVoters(fetchedVoters); // Re-render with new page data
+            //         }
+            //     };
+            //     paginationContainer.appendChild(nextButton);
+            // }
+
+
+            // Function to update pagination controls (First, Prev, Page Numbers, Next, Last)
+            function updatePaginationControls(page, totalPages) {
+                const paginationContainer = document.getElementById('paginationControls');
+                paginationContainer.innerHTML = ''; // Clear previous pagination controls
+
+                // First page button
+                const firstButton = document.createElement('li');
+                firstButton.classList.add('page-item');
+                const firstLink = document.createElement('a');
+                firstLink.classList.add('page-link');
+                firstLink.href = `#`;
+                firstLink.setAttribute('aria-label', 'First');
+                firstLink.innerHTML = '&laquo;&laquo;';
+                firstButton.appendChild(firstLink);
+                if (currentPage === 1) firstButton.classList.add('disabled');
+                firstButton.onclick = () => {
+                    currentPage = 1;
+                    displayVoters(fetchedVoters);
+                };
+                paginationContainer.appendChild(firstButton);
+
+                // Previous page button
+                const prevButton = document.createElement('li');
+                prevButton.classList.add('page-item');
+                const prevLink = document.createElement('a');
+                prevLink.classList.add('page-link');
+                prevLink.href = `#`;
+                prevLink.setAttribute('aria-label', 'Previous');
+                prevLink.innerHTML = '&laquo;';
+                prevButton.appendChild(prevLink);
+                if (currentPage === 1) prevButton.classList.add('disabled');
+                prevButton.onclick = () => {
+                    if (currentPage > 1) {
+                        currentPage--;
+                        displayVoters(fetchedVoters);
+                    }
+                };
+                paginationContainer.appendChild(prevButton);
+
+                // Page numbers (show a range around the current page)
+                for (let num = Math.max(1, currentPage - 1); num <= Math.min(totalPages, currentPage + 1); num++) {
+                    const pageItem = document.createElement('li');
+                    pageItem.classList.add('page-item');
+                    if (num === currentPage) {
+                        pageItem.classList.add('active');
+                    }
+                    const pageLink = document.createElement('a');
+                    pageLink.classList.add('page-link');
+                    pageLink.href = `#`;
+                    pageLink.innerText = num;
+                    pageLink.onclick = () => {
+                        currentPage = num;
+                        displayVoters(fetchedVoters);
+                    };
+                    pageItem.appendChild(pageLink);
+                    paginationContainer.appendChild(pageItem);
+                }
+
+                // Next page button
+                const nextButton = document.createElement('li');
+                nextButton.classList.add('page-item');
+                const nextLink = document.createElement('a');
+                nextLink.classList.add('page-link');
+                nextLink.href = `#`;
+                nextLink.setAttribute('aria-label', 'Next');
+                nextLink.innerHTML = '&raquo;';
+                nextButton.appendChild(nextLink);
+                if (currentPage === totalPages) nextButton.classList.add('disabled');
+                nextButton.onclick = () => {
+                    if (currentPage < totalPages) {
+                        currentPage++;
+                        displayVoters(fetchedVoters);
+                    }
+                };
+                paginationContainer.appendChild(nextButton);
+
+                // Last page button
+                const lastButton = document.createElement('li');
+                lastButton.classList.add('page-item');
+                const lastLink = document.createElement('a');
+                lastLink.classList.add('page-link');
+                lastLink.href = `#`;
+                lastLink.setAttribute('aria-label', 'Last');
+                lastLink.innerHTML = '&raquo;&raquo;';
+                lastButton.appendChild(lastLink);
+                if (currentPage === totalPages) lastButton.classList.add('disabled');
+                lastButton.onclick = () => {
+                    currentPage = totalPages;
+                    displayVoters(fetchedVoters);
+                };
+                paginationContainer.appendChild(lastButton);
             }
+
+
+
+            // // Helper function to capitalize words
+            function capitalizeWords(str) {
+                if (typeof str !== 'string' || str.trim() === '') {
+                    return '';  // Return an empty string if input is not a valid string or is empty after trimming
+                }
+
+                return str
+                    .split(' ')  // Split by spaces to handle multiple spaces properly
+                    .map(word => {
+                        // Capitalize the first letter and keep the rest of the word lowercase
+                        return word.length > 0 ? word[0].toUpperCase() + word.slice(1).toLowerCase() : '';
+                    })
+                    .join(' ');  // Join the words back with a single space
+            }
+
 
             // Helper function to determine background color based on favour
             function getBackgroundColorBasedOnFavor(favourId) {
@@ -228,20 +421,23 @@
 
             // Filter voters based on search input
             function filterVoters() {
-                const searchValue = searchInput.value.toLowerCase();
+                const searchValue = searchInput.value.toLowerCase();  // Get the search input value
                 const filteredVoters = fetchedVoters.filter(voter =>
-                    voter.voter_name.toLowerCase().includes(searchValue)
+                    voter.voter_name?.toLowerCase().includes(searchValue) ||  // Compare with voter name
+                    voter.voter_id_card_number?.toLowerCase().includes(searchValue)  // Compare with voter ID card number
                 );
                 displayVoters(filteredVoters);  // Update table with filtered results
             }
-            // Clear search input
+
+            // Clear search input and show all voters
             document.getElementById('clear-button').addEventListener('click', () => {
-                document.getElementById('search-input').value = '';
+                searchInput.value = '';  // Clear the search input
                 displayVoters(fetchedVoters);  // Render original voters data
             });
 
-            // Event listener for search input
+            // Event listener for search input to trigger filtering
             searchInput.addEventListener('input', filterVoters);
+
 
             // Event listener for dropdown change
             voterStatusSelect.addEventListener('change', function () {

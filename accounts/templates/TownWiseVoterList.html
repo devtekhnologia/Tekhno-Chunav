@@ -52,6 +52,23 @@
     .custom-text-light {
       color: gray;
     }
+
+    .pagination {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .page-label {
+      margin: 0 10px;
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    button[disabled] {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
   </style>
 </head>
 
@@ -82,6 +99,25 @@
                   </div>
                   <div class="row justify-content-center text-center">
                     <div class="col-4">
+                      <h6 class="mt-1" style="cursor: default;"><strong>Total Voters:</strong>
+                        <span id="voterCount">0</span>
+                      </h6>
+                    </div>
+                    <div class="col-4">
+                      <h6 class="mt-1" style="cursor: default;"><strong>Voted Voters:</strong>
+                        <span id="votedCount">0</span>
+                      </h6>
+                      <p id="votedCountParcent"><i>percent: 0%</i></p>
+                    </div>
+                    <div class="col-4">
+                      <h6 class="mt-1" style="cursor: default;"><strong>Non-voted Voters:</strong>
+                        <span id="non-votedCount">0</span>
+                      </h6>
+                      <p id="non-votedCountParcent"><i>percent: 0%</i></p>
+                    </div>
+                  </div>
+                  <!-- <div class="row justify-content-center text-center">
+                    <div class="col-4">
                       <h5 class="mt-1" style="cursor: default;"><strong>Total Voters:</strong> <span
                           id="voterCount">0</span></h5>
                     </div>
@@ -95,7 +131,7 @@
                           id="non-votedCount">0</span></h5>
                       <p id="non-votedCountParcent"><i><b>percent:</b></i></p>
                     </div>
-                  </div>
+                  </div> -->
                 </div>
               </div>
             </div>
@@ -199,10 +235,10 @@
             </div>
           </div>
 
-          <div class="search" style="width: 260px;">
+          <div class="search" style="width: 285px;">
             <div class="input-group">
               <input type="text" id="search-input" name="search" class="form-control bg-light"
-                placeholder="Search by Name" />
+                placeholder="Search by Name or Card No" />
               <button type="button" id="clear-button" class="btn-close" aria-label="Close"></button>
               <button class="btn btn-success" type="button" id="search-button">
                 <i class="fa-solid fa-magnifying-glass"></i>
@@ -238,11 +274,13 @@
                 <thead class="text-muted text-uppercase" style="display: none;" id="tableHeading">
                   <tr>
                     <th><input class="form-check-input" type="checkbox" value="" id="select-all-checkbox"></th>
-                    <th class="fw-bolder" style="width: 15%;">Sr. No.</th>
-                    <th class="fw-bolder" style="width: 35%;">Voter Name</th>
-                    <th class="fw-bolder" style="width: 20%;">Contact Number</th>
+                    <th class="fw-bolder" style="width: 10%;">Sr. No.</th>
+                    <th class="fw-bolder" style="width: 10%;">Reg. No.</th>
+                    <th class="fw-bolder" style="width: 15%;">CARD No.</th>
+                    <th class="fw-bolder" style="width: 20%;">Voter Name</th>
+                    <th class="fw-bolder" style="width: 15%;">Contact Number</th>
                     <th class="bg-blue fw-bolder" style="width: 20%;">Current Location</th>
-                    <th class="fw-bolder" style="width: 10%;">Actions</th>
+                    <th class="fw-bolder" style="width: 15%;">Actions</th>
                     <th></th>
                   </tr>
                 </thead>
@@ -250,6 +288,7 @@
                 </tbody>
               </table>
             </div>
+            <div id="paginationControls" class="pagination"></div>
           </div>
         </div>
 
@@ -270,6 +309,14 @@
               <div class="modal-body">
                 <table class="table p-1">
                   <tbody>
+                    <tr>
+                      <th class="bg-light fw-semibold">Registration No.</th>
+                      <td id="voter_serial_number"></td>
+                    </tr>
+                    <tr>
+                      <th class="bg-light fw-semibold">Voter Card No.</th>
+                      <td id="voter_id_card_number"></td>
+                    </tr>
                     <tr>
                       <th class="bg-light fw-semibold">Voter Name</th>
                       <td id="voter_name"></td>
@@ -389,7 +436,7 @@
 
       // Function to fetch towns and set up the select dropdown
       function fetchTowns() {
-        fetch('http://192.168.1.38:8000/api/towns/')
+        fetch('http://192.168.1.20:8001/api/towns/')
           .then(response => response.json())
           .then(data => {
             const townSelect = document.getElementById('townSelect');
@@ -414,7 +461,7 @@
       // Function to fetch voters based on town_id
       async function fetchVoters(townId) {
         try {
-          const response = await fetch(`http://192.168.1.38:8000/api/town_wise_voter_list/${townId}/`);
+          const response = await fetch(`http://192.168.1.20:8001/api/town_wise_voter_list/${townId}/`);
           const data = await response.json();
           votersData = data;  // Store the fetched voters data
           // console.log(votersData);
@@ -425,6 +472,8 @@
         }
       }
 
+      const votersPerPage = 1000;
+      let currentPage = 1;
       // Function to render voters in the table
       function renderVoters(voters) {
         const tableBody = document.getElementById('votersTableBody');
@@ -433,7 +482,7 @@
         // Hide the table headings if there are no voters
         if (voters.length === 0) {
           tableHeading.style.display = 'none'; // Hide the heading
-          updateCounts(0, 0, 0); // Reset counts when no data is available
+          // updateCounts(0, 0, 0); // Reset counts when no data is available
           return;
         } else {
           // Show the table heading if there are voters
@@ -453,17 +502,42 @@
         document.getElementById('votedCountParcent').textContent = votedVotersParc;
         document.getElementById('non-votedCountParcent').textContent = nonVotedVotersParc;
 
-        document.getElementById('votedCountParcent').innerHTML = "<b>percent:</b> <i>" + votedVotersParc + "%</i>";
+        document.getElementById('votedCountParcent').innerHTML = "percent: <i>" + votedVotersParc + "%</i>";
         document.getElementById('votedCountParcent').style.fontStyle = "italic"; // Optional for the overall style
 
-        document.getElementById('non-votedCountParcent').innerHTML = "<b>percent:</b> <i>" + nonVotedVotersParc + "%</i>";
+        document.getElementById('non-votedCountParcent').innerHTML = "percent: <i>" + nonVotedVotersParc + "%</i>";
         document.getElementById('non-votedCountParcent').style.fontStyle = "italic"; // Optional for the overall style
 
-        // Sort voters alphabetically by voter_name
-        voters.sort((a, b) => a.voter_name.localeCompare(b.voter_name));
+        // // Sort voters alphabetically by voter_name
+        // voters.sort((a, b) => a.voter_name.localeCompare(b.voter_name));
+        // Sort voters alphabetically by voter_name, handle null/undefined voter_name
+        voters.sort((a, b) => {
+          const nameA = a.voter_name || '';  // Default to empty string if null or undefined
+          const nameB = b.voter_name || '';  // Default to empty string if null or undefined
+          return nameA.localeCompare(nameB);
+        });
 
-        // Populate the table with voters
-        voters.forEach((voter, index) => {
+        // // Populate the table with voters
+        // voters.forEach((voter, index) => {
+        //   const row = document.createElement('tr');
+
+        // Calculate the total number of pages
+        totalPages = Math.ceil(totalVoters / votersPerPage);  // Correctly calculate total pages
+        console.log('tp--', totalPages);
+
+
+        // Slice the voters array for the current page
+
+        const startIndex = (currentPage - 1) * votersPerPage;
+        const endIndex = startIndex + votersPerPage;
+        console.log('si-', startIndex, 'ei-', endIndex);
+
+        const paginatedVoters = voters.slice(startIndex, endIndex);
+        console.log('pv--', paginatedVoters);
+
+
+        // Populate the table with voters for the current page
+        paginatedVoters.forEach((voter, index) => {
           const row = document.createElement('tr');
 
           // const checkboxCell = document.createElement('td');
@@ -492,8 +566,19 @@
           srNoCell.textContent = index + 1;
           row.appendChild(srNoCell);
 
+
+          const VsrNOCell = document.createElement('td');
+          VsrNOCell.style.textAlign = 'start';
+          VsrNOCell.textContent = voter.voter_serial_number || 'None';
+          row.appendChild(VsrNOCell);
+
+          const VidNOCell = document.createElement('td');
+          VidNOCell.style.textAlign = 'start';
+          VidNOCell.textContent = voter.voter_id_card_number || 'None';
+          row.appendChild(VidNOCell);
+
           const nameCell = document.createElement('td');
-          nameCell.textContent = capitalizeWords(voter.voter_name);
+          nameCell.textContent = capitalizeWords(voter.voter_name || 'None');
           row.appendChild(nameCell);
 
           const contactCell = document.createElement('td');
@@ -530,7 +615,7 @@
             const newConfirmationStatus = voter.voter_vote_confirmation_id === null ? 1 : null; // Toggle logic
 
             try {
-              const response = await fetch(`http://192.168.1.38:8000/api/voter_confirmation/${voter.voter_id}/`, {
+              const response = await fetch(`http://192.168.1.20:8001/api/voter_confirmation/${voter.voter_id}/`, {
                 method: 'PUT',
                 headers: {
                   'Content-Type': 'application/json'
@@ -588,7 +673,7 @@
           detailsButton.onclick = function () {
             currentVoterId = voter.voter_id;
             // Fetch voter details from the API
-            fetch(`http://192.168.1.38:8000/api/voters/${voter.voter_id}/`)
+            fetch(`http://192.168.1.20:8001/api/voters/${voter.voter_id}/`)
               .then(response => {
                 if (!response.ok) {
                   throw new Error('Network response was not ok');
@@ -597,6 +682,8 @@
               })
               .then(voterDetails => {
                 // Populate the modal with voter details
+                document.getElementById('voter_serial_number').textContent = voterDetails.voter_serial_number || '--';
+                document.getElementById('voter_id_card_number').textContent = voterDetails.voter_id_card_number || '--';
                 document.getElementById('voter_name').textContent = capitalizeWords(voterDetails.voter_name) || '--';
                 document.getElementById('voter_parent_name').textContent = capitalizeWords(voterDetails.voter_parent_name) || '--';
                 document.getElementById('voter_dob').textContent = voterDetails.voter_dob || '--';
@@ -705,12 +792,52 @@
           row.appendChild(favourCell);
           tableBody.appendChild(row);
         });
+        // Update pagination controls
+        updatePaginationControls(currentPage, totalPages);
+      }
+      // Function to update pagination controls (Only Prev and Next)
+      function updatePaginationControls(page, totalPages) {
+        const paginationContainer = document.getElementById('paginationControls');
+        paginationContainer.innerHTML = ''; // Clear previous pagination controls
+
+        // Previous button
+        const prevButton = document.createElement('button');
+        prevButton.textContent = 'Previous';
+        prevButton.classList.add('btn', 'btn-light');
+        prevButton.disabled = currentPage === 1; // Disable if on the first page
+        prevButton.onclick = () => {
+          if (currentPage > 1) {
+            currentPage--;
+            renderVoters(votersData); // Re-render with new page data
+          }
+        };
+        paginationContainer.appendChild(prevButton);
+
+        // Current page label
+        const currentPageLabel = document.createElement('span');
+        currentPageLabel.classList.add('page-label');
+        currentPageLabel.textContent = `Page ${currentPage}`;
+        paginationContainer.appendChild(currentPageLabel);
+
+        // Next button
+        const nextButton = document.createElement('button');
+        nextButton.textContent = 'Next';
+        nextButton.classList.add('btn', 'btn-light');
+        nextButton.disabled = currentPage === totalPages; // Disable if on the last page
+
+        nextButton.onclick = () => {
+          if (currentPage < totalPages) {
+            currentPage++;
+            renderVoters(votersData); // Re-render with new page data
+          }
+        };
+        paginationContainer.appendChild(nextButton);
       }
 
       // Add event listener for the export button in Voter Details
       document.getElementById('export-pdf-button').addEventListener('click', function () {
         if (currentVoterId) {
-          const pdfUrl = `http://192.168.1.38:8000/api/generate_voter_pdf/${currentVoterId}/`;
+          const pdfUrl = `http://192.168.1.20:8001/api/generate_voter_pdf/${currentVoterId}/`;
           fetch(pdfUrl)
             .then(response => {
               if (!response.ok) {
@@ -747,7 +874,7 @@
           return;
         }
 
-        const pdfUrl = `http://192.168.1.38:8000/api/generate_voter_pdf_by_town/town_id/${selectedTownId}/city_id/${selectedLocationId}/`;
+        const pdfUrl = `http://192.168.1.20:8001/api/generate_voter_pdf_by_town/town_id/${selectedTownId}/city_id/${selectedLocationId}/`;
 
         if (selectedTownId || selectedLocationId) {
           // Fetch PDF
@@ -834,10 +961,12 @@
       document.getElementById('search-input').addEventListener('input', function () {
         const searchTerm = this.value.toLowerCase();
         const filteredVoters = votersData.filter(voter =>
-          voter.voter_name.toLowerCase().includes(searchTerm)
+          voter.voter_name?.toLowerCase().includes(searchTerm) ||
+          voter.voter_id_card_number?.toLowerCase().includes(searchTerm)
         );
         renderVoters(filteredVoters);
       });
+
 
       // Clear search input
       document.getElementById('clear-button').addEventListener('click', () => {
@@ -851,7 +980,7 @@
 
     document.addEventListener('DOMContentLoaded', function () {
       // Fetch caste data from the API and populate the caste select options
-      fetch('http://192.168.1.38:8000/api/cast/')
+      fetch('http://192.168.1.20:8001/api/cast/')
         .then(response => response.json())
         .then(data => {
           const casteSelect = document.getElementById('caste-select');
@@ -962,7 +1091,7 @@
         // console.log('Payload:', JSON.stringify(payload));
 
         // Make the PUT request to assign caste to voters
-        fetch('http://192.168.1.38:8000/api/favour/', {
+        fetch('http://192.168.1.20:8001/api/favour/', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -1016,7 +1145,7 @@
         // console.log('Payload:', JSON.stringify(payload));
 
         // Make the PUT request to assign caste to voters
-        fetch('http://192.168.1.38:8000/api/assign_voter_cast/', {
+        fetch('http://192.168.1.20:8001/api/assign_voter_cast/', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
