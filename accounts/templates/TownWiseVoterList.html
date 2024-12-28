@@ -33,13 +33,19 @@
       background-color: #DCE1FF !important;
     }
 
+    .pagination .page-item.active .page-link {
+      color: #fff;
+      background-color: #3C4CAC;
+      border-color: #DCE1FF;
+    }
+
     .search {
       position: relative;
     }
 
     .btn-close {
       position: absolute;
-      right: 45px;
+      right: 5px;
       top: 50%;
       transform: translateY(-50%);
       cursor: pointer;
@@ -116,22 +122,7 @@
                       <p id="non-votedCountParcent"><i>percent: 0%</i></p>
                     </div>
                   </div>
-                  <!-- <div class="row justify-content-center text-center">
-                    <div class="col-4">
-                      <h5 class="mt-1" style="cursor: default;"><strong>Total Voters:</strong> <span
-                          id="voterCount">0</span></h5>
-                    </div>
-                    <div class="col-4">
-                      <h5 class="mt-1" style="cursor: default;"><strong>Voted Voters:</strong> <span
-                          id="votedCount">0</span></h5>
-                      <p id="votedCountParcent"><i><b>percent:</b></i></p>
-                    </div>
-                    <div class="col-4">
-                      <h5 class="mt-1" style="cursor: default;"><strong>Non-voted Voters:</strong> <span
-                          id="non-votedCount">0</span></h5>
-                      <p id="non-votedCountParcent"><i><b>percent:</b></i></p>
-                    </div>
-                  </div> -->
+
                 </div>
               </div>
             </div>
@@ -235,14 +226,14 @@
             </div>
           </div>
 
-          <div class="search" style="width: 285px;">
+          <div class="search" style="width: 250px;">
             <div class="input-group">
               <input type="text" id="search-input" name="search" class="form-control bg-light"
                 placeholder="Search by Name or Card No" />
               <button type="button" id="clear-button" class="btn-close" aria-label="Close"></button>
-              <button class="btn btn-success" type="button" id="search-button">
+              <!-- <button class="btn btn-success" type="button" id="search-button">
                 <i class="fa-solid fa-magnifying-glass"></i>
-              </button>
+              </button> -->
             </div>
           </div>
 
@@ -402,6 +393,14 @@
           {% endif %}
         </div>
 
+        <!-- Pagination controls -->
+        <div class="d-flex justify-content-center">
+          <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center mx-4" id="paginationControls">
+              <!-- Pagination buttons will be dynamically inserted here -->
+            </ul>
+          </nav>
+        </div>
 
       </div>
     </div>
@@ -540,15 +539,6 @@
         paginatedVoters.forEach((voter, index) => {
           const row = document.createElement('tr');
 
-          // const checkboxCell = document.createElement('td');
-          // checkboxCell.style.textAlign = 'center';
-          // const checkbox = document.createElement('input');
-          // checkbox.classList.add('form-check-input'); // Add Bootstrap class for the checkbox
-          // checkbox.type = 'checkbox'; // Set the checkbox type
-          // checkbox.id = `voterCheck_${voter.voter_id}`; // Set the checkbox ID to the voter ID
-          // checkbox.value = voter.voter_id;
-          // checkboxCell.appendChild(checkbox);
-          // row.appendChild(checkboxCell);
           // Checkbox cell
           const checkboxCell = document.createElement('td');
           checkboxCell.style.textAlign = 'center';
@@ -560,10 +550,11 @@
           checkboxCell.appendChild(checkbox);
           row.appendChild(checkboxCell);
 
+          const serialNumber = startIndex + index;
 
           const srNoCell = document.createElement('td');
           // srNoCell.style.textAlign = 'center';
-          srNoCell.textContent = index + 1;
+          srNoCell.textContent = serialNumber + 1;
           row.appendChild(srNoCell);
 
 
@@ -795,43 +786,135 @@
         // Update pagination controls
         updatePaginationControls(currentPage, totalPages);
       }
-      // Function to update pagination controls (Only Prev and Next)
+      // // Function to update pagination controls (Only Prev and Next)
+      // function updatePaginationControls(page, totalPages) {
+      //   const paginationContainer = document.getElementById('paginationControls');
+      //   paginationContainer.innerHTML = ''; // Clear previous pagination controls
+
+      //   // Previous button
+      //   const prevButton = document.createElement('button');
+      //   prevButton.textContent = 'Previous';
+      //   prevButton.classList.add('btn', 'btn-light');
+      //   prevButton.disabled = currentPage === 1; // Disable if on the first page
+      //   prevButton.onclick = () => {
+      //     if (currentPage > 1) {
+      //       currentPage--;
+      //       renderVoters(votersData); // Re-render with new page data
+      //     }
+      //   };
+      //   paginationContainer.appendChild(prevButton);
+
+      //   // Current page label
+      //   const currentPageLabel = document.createElement('span');
+      //   currentPageLabel.classList.add('page-label');
+      //   currentPageLabel.textContent = `Page ${currentPage}`;
+      //   paginationContainer.appendChild(currentPageLabel);
+
+      //   // Next button
+      //   const nextButton = document.createElement('button');
+      //   nextButton.textContent = 'Next';
+      //   nextButton.classList.add('btn', 'btn-light');
+      //   nextButton.disabled = currentPage === totalPages; // Disable if on the last page
+
+      //   nextButton.onclick = () => {
+      //     if (currentPage < totalPages) {
+      //       currentPage++;
+      //       renderVoters(votersData); // Re-render with new page data
+      //     }
+      //   };
+      //   paginationContainer.appendChild(nextButton);
+      // }
+
       function updatePaginationControls(page, totalPages) {
         const paginationContainer = document.getElementById('paginationControls');
         paginationContainer.innerHTML = ''; // Clear previous pagination controls
 
-        // Previous button
-        const prevButton = document.createElement('button');
-        prevButton.textContent = 'Previous';
-        prevButton.classList.add('btn', 'btn-light');
-        prevButton.disabled = currentPage === 1; // Disable if on the first page
+        // First page button
+        const firstButton = document.createElement('li');
+        firstButton.classList.add('page-item');
+        const firstLink = document.createElement('a');
+        firstLink.classList.add('page-link');
+        firstLink.href = `#`;
+        firstLink.setAttribute('aria-label', 'First');
+        firstLink.innerHTML = '&laquo;&laquo;';
+        firstButton.appendChild(firstLink);
+        if (currentPage === 1) firstButton.classList.add('disabled');
+        firstButton.onclick = () => {
+          currentPage = 1;
+          renderVoters(votersData);
+        };
+        paginationContainer.appendChild(firstButton);
+
+        // Previous page button
+        const prevButton = document.createElement('li');
+        prevButton.classList.add('page-item');
+        const prevLink = document.createElement('a');
+        prevLink.classList.add('page-link');
+        prevLink.href = `#`;
+        prevLink.setAttribute('aria-label', 'Previous');
+        prevLink.innerHTML = '&laquo;';
+        prevButton.appendChild(prevLink);
+        if (currentPage === 1) prevButton.classList.add('disabled');
         prevButton.onclick = () => {
           if (currentPage > 1) {
             currentPage--;
-            renderVoters(votersData); // Re-render with new page data
+            renderVoters(votersData);
           }
         };
         paginationContainer.appendChild(prevButton);
 
-        // Current page label
-        const currentPageLabel = document.createElement('span');
-        currentPageLabel.classList.add('page-label');
-        currentPageLabel.textContent = `Page ${currentPage}`;
-        paginationContainer.appendChild(currentPageLabel);
+        // Page numbers (show a range around the current page)
+        for (let num = Math.max(1, currentPage - 1); num <= Math.min(totalPages, currentPage + 1); num++) {
+          const pageItem = document.createElement('li');
+          pageItem.classList.add('page-item');
+          if (num === currentPage) {
+            pageItem.classList.add('active');
+          }
+          const pageLink = document.createElement('a');
+          pageLink.classList.add('page-link');
+          pageLink.href = `#`;
+          pageLink.innerText = num;
+          pageLink.onclick = () => {
+            currentPage = num;
+            renderVoters(votersData);
+          };
+          pageItem.appendChild(pageLink);
+          paginationContainer.appendChild(pageItem);
+        }
 
-        // Next button
-        const nextButton = document.createElement('button');
-        nextButton.textContent = 'Next';
-        nextButton.classList.add('btn', 'btn-light');
-        nextButton.disabled = currentPage === totalPages; // Disable if on the last page
-
+        // Next page button
+        const nextButton = document.createElement('li');
+        nextButton.classList.add('page-item');
+        const nextLink = document.createElement('a');
+        nextLink.classList.add('page-link');
+        nextLink.href = `#`;
+        nextLink.setAttribute('aria-label', 'Next');
+        nextLink.innerHTML = '&raquo;';
+        nextButton.appendChild(nextLink);
+        if (currentPage === totalPages) nextButton.classList.add('disabled');
         nextButton.onclick = () => {
           if (currentPage < totalPages) {
             currentPage++;
-            renderVoters(votersData); // Re-render with new page data
+            renderVoters(votersData);
           }
         };
         paginationContainer.appendChild(nextButton);
+
+        // Last page button
+        const lastButton = document.createElement('li');
+        lastButton.classList.add('page-item');
+        const lastLink = document.createElement('a');
+        lastLink.classList.add('page-link');
+        lastLink.href = `#`;
+        lastLink.setAttribute('aria-label', 'Last');
+        lastLink.innerHTML = '&raquo;&raquo;';
+        lastButton.appendChild(lastLink);
+        if (currentPage === totalPages) lastButton.classList.add('disabled');
+        lastButton.onclick = () => {
+          currentPage = totalPages;
+          renderVoters(votersData);
+        };
+        paginationContainer.appendChild(lastButton);
       }
 
       // Add event listener for the export button in Voter Details

@@ -33,6 +33,12 @@
             background-color: #DCE1FF !important;
         }
 
+        .pagination .page-item.active .page-link {
+            color: #fff;
+            background-color: #3C4CAC;
+            border-color: #DCE1FF;
+        }
+
         .search {
             position: relative;
         }
@@ -328,6 +334,16 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Pagination controls -->
+                <div class="d-flex justify-content-center">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center mx-4" id="paginationControls">
+                            <!-- Pagination buttons will be dynamically inserted here -->
+                        </ul>
+                    </nav>
+                </div>
+
             </div>
         </div>
     </div>
@@ -437,7 +453,7 @@
             });
 
 
-            const votersPerPage = 10;
+            const votersPerPage = 1000;
             let currentPage = 1;
             // Function to update voter counts and percentages
             function updateVoterCounts(data) {
@@ -763,42 +779,134 @@
                 updatePaginationControls(currentPage, totalPages);
             }
             // Function to update pagination controls (Only Prev and Next)
+            // function updatePaginationControls(page, totalPages) {
+            //     const paginationContainer = document.getElementById('paginationControls');
+            //     paginationContainer.innerHTML = ''; // Clear previous pagination controls
+
+            //     // Previous button
+            //     const prevButton = document.createElement('button');
+            //     prevButton.textContent = 'Previous';
+            //     prevButton.classList.add('btn', 'btn-light');
+            //     prevButton.disabled = currentPage === 1; // Disable if on the first page
+            //     prevButton.onclick = () => {
+            //         if (currentPage > 1) {
+            //             currentPage--;
+            //             renderVoters(votersData); // Re-render with new page data
+            //         }
+            //     };
+            //     paginationContainer.appendChild(prevButton);
+
+            //     // Current page label
+            //     const currentPageLabel = document.createElement('span');
+            //     currentPageLabel.classList.add('page-label');
+            //     currentPageLabel.textContent = `Page ${currentPage}`;
+            //     paginationContainer.appendChild(currentPageLabel);
+
+            //     // Next button
+            //     const nextButton = document.createElement('button');
+            //     nextButton.textContent = 'Next';
+            //     nextButton.classList.add('btn', 'btn-light');
+            //     nextButton.disabled = currentPage === totalPages; // Disable if on the last page
+
+            //     nextButton.onclick = () => {
+            //         if (currentPage < totalPages) {
+            //             currentPage++;
+            //             renderVoters(votersData); // Re-render with new page data
+            //         }
+            //     };
+            //     paginationContainer.appendChild(nextButton);
+            // }
+            // Function to update pagination controls (First, Prev, Page Numbers, Next, Last)
             function updatePaginationControls(page, totalPages) {
                 const paginationContainer = document.getElementById('paginationControls');
                 paginationContainer.innerHTML = ''; // Clear previous pagination controls
 
-                // Previous button
-                const prevButton = document.createElement('button');
-                prevButton.textContent = 'Previous';
-                prevButton.classList.add('btn', 'btn-light');
-                prevButton.disabled = currentPage === 1; // Disable if on the first page
+                // First page button
+                const firstButton = document.createElement('li');
+                firstButton.classList.add('page-item');
+                const firstLink = document.createElement('a');
+                firstLink.classList.add('page-link');
+                firstLink.href = `#`;
+                firstLink.setAttribute('aria-label', 'First');
+                firstLink.innerHTML = '&laquo;&laquo;';
+                firstButton.appendChild(firstLink);
+                if (currentPage === 1) firstButton.classList.add('disabled');
+                firstButton.onclick = () => {
+                    currentPage = 1;
+                    renderVoters(votersData);
+                };
+                paginationContainer.appendChild(firstButton);
+
+                // Previous page button
+                const prevButton = document.createElement('li');
+                prevButton.classList.add('page-item');
+                const prevLink = document.createElement('a');
+                prevLink.classList.add('page-link');
+                prevLink.href = `#`;
+                prevLink.setAttribute('aria-label', 'Previous');
+                prevLink.innerHTML = '&laquo;';
+                prevButton.appendChild(prevLink);
+                if (currentPage === 1) prevButton.classList.add('disabled');
                 prevButton.onclick = () => {
                     if (currentPage > 1) {
                         currentPage--;
-                        renderVoters(votersData); // Re-render with new page data
+                        renderVoters(votersData);
                     }
                 };
                 paginationContainer.appendChild(prevButton);
 
-                // Current page label
-                const currentPageLabel = document.createElement('span');
-                currentPageLabel.classList.add('page-label');
-                currentPageLabel.textContent = `Page ${currentPage}`;
-                paginationContainer.appendChild(currentPageLabel);
+                // Page numbers (show a range around the current page)
+                for (let num = Math.max(1, currentPage - 1); num <= Math.min(totalPages, currentPage + 1); num++) {
+                    const pageItem = document.createElement('li');
+                    pageItem.classList.add('page-item');
+                    if (num === currentPage) {
+                        pageItem.classList.add('active');
+                    }
+                    const pageLink = document.createElement('a');
+                    pageLink.classList.add('page-link');
+                    pageLink.href = `#`;
+                    pageLink.innerText = num;
+                    pageLink.onclick = () => {
+                        currentPage = num;
+                        renderVoters(votersData);
+                    };
+                    pageItem.appendChild(pageLink);
+                    paginationContainer.appendChild(pageItem);
+                }
 
-                // Next button
-                const nextButton = document.createElement('button');
-                nextButton.textContent = 'Next';
-                nextButton.classList.add('btn', 'btn-light');
-                nextButton.disabled = currentPage === totalPages; // Disable if on the last page
-
+                // Next page button
+                const nextButton = document.createElement('li');
+                nextButton.classList.add('page-item');
+                const nextLink = document.createElement('a');
+                nextLink.classList.add('page-link');
+                nextLink.href = `#`;
+                nextLink.setAttribute('aria-label', 'Next');
+                nextLink.innerHTML = '&raquo;';
+                nextButton.appendChild(nextLink);
+                if (currentPage === totalPages) nextButton.classList.add('disabled');
                 nextButton.onclick = () => {
                     if (currentPage < totalPages) {
                         currentPage++;
-                        renderVoters(votersData); // Re-render with new page data
+                        renderVoters(votersData);
                     }
                 };
                 paginationContainer.appendChild(nextButton);
+
+                // Last page button
+                const lastButton = document.createElement('li');
+                lastButton.classList.add('page-item');
+                const lastLink = document.createElement('a');
+                lastLink.classList.add('page-link');
+                lastLink.href = `#`;
+                lastLink.setAttribute('aria-label', 'Last');
+                lastLink.innerHTML = '&raquo;&raquo;';
+                lastButton.appendChild(lastLink);
+                if (currentPage === totalPages) lastButton.classList.add('disabled');
+                lastButton.onclick = () => {
+                    currentPage = totalPages;
+                    renderVoters(votersData);
+                };
+                paginationContainer.appendChild(lastButton);
             }
 
 
@@ -826,8 +934,8 @@
                     // Check if either the name or card number includes the search input
                     return name.includes(input) || cardNumber.includes(input);
                 });
-                renderVoters(filteredVoters);
-                updateVoterCounts(filteredVoters);
+                renderVoters(votersData);
+                updateVoterCounts(votersData);
 
                 // Show "no data" message if no voters match
                 document.getElementById('noDataMessage').style.display = filteredVoters.length ? 'none' : 'block';

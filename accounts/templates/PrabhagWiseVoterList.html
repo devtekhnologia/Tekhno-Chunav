@@ -41,7 +41,7 @@
 
         .btn-close {
             position: absolute;
-            right: 45px;
+            right: 5px;
             top: 50%;
             transform: translateY(-50%);
             cursor: pointer;
@@ -105,25 +105,7 @@
                                             <p id="non-votedCountParcent"><i>percent: 0%</i></p>
                                         </div>
                                     </div>
-                                    <!--<div class="row justify-content-center text-center">
-                                        <div class="col-4">
-                                            <h5 class="mt-1" style="cursor: default;"><strong>Total Voters:</strong>
-                                                <span id="voterCount">0</span>
-                                            </h5>
-                                        </div>
-                                        <div class="col-4">
-                                            <h5 class="mt-1" style="cursor: default;"><strong>Voted Voters:</strong>
-                                                <span id="votedCount">0</span>
-                                            </h5>
-                                            <p id="votedCountParcent"><i><b>Percent:</b></i></p>
-                                        </div>
-                                        <div class="col-4">
-                                            <h5 class="mt-1" style="cursor: default;"><strong>Non-voted Voters:</strong>
-                                                <span id="non-votedCount">0</span>
-                                            </h5>
-                                            <p id="non-votedCountParcent"><i><b>Percent:</b></i></p>
-                                        </div>
-                                    </div> -->
+
                                 </div>
                             </div>
                         </div>
@@ -134,31 +116,6 @@
                 <!-- Search -->
                 <div class="d-flex justify-content-end gap-3 me-4 mb-1">
                     <!-- Voter caste assign -->
-                    <!-- <div class="mb-3" style="display: none;" id="caste-select-container">
-                        <div class="input-group mb-3" style="width: 230px;">
-                            <select id="caste-select" class="d-flex form-select bg-light"
-                                aria-label="Small select example">
-                                <option selected>Select Caste</option>
-                            </select>
-                            <button id="update-button" class="btn btn-primary input-group-append ">Assign</button>
-                        </div>
-                        <div class="mb-3" id="favour-select-container">
-                            <div class="input-group mb-3" style="width: 270px;">
-                                <select id="favour-type-select" class="form-select bg-light"
-                                    aria-label="Small select example">
-                                    <option selected>Select Favour Type</option>
-                                    <option class="text-success" value="1">Green</option>
-                                    <option class="text-danger" value="2">Red</option>
-                                    <option class="text-warning" value="3">Yellow</option>
-                                    <option class="text-primary" value="4">Blue</option>
-                                    <option style="color: rgb(17, 180, 255);" value="5">Light Blue</option>
-                                    <option style="color: palevioletred;" value="6">Pink</option>
-                                    <option style="color: purple;" value="7">Purple</option>
-                                </select>
-                                <button id="fav-update-button" class="btn btn-primary input-group-append">Update</button>
-                            </div>
-                        </div>
-                    </div> -->
                     <div class="mb-3" style="display: none;" id="caste-select-container">
                         <div class="row">
                             <div class="col-md-6 mb-3">
@@ -210,14 +167,14 @@
                     </div>
 
                     <!-- Search -->
-                    <div class="search" style="width: 285px;">
+                    <div class="search" style="width: 250px;">
                         <div class="input-group">
                             <input type="text" id="search-input" name="search" class="form-control bg-light"
                                 placeholder="Search by Name or Card No" />
                             <button type="button" id="clear-button" class="btn-close" aria-label="Close"></button>
-                            <button class="btn btn-success" type="button" id="search-button">
+                            <!-- <button class="btn btn-success" type="button" id="search-button">
                                 <i class="fa-solid fa-magnifying-glass"></i>
-                            </button>
+                            </button> -->
                         </div>
                     </div>
                 </div>
