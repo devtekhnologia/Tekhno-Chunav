@@ -240,6 +240,20 @@
                             <label for="voter_cast_name_input" class="form-label h6"><strong>Caste</strong></label>
                             <select class="form-select" name="voter_cast_name_input" id="voter_cast_name_input">
                                 <option value="null" selected>Select Caste</option>
+                                <option value="1">Maratha</option>
+                                <option value="2">Kunbi</option>
+                                <option value="3">wani</option>
+                                <option value="4">Chambhar</option>
+                                <option value="5">Dhangar</option>
+                                <option value="6">Mali</option>
+                                <option value="7">Koli</option>
+                                <option value="8">Ansari</option>
+                                <option value="9">Pathan</option>
+                                <option value="10">Quereshi</option>
+                                <option value="11">Bohara</option>
+                                <option value="12">Sheikh</option>
+                                <option value="13">Catholic</option>
+                                <option value="14">Protestantism</option>
                             </select>
                         </div>
                     </div>
@@ -293,7 +307,7 @@
                         document.getElementById('voter_favour_id_input').value = data.voter_favour_id;
                         document.getElementById('vote_confirmation_input').value = data.voter_vote_confirmation_id;
                         // document.getElementById('voter_religion_name_input').value = data.voter_religion_name;
-                        document.getElementById('voter_cast_name_input').value = data.voter_cast_name;
+                        document.getElementById('voter_cast_name_input').value = data.voter_cast_id;
                         document.getElementById('town_name_input').value = data.town_name;
                         document.getElementById('booth_name_input').value = data.booth_name;
 
@@ -304,18 +318,18 @@
                     })
                     .catch(error => console.error('Error fetching voter data:', error));
                 // Fetch and populate caste options
-                fetch('http://192.168.1.20:8001/api/cast')
-                    .then(response => response.json())
-                    .then(casteData => {
-                        const casteSelect = document.getElementById('voter_cast_name_input');
-                        casteData.forEach(caste => {
-                            const option = document.createElement('option');
-                            option.value = caste.cast_id;
-                            option.textContent = caste.cast_name;
-                            casteSelect.appendChild(option);
-                        });
-                    })
-                    .catch(error => console.error('Error fetching caste data:', error));
+                // fetch('http://192.168.1.20:8001/api/cast')
+                //     .then(response => response.json())
+                //     .then(casteData => {
+                //         const casteSelect = document.getElementById('voter_cast_name_input');
+                //         casteData.forEach(caste => {
+                //             const option = document.createElement('option');
+                //             option.value = caste.cast_id;
+                //             option.textContent = caste.cast_name;
+                //             casteSelect.appendChild(option);
+                //         });
+                //     })
+                //     .catch(error => console.error('Error fetching caste data:', error));
             };
 
             // Save the edited voter details

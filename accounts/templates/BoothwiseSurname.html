@@ -28,7 +28,7 @@
       border-radius: 8px;
     }
 
-    table .bg-blue {
+    table th {
       font-weight: 600;
       background-color: #DCE1FF !important;
     }
@@ -39,7 +39,7 @@
 
     .btn-close {
       position: absolute;
-      right: 45px;
+      right: 5px;
       top: 50%;
       transform: translateY(-50%);
       cursor: pointer;
@@ -187,14 +187,15 @@
             </div>
           </div>
 
-          <div class="search" style="width: 260px;">
+          <div class="search" style="width: 250px;">
             <!-- <form class="d-flex" method="GET"> -->
             <div class="input-group">
               <input type="text" id="search-input" name="search" class="form-control bg-light"
                 placeholder="Search by Surname" value="{{ request.GET.search }}" />
               <button type="button" id="clear-button" class="btn-close" aria-label="Close"></button>
-              <button class="btn btn-success" type="submit">
-                <i class="fa-solid fa-magnifying-glass"></i></button>
+              <!-- <button class="btn btn-success" type="submit">
+                <i class="fa-solid fa-magnifying-glass"></i>
+              </button> -->
             </div>
             <!-- </form> -->
           </div>
@@ -381,6 +382,13 @@
       });
     });
 
+    // Function to capitalize the first letter of each word
+    function capitalizeWords(str) {
+      return str.split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join(' ');
+    }
+
 
     let votersData = []; // Store the fetched voters data
     // Capitalize function
@@ -486,7 +494,7 @@
           const SurnameCell = document.createElement('td');
           SurnameCell.style.textAlign = 'start';
           const link = document.createElement('a');
-          link.textContent = voter.surname || 'None';
+          link.textContent = capitalizeWords(voter.surname) || 'None';
           link.href = '#';
           link.style.textDecoration = 'underline'; // Add underline
           link.style.textDecorationColor = 'blue';
@@ -547,13 +555,13 @@
                 // Get the background color based on the voter's favour_id
                 const backgroundColor = getColorBasedOnFavor(voter.voter_favour_id);
                 return `
-                                <tr>
-                                    <td class="text-center">${index + 1}</td>
-                                    <td>${voter.voter_name} (${voter.voter_id})</td>
-                                    <td>${voter.voter_contact_number || '--'}</td>
-                                    <td><button class="btn btn-secondary btn-sm" onclick="viewVoterDetails(${voter.voter_id})"><i class="fa-solid fa-circle-info"></i></button></td>                                    <td style="background-color: ${backgroundColor};"></td>
-                                </tr>
-                            `;
+                    <tr>
+                        <td class="text-center">${index + 1}</td>
+                        <td>${voter.voter_name} (${voter.voter_id})</td>
+                        <td>${voter.voter_contact_number || '--'}</td>
+                        <td><button class="btn btn-secondary btn-sm" onclick="viewVoterDetails(${voter.voter_id})"><i class="fa-solid fa-circle-info"></i></button></td>                                    <td style="background-color: ${backgroundColor};"></td>
+                    </tr>
+                `;
               }).join(''); // Join the rows together into a single string
 
               // Append all rows at once

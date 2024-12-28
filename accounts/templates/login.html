@@ -60,11 +60,19 @@
             background-color: #3C4CAC;
             color: #fff;
         }
-        .left-info-sec h2,p , .right-info-sec h2,p {
-            user-select: none; /* Prevents text selection */
+
+        .left-info-sec h2,
+        p,
+        .right-info-sec h2,
+        p {
+            user-select: none;
+            /* Prevents text selection */
         }
-        .right-info-sec img, .left-info-sec img{
-            pointer-events: none; /* Prevents any mouse interaction */
+
+        .right-info-sec img,
+        .left-info-sec img {
+            pointer-events: none;
+            /* Prevents any mouse interaction */
         }
     </style>
 </head>
@@ -107,18 +115,38 @@
                         </div>
                         {% endif %}
                     </div>
+
+                    <!-- Display Non-field errors (such as wrong credentials) -->
+                    {% if form.non_field_errors %}
+                    <div class="text-danger">
+                        {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <!-- Display messages (e.g., login failed) -->
+                    {% if messages %}
+                    <div class="text-danger">
+                        {% for message in messages %}
+                        <p>{{ message }}</p>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
                     <button type="submit" class="btn btn-custom w-100 mt-1">Log In</button>
                 </form>
-                
+
+
                 <!-- <form method="post" action="{% url 'login' %}" style="width: 100%; max-width: 400px;">
                     {% csrf_token %}
                     <div class="mb-3">
-                        <label for="username" class="form-label"><strong>Username</strong></label>
-                        <input type="text" class="form-control bg-light" name="username" id="username"
-                            placeholder="Enter username here ..." required>
-                        {% if form.username.errors %}
+                        <label for="mobile_number" class="form-label"><strong>Mobile Number</strong></label>
+                        <input type="text" class="form-control bg-light" name="mobile_number" id="mobile_number"
+                            placeholder="Enter mobile number here ..." required>
+                        {% if form.mobile_number.errors %}
                         <div class="text-danger">
-                            {{ form.username.errors }}
+                            {{ form.mobile_number.errors }}
                         </div>
                         {% endif %}
                     </div>
@@ -138,7 +166,7 @@
                         </div>
                         {% endif %}
                     </div>
-                    <button type="submit" class="btn btn-custom w-100 mt-1">Sign In</button>
+                    <button type="submit" class="btn btn-custom w-100 mt-1">Log In</button>
                 </form> -->
 
                 <!-- Toast Messages -->
@@ -173,7 +201,7 @@
                                 {% elif 'submission_failed' in message %}
                                 An error occurred while submitting the form. Please try again.
                                 {% else %}
-                                Oops! Something went wrong. Please try again later.
+                                Please try again later.
                                 {% endif %}
                                 {% elif message.tags == 'success' %}
                                 {% if 'account_created' in message %}
@@ -183,7 +211,7 @@
                                 {% elif 'login_successful' in message %}
                                 You have logged in successfully.
                                 {% else %}
-                                Operation completed successfully.
+                                You have successfully Signed out.
                                 {% endif %}
                                 {% else %}
                                 {{ message }}
@@ -201,9 +229,11 @@
             <!-- Right Section - Background Image with Text -->
             <div class="col-md-6 d-flex align-items-center justify-content-center right-section">
                 <div class="overlay-content text-center right-info-sec">
-                    <img src="{% static '../static/images/login-side-img.svg' %}" alt="Login Side Image" class="img-fluid">
+                    <img src="{% static '../static/images/login-side-img.svg' %}" alt="Login Side Image"
+                        class="img-fluid">
                     <h2 style="cursor: default;">Visual Prediction statistics</h2>
-                    <p style="cursor: default;">These visuals are used to analyze and understand various aspects of prediction activity, trends, and patterns.</p>
+                    <p style="cursor: default;">These visuals are used to analyze and understand various aspects of
+                        prediction activity, trends, and patterns.</p>
                 </div>
             </div>
         </div>

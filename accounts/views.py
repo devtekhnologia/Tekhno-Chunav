@@ -99,6 +99,7 @@ def register(request):
     else:
         form = RegistrationForm()
     return render(request, 'register.html', {'form': form})
+from django.contrib import messages  # Make sure you import the messages module
 
 # Login view
 def login_view(request):
@@ -109,14 +110,12 @@ def login_view(request):
                 'politician_name': form.cleaned_data['mobile_number'],
                 'politician_password': form.cleaned_data['password'],
             }
-            # print('payload--------', data1)
             response = requests.post(f"{BASE_URL}api/politician_login/", data=data1)
             if response.status_code == 200:
                 response_data = response.json()
                 token = response_data.get('token')
                 decoded_data = jwt.decode(token, options={"verify_signature": False})
-                # print('decoded pid---',decoded_data)
-                politician_id = response_data.get('politician_id')  # Extract the politician_id
+                politician_id = response_data.get('politician_id')
                 mobile_number = form.cleaned_data['mobile_number']
 
                 user, created = User.objects.get_or_create(username=mobile_number)
@@ -130,13 +129,54 @@ def login_view(request):
 
                 return redirect('dashboard')
             else:
-                messages.error(request, 'Log-in failed. Please check your credentials and try again.')
+                # Add a non-field error when login fails
+                form.add_error(None, 'Invalid mobile number or password. Please try again.')
+
         else:
-            # If form is not valid, errors will be automatically rendered
+            # If the form is not valid, errors will be automatically rendered
             messages.error(request, 'Please correct the errors above.')
     else:
         form = LoginForm()
+
     return render(request, 'login.html', {'form': form})
+
+# # Login view
+# def login_view(request):
+#     if request.method == 'POST':
+#         form = LoginForm(request.POST)
+#         if form.is_valid():
+#             data1 = {
+#                 'politician_name': form.cleaned_data['mobile_number'],
+#                 'politician_password': form.cleaned_data['password'],
+#             }
+#             # print('payload--------', data1)
+#             response = requests.post(f"{BASE_URL}api/politician_login/", data=data1)
+#             if response.status_code == 200:
+#                 response_data = response.json()
+#                 token = response_data.get('token')
+#                 decoded_data = jwt.decode(token, options={"verify_signature": False})
+#                 # print('decoded pid---',decoded_data)
+#                 politician_id = response_data.get('politician_id')  # Extract the politician_id
+#                 mobile_number = form.cleaned_data['mobile_number']
+
+#                 user, created = User.objects.get_or_create(username=mobile_number)
+#                 if created:
+#                     user.set_password(None)
+#                     user.save()
+
+#                 request.session['auth_token'] = token
+#                 request.session['politician_id'] = decoded_data['politician_id']
+#                 auth_login(request, user)
+
+#                 return redirect('dashboard')
+#             else:
+#                 messages.error(request, 'Log-in failed. Please check your credentials and try again.')
+#         else:
+#             # If form is not valid, errors will be automatically rendered
+#             messages.error(request, 'Please correct the errors above.')
+#     else:
+#         form = LoginForm()
+#     return render(request, 'login.html', {'form': form})
 
 
 # Logout
@@ -156,7 +196,7 @@ def dashboard(request):
 # Navbar
 @login_required(login_url='login')
 def navbar(request):
-    return render(request, 'navbar - NP.html')
+    return render(request, 'navbar.html')
 
 #  User profile
 @login_required(login_url='login')
@@ -241,7 +281,7 @@ def BoothDetails(request):
         'page_obj': page_obj,
         'search_query': search_query  # Ensure this is passed
     }
-    return render(request, 'BoothDetails - NP.html', context)
+    return render(request, 'BoothDetails.html', context)
 
 
 # PrabhagWiseBoothList
