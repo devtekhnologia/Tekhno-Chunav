@@ -435,7 +435,7 @@
 
       // Function to fetch towns and set up the select dropdown
       function fetchTowns() {
-        fetch('http://192.168.1.20:8001/api/towns/')
+        fetch('http://192.168.200.84:8001/api/towns/')
           .then(response => response.json())
           .then(data => {
             const townSelect = document.getElementById('townSelect');
@@ -460,7 +460,7 @@
       // Function to fetch voters based on town_id
       async function fetchVoters(townId) {
         try {
-          const response = await fetch(`http://192.168.1.20:8001/api/town_wise_voter_list/${townId}/`);
+          const response = await fetch(`http://192.168.200.84:8001/api/town_wise_voter_list/${townId}/`);
           const data = await response.json();
           votersData = data;  // Store the fetched voters data
           // console.log(votersData);
@@ -522,17 +522,17 @@
 
         // Calculate the total number of pages
         totalPages = Math.ceil(totalVoters / votersPerPage);  // Correctly calculate total pages
-        console.log('tp--', totalPages);
+        // console.log('tp--', totalPages);
 
 
         // Slice the voters array for the current page
 
         const startIndex = (currentPage - 1) * votersPerPage;
         const endIndex = startIndex + votersPerPage;
-        console.log('si-', startIndex, 'ei-', endIndex);
+        // console.log('si-', startIndex, 'ei-', endIndex);
 
         const paginatedVoters = voters.slice(startIndex, endIndex);
-        console.log('pv--', paginatedVoters);
+        // console.log('pv--', paginatedVoters);
 
 
         // Populate the table with voters for the current page
@@ -606,7 +606,7 @@
             const newConfirmationStatus = voter.voter_vote_confirmation_id === null ? 1 : null; // Toggle logic
 
             try {
-              const response = await fetch(`http://192.168.1.20:8001/api/voter_confirmation/${voter.voter_id}/`, {
+              const response = await fetch(`http://192.168.200.84:8001/api/voter_confirmation/${voter.voter_id}/`, {
                 method: 'PUT',
                 headers: {
                   'Content-Type': 'application/json'
@@ -623,13 +623,7 @@
 
               // Update the button icon and voter object
               voter.voter_vote_confirmation_id = newConfirmationStatus; // Update the current status
-              // voteConfirmationButton.innerHTML = newConfirmationStatus === null
-              //     ? '<i class="fa-regular fa-thumbs-up"></i>' // Icon for "Confirm Vote"
-              //     : '<i class="fa-solid fa-thumbs-up"></i>'; // Icon for "Undo Confirmation"
-              // Set the button icon based on the current confirmation status
-
-              // console.log('After status', newConfirmationStatus);
-
+              
               if (newConfirmationStatus === null) {
                 voteConfirmationButton.className = 'btn btn-secondary btn-sm m-1';
                 voteConfirmationButton.innerHTML = '<i class="fa-regular fa-thumbs-up"></i>'; // Icon for "Confirm Vote"
@@ -645,26 +639,10 @@
           });
           actionsCell.appendChild(voteConfirmationButton);
 
-          // Conditional button based on voter_vote_confirmation_id
-          // if (voter.voter_vote_confirmation_id === null) {
-          //   detailsButton = document.createElement('button');
-          //   detailsButton.className = 'btn voter-detail-link btn-secondary btn-sm';
-          //   detailsButton.innerHTML = '<i class="fa-regular fa-circle-xmark"></i>';
-          // } else if (voter.voter_vote_confirmation_id === 1) {
-          //   detailsButton = document.createElement('button');
-          //   detailsButton.className = 'btn voter-detail-link btn-primary btn-sm';
-          //   detailsButton.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
-          // } else {
-          //   // Optionally, handle other cases or leave empty
-          //   detailsButton = document.createElement('button');
-          //   detailsButton.className = 'btn btn-danger btn-sm';
-          //   detailsButton.textContent = 'No Action';
-          // }
-
           detailsButton.onclick = function () {
             currentVoterId = voter.voter_id;
             // Fetch voter details from the API
-            fetch(`http://192.168.1.20:8001/api/voters/${voter.voter_id}/`)
+            fetch(`http://192.168.200.84:8001/api/voters/${voter.voter_id}/`)
               .then(response => {
                 if (!response.ok) {
                   throw new Error('Network response was not ok');
@@ -687,7 +665,7 @@
 
                 document.getElementById('voter_in_city').textContent = (voterDetails.voter_in_city_id === 1) ? 'In City' : (voterDetails.voter_in_city_id === 2 ? 'Near City' : (voterDetails.voter_in_city_id === 3 ? 'Out of City' : '--'));
                 document.getElementById('voter_live_status').textContent = (voterDetails.voter_live_status_id === 1) ? 'Alive' : (voterDetails.voter_live_status_id === 2 ? 'Dead' : '--');
-                document.getElementById('marital_status').textContent = voterDetails.voter_marital_status_id || '--';
+                document.getElementById('marital_status').textContent = voterDetails.marital_status_type || '--';
                 document.getElementById('current_location').textContent = voterDetails.voter_current_location || '--';
 
                 // Update the Family button with the voter ID
@@ -920,7 +898,7 @@
       // Add event listener for the export button in Voter Details
       document.getElementById('export-pdf-button').addEventListener('click', function () {
         if (currentVoterId) {
-          const pdfUrl = `http://192.168.1.20:8001/api/generate_voter_pdf/${currentVoterId}/`;
+          const pdfUrl = `http://192.168.200.84:8001/api/generate_voter_pdf/${currentVoterId}/`;
           fetch(pdfUrl)
             .then(response => {
               if (!response.ok) {
@@ -957,7 +935,7 @@
           return;
         }
 
-        const pdfUrl = `http://192.168.1.20:8001/api/generate_voter_pdf_by_town/town_id/${selectedTownId}/city_id/${selectedLocationId}/`;
+        const pdfUrl = `http://192.168.200.84:8001/api/generate_voter_pdf_by_town/town_id/${selectedTownId}/city_id/${selectedLocationId}/`;
 
         if (selectedTownId || selectedLocationId) {
           // Fetch PDF
@@ -1009,10 +987,14 @@
 
       // Function to capitalize the first letter of each word
       function capitalizeWords(str) {
+        if (typeof str !== 'string' || !str) {
+          return ''; // Return an empty string if the input is not a valid string
+        }
         return str.split(' ')
           .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
           .join(' ');
       }
+
 
       // Function to get URL parameters
       function getTownIdFromPath() {
@@ -1063,7 +1045,7 @@
 
     document.addEventListener('DOMContentLoaded', function () {
       // Fetch caste data from the API and populate the caste select options
-      fetch('http://192.168.1.20:8001/api/cast/')
+      fetch('http://192.168.200.84:8001/api/cast/')
         .then(response => response.json())
         .then(data => {
           const casteSelect = document.getElementById('caste-select');
@@ -1174,7 +1156,7 @@
         // console.log('Payload:', JSON.stringify(payload));
 
         // Make the PUT request to assign caste to voters
-        fetch('http://192.168.1.20:8001/api/favour/', {
+        fetch('http://192.168.200.84:8001/api/favour/', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -1228,7 +1210,7 @@
         // console.log('Payload:', JSON.stringify(payload));
 
         // Make the PUT request to assign caste to voters
-        fetch('http://192.168.1.20:8001/api/assign_voter_cast/', {
+        fetch('http://192.168.200.84:8001/api/assign_voter_cast/', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',

@@ -14,8 +14,8 @@ from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_http_methods
 import logging
 
-BASE_URL = "http://192.168.1.20:8001/"
-LOCAL_URL = "http://192.168.1.20:8001/"
+BASE_URL = "http://192.168.200.84:8001/"
+LOCAL_URL = "http://192.168.200.84:8001/"
 
 
 API_LOGIN_ENDPOINT = f"{BASE_URL}api/politician_login/"
@@ -31,52 +31,7 @@ API_TOTAL_VOTERS = f"{BASE_URL}api/total_voters/"
 def format_name(name):
     return ' '.join(part.capitalize() for part in name.split())
 
-# @csrf_exempt
-# def register(request):
-#     if request.method == 'POST':
-#         form = RegistrationForm(request.POST)
-#         if form.is_valid():
-#             # Extract cleaned data from the form
-#             # politician_name = form.cleaned_data['politician_name']
-#             # mobile_number = form.cleaned_data['mobile_number']
-#             # password = form.cleaned_data['password']
-
-#             # Prepare the data to send to the API
-#             payload = {
-#                 'politician_name': form.cleaned_data['politician_name'],
-#                 'politician_contact_number': form.cleaned_data['mobile_number'],  # Correct field mapping
-#                 'politician_password': form.cleaned_data['password'],
-#             }
-#             print('data--------------------',payload)
-
-#             try:
-#                 # Send data to the API using a POST request
-#                 response = requests.post(API_REGISTER_POLITICIAN, data=payload)
-
-#                 # Check if the API call was successful (status code 201)
-#                 if response.status_code == 201:
-#                     messages.success(request, 'Registration successful!')
-#                     return redirect('login')
-#                 elif response.status_code == 400:
-#                     messages.error(request, 'Invalid data submitted. Please check your input.')
-#                 else:
-#                     messages.error(request, 'Registration failed. Please try again later.')
-
-#             except requests.exceptions.RequestException as e:
-#                 # Handle any exceptions (e.g., network issues)
-#                 messages.error(request, f'Registration failed: {e}')
-
-#         else:
-#             # If the form is invalid, log the errors for debugging
-#             print(form.errors)
-
-#     else:
-#         # If it's a GET request, initialize an empty form
-#         form = RegistrationForm()
-
-#     # Render the registration page with the form
-#     return render(request, 'register.html', {'form': form})
-
+# Register view
 def register(request):
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
@@ -99,8 +54,6 @@ def register(request):
     else:
         form = RegistrationForm()
     return render(request, 'register.html', {'form': form})
-from django.contrib import messages  # Make sure you import the messages module
-
 # Login view
 def login_view(request):
     if request.method == 'POST':
@@ -117,28 +70,67 @@ def login_view(request):
                 decoded_data = jwt.decode(token, options={"verify_signature": False})
                 politician_id = response_data.get('politician_id')
                 mobile_number = form.cleaned_data['mobile_number']
-
+ 
                 user, created = User.objects.get_or_create(username=mobile_number)
                 if created:
                     user.set_password(None)
                     user.save()
-
+ 
                 request.session['auth_token'] = token
                 request.session['politician_id'] = decoded_data['politician_id']
                 auth_login(request, user)
-
+ 
                 return redirect('dashboard')
             else:
                 # Add a non-field error when login fails
                 form.add_error(None, 'Invalid mobile number or password. Please try again.')
-
+ 
         else:
             # If the form is not valid, errors will be automatically rendered
             messages.error(request, 'Please correct the errors above.')
     else:
         form = LoginForm()
-
+ 
     return render(request, 'login.html', {'form': form})
+
+# # Login view
+# def login_view(request):
+#     if request.method == 'POST':
+#         form = LoginForm(request.POST)
+#         if form.is_valid():
+#             data1 = {
+#                 'politician_name': form.cleaned_data['mobile_number'],
+#                 'politician_password': form.cleaned_data['password'],
+#             }
+#             response = requests.post(f"{BASE_URL}api/politician_login/", data=data1)
+#             if response.status_code == 200:
+#                 response_data = response.json()
+#                 token = response_data.get('token')
+#                 decoded_data = jwt.decode(token, options={"verify_signature": False})
+#                 politician_id = response_data.get('politician_id')
+#                 mobile_number = form.cleaned_data['mobile_number']
+
+#                 user, created = User.objects.get_or_create(username=mobile_number)
+#                 if created:
+#                     user.set_password(None)
+#                     user.save()
+
+#                 request.session['auth_token'] = token
+#                 request.session['politician_id'] = decoded_data['politician_id']
+#                 auth_login(request, user)
+
+#                 return redirect('dashboard')
+#             else:
+#                 # Add a non-field error when login fails
+#                 form.add_error(None, 'Invalid mobile number or password. Please try again.')
+
+#         else:
+#             # If the form is not valid, errors will be automatically rendered
+#             messages.error(request, 'Please correct the errors above.')
+#     else:
+#         form = LoginForm()
+
+#     return render(request, 'login.html', {'form': form})
 
 # # Login view
 # def login_view(request):
@@ -183,7 +175,7 @@ def login_view(request):
 def logout_view(request):
     auth_logout(request)  # Logs out the user
     request.session.flush()  # Clears the session data
-    messages.success(request, 'You have successfully Signed out.')
+    # messages.success(request, 'You have successfully Signed out.')
     return redirect('login')
 
 # Dashboard
@@ -505,7 +497,7 @@ def AddPrabhagUser(request):
             "prabhag_user_password": password,
             "prabhag_user_prabhag_id": int(prabhag_ids)  # This will be a list of selected prabhag IDs
         }
-        print('api_data-',api_data)
+        # print('api_data-',api_data)
 
         # Send POST request to external API
         response = requests.post(API_ADDPRABHAGUSER, json=api_data)
@@ -619,7 +611,7 @@ def AddPSUser(request):
             'panchayat_samiti_circle_user_password': password,
             'panchayat_samiti_circle_ids': ps_id  # This will be a list of selected town IDs
         }
-        print('PS payload-----------------------------------------',payload)
+        # print('PS payload-----------------------------------------',payload)
 
         # Send POST request to external API
         response = requests.post(f"{BASE_URL}api/panchayat_samiti_circle_user_register/", json=payload)
@@ -649,7 +641,7 @@ def AddBoothUser(request):
             'user_password': password,
             'booth_ids': booth_ids  # This will be a list of selected booth IDs
         }
-        print('json--', api_data)
+        # print('json--', api_data)
         
         # Send POST request to external API
         response = requests.post(API_ADDBOOTHUSER, json=api_data)
@@ -877,7 +869,7 @@ def TownUserList(request):
 def SurnameWiseVoterList(request):
     search_query = request.GET.get('search', '')  # Get search query if provided
     sort_order = request.GET.get('sort', '')  # Get the sort query (a-z)
-    url = "http://192.168.1.20:8001/api/surname_wise_voter_count/"
+    url = "http://192.168.200.84:8001/api/surname_wise_voter_count/"
     
     response = requests.get(url)
     response.raise_for_status()
@@ -1583,7 +1575,7 @@ def GroupDetails(request):
 # Edit Voter Details View
 @login_required(login_url='login')
 def EditVoterDetails(request, id):
-    print('VID-',id)
+    # print('VID-',id)
     return render(request, 'EditVoterDetails.html', {'id': id})
 
 
@@ -1636,12 +1628,10 @@ def BoothWiseVoterListWithID(request, t_id, b_id):
 def BoothWiseVoterListWithOnlyBID(request, b_id):
     return render(request, 'BoothWiseVoterList.html', {'booth_id': b_id})
 
-
 # Cast Wise Voters
 @login_required(login_url='login')
 def CastWiseVoter(request):
     return render(request, 'CastWiseVoter.html')
-
 
 # Cast Wise Voters
 @login_required(login_url='login')
@@ -1806,18 +1796,6 @@ def GraminList(request):
     }
     return render(request, 'RuralTownList.html', context)
 
-# deleteBoothUser
-# @login_required(login_url='login')
-# def deleteBoothUser(request, user_id):
-#     if request.method == 'DELETE':
-#         try:
-#             user = User.objects.get(id=user_id)
-#             user.delete()
-#             return JsonResponse({"message": "User deleted successfully"}, status=200)
-#         except User.DoesNotExist:
-#             return JsonResponse({"message": "User not found"}, status=404)
-#     return JsonResponse({"message": "Invalid request"}, status=400)
-
 
 # Booth User Activity Log next Page
 @login_required(login_url='login')
@@ -1943,40 +1921,6 @@ def PanchayatSamitiCircleList(request):
         'search_query': search_query,
     }
     return render(request, 'PanchayatSamitiCircle.html', context)
-
-
-# # ZillaParishadCircleList
-# @login_required(login_url='login')
-# def ZillaParishadCircleList(request):
-#     # Fetch search query if available
-#     search_query = request.GET.get('search', '')
-
-#     # Fetch data from the API
-#     api_url = f"{BASE_URL}api/zp_circle_names/"
-#     response = requests.get(api_url)
-
-#     if response.status_code == 200:
-#         data = response.json()  # Assuming the API returns a JSON response
-#     else:
-#         data = []
-
-#     # Filter data by search query
-#     if search_query:
-#         data = [item for item in data if search_query.lower() in item['zp_circle_name'].lower()]
-
-#     # Sort in alphabetical order
-#     data.sort(key=lambda x: x.get('zp_circle_name', '').lower())
-
-#     # Pagination
-#     paginator = Paginator(data, 50)  # Show 10 records per page
-#     page_number = request.GET.get('page')
-#     page_obj = paginator.get_page(page_number)
-
-#     context = {
-#         'page_obj': page_obj,
-#         'search_query': search_query,
-#     }
-#     return render(request, 'ZillaParishadCircleList.html', context)
 
 
 # ZP Details

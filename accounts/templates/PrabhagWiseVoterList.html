@@ -331,7 +331,7 @@
 
             // Function to fetch towns and set up the select dropdown
             function fetchPrabhags() {
-                fetch('http://192.168.1.20:8001/api/get_prabhags/')
+                fetch('http://192.168.200.84:8001/api/get_prabhags/')
                     .then(response => response.json())
                     .then(data => {
                         const wardSelect = document.getElementById('wardSelect');
@@ -356,7 +356,7 @@
             // Function to fetch voters based on town_id
             async function fetchVoters(prabhagId) {
                 try {
-                    const response = await fetch(`http://192.168.1.20:8001/api/get_voters_by_prabhagh/${prabhagId}/`);
+                    const response = await fetch(`http://192.168.200.84:8001/api/get_voters_by_prabhagh/${prabhagId}/`);
                     const data = await response.json();
                     votersData = data;  // Store the fetched voters data
                     renderVoters(votersData);  // Render voters in the table
@@ -465,7 +465,7 @@
                         const newConfirmationStatus = voter.voter_vote_confirmation_id === null ? 1 : null; // Toggle logic
 
                         try {
-                            const response = await fetch(`http://192.168.1.20:8001/api/voter_confirmation/${voter.voter_id}/`, {
+                            const response = await fetch(`http://192.168.200.84:8001/api/voter_confirmation/${voter.voter_id}/`, {
                                 method: 'PUT',
                                 headers: {
                                     'Content-Type': 'application/json'
@@ -519,7 +519,7 @@
                     detailsButton.onclick = function () {
                         currentVoterId = voter.voter_id;
                         // Fetch voter details from the API
-                        fetch(`http://192.168.1.20:8001/api/voters/${voter.voter_id}/`)
+                        fetch(`http://192.168.200.84:8001/api/voters/${voter.voter_id}/`)
                             .then(response => {
                                 if (!response.ok) {
                                     throw new Error('Network response was not ok');
@@ -542,7 +542,7 @@
 
                                 document.getElementById('voter_in_city').textContent = (voterDetails.voter_in_city_id === 1) ? 'In City' : (voterDetails.voter_in_city_id === 2 ? 'Near City' : (voterDetails.voter_in_city_id === 3 ? 'Out of City' : '--'));
                                 document.getElementById('voter_live_status').textContent = (voterDetails.voter_live_status_id === 1) ? 'Alive' : (voterDetails.voter_live_status_id === 2 ? 'Dead' : '--');
-                                document.getElementById('marital_status').textContent = voterDetails.voter_marital_status_id || '--';
+                                document.getElementById('marital_status').textContent = voterDetails.marital_status_type || '--';
                                 document.getElementById('current_location').textContent = voterDetails.voter_current_location || '--';
 
                                 // Update the Family button with the voter ID
@@ -643,7 +643,7 @@
             // Add event listener for the export button in Voter Details
             document.getElementById('export-pdf-button').addEventListener('click', function () {
                 if (currentVoterId) {
-                    const pdfUrl = `http://192.168.1.20:8001/api/generate_voter_pdf/${currentVoterId}/`;
+                    const pdfUrl = `http://192.168.200.84:8001/api/generate_voter_pdf/${currentVoterId}/`;
                     fetch(pdfUrl)
                         .then(response => {
                             if (!response.ok) {
@@ -741,7 +741,7 @@
         // // Multi Caste assign function
         // document.addEventListener('DOMContentLoaded', function () {
         //     // Fetch caste data from the API and populate the caste select options
-        //     fetch('http://192.168.1.20:8001/api/cast/')
+        //     fetch('http://192.168.200.84:8001/api/cast/')
         //         .then(response => response.json())
         //         .then(data => {
         //             const casteSelect = document.getElementById('caste-select');
@@ -815,7 +815,7 @@
         //     console.log('Payload:', JSON.stringify(payload));
 
         //     // Make the PUT request to assign caste to voters
-        //     fetch('http://192.168.1.20:8001/api/assign_voter_cast/', {
+        //     fetch('http://192.168.200.84:8001/api/assign_voter_cast/', {
         //         method: 'PUT',
         //         headers: {
         //             'Content-Type': 'application/json',
@@ -853,7 +853,7 @@
 
         document.addEventListener('DOMContentLoaded', function () {
             // Fetch caste data from the API and populate the caste select options
-            fetch('http://192.168.1.20:8001/api/cast/')
+            fetch('http://192.168.200.84:8001/api/cast/')
                 .then(response => response.json())
                 .then(data => {
                     const casteSelect = document.getElementById('caste-select');
@@ -964,7 +964,7 @@
                 console.log('Payload:', JSON.stringify(payload));
 
                 // Make the PUT request to assign caste to voters
-                fetch('http://192.168.1.20:8001/api/favour/', {
+                fetch('http://192.168.200.84:8001/api/favour/', {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1018,7 +1018,7 @@
                 console.log('Payload:', JSON.stringify(payload));
 
                 // Make the PUT request to assign caste to voters
-                fetch('http://192.168.1.20:8001/api/assign_voter_cast/', {
+                fetch('http://192.168.200.84:8001/api/assign_voter_cast/', {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',

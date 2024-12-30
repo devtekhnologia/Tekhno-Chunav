@@ -186,7 +186,7 @@
             function fetchVoterData(voteStatus = 1) {
                 // console.log('Fetching data for voteStatus:', parseInt(voteStatus));
 
-                const apiUrl = `http://192.168.1.20:8001/api/get_voters_by_vote_status/${parseInt(voteStatus)}/`;
+                const apiUrl = `http://192.168.200.84:8001/api/get_voters_by_vote_status/${parseInt(voteStatus)}/`;
                 voterTableBody.innerHTML = '<tr><td colspan="5" class="text-center">Loading voters...</td></tr>';
 
                 fetch(apiUrl)
@@ -440,7 +440,7 @@
             // Event listener for dropdown change
             voterStatusSelect.addEventListener('change', function () {
                 const voteStatus = this.value;
-                console.log('Voter status changed to:', voteStatus);
+                // console.log('Voter status changed to:', voteStatus);
                 fetchVoterData(voteStatus);  // Fetch data again based on selected status
             });
 

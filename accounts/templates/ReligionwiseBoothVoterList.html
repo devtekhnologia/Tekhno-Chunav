@@ -296,12 +296,15 @@
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
     <script>
-        // Function to capitalize first letter of each word
-        function capitalizeWords(str) {
-            return str.replace(/\w\S*/g, function (txt) {
-                return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-            });
+        // Function to capitalize the first letter of each word
+      function capitalizeWords(str) {
+        if (typeof str !== 'string' || !str) {
+          return ''; // Return an empty string if the input is not a valid string
         }
+        return str.split(' ')
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+          .join(' ');
+      }
 
         document.addEventListener('DOMContentLoaded', function () {
             const townSelect = document.getElementById('townSelect');
@@ -314,7 +317,7 @@
             let votersData = []; // Store all voters data for searching
 
             // Fetch town data
-            fetch('http://192.168.1.20:8001/api/towns/')
+            fetch('http://192.168.200.84:8001/api/towns/')
                 .then(response => response.json())
                 .then(data => {
                     data.forEach(town => {
@@ -332,7 +335,7 @@
                 if (selectedTownId) {
                     boothSelect.disabled = false;
 
-                    fetch(`http://192.168.1.20:8001/api/booths_by_town/${selectedTownId}/`)
+                    fetch(`http://192.168.200.84:8001/api/booths_by_town/${selectedTownId}/`)
                         .then(response => response.json())
                         .then(data => {
                             boothSelect.innerHTML = '<option selected>Select Booth</option>';
@@ -353,7 +356,7 @@
                 if (selectedBoothId) {
                     religionSelect.disabled = false;
 
-                    fetch('http://192.168.1.20:8001/api/get_all_religion/')
+                    fetch('http://192.168.200.84:8001/api/get_all_religion/')
                         .then(response => response.json())
                         .then(data => {
                             religionSelect.innerHTML = '<option selected>Select Religion</option>';
@@ -374,7 +377,7 @@
                 const selectedReligionId = religionSelect.value;
 
                 if (selectedBoothId && selectedReligionId) {
-                    fetch(`http://192.168.1.20:8001/api/booth/${selectedBoothId}/religion/${selectedReligionId}/`)
+                    fetch(`http://192.168.200.84:8001/api/booth/${selectedBoothId}/religion/${selectedReligionId}/`)
                         .then(response => response.json())
                         .then(data => {
                             if (data.length === 0) {
@@ -487,7 +490,7 @@
                         const newConfirmationStatus = voter.voter_vote_confirmation_id === null ? 1 : null; // Toggle logic
 
                         try {
-                            const response = await fetch(`http://192.168.1.20:8001/api/voter_confirmation/${voter.voter_id}/`, {
+                            const response = await fetch(`http://192.168.200.84:8001/api/voter_confirmation/${voter.voter_id}/`, {
                                 method: 'PUT',
                                 headers: {
                                     'Content-Type': 'application/json'
@@ -525,7 +528,7 @@
                     detailsButton.onclick = function () {
                         currentVoterId = voter.voter_id;
                         // Fetch voter details from the API
-                        fetch(`http://192.168.1.20:8001/api/voters/${voter.voter_id}/`)
+                        fetch(`http://192.168.200.84:8001/api/voters/${voter.voter_id}/`)
                             .then(response => {
                                 if (!response.ok) {
                                     throw new Error('Network response was not ok');
@@ -548,7 +551,7 @@
 
                                 document.getElementById('voter_in_city').textContent = (voterDetails.voter_in_city_id === 1) ? 'In City' : (voterDetails.voter_in_city_id === 2 ? 'Near City' : (voterDetails.voter_in_city_id === 3 ? 'Out of City' : '--'));
                                 document.getElementById('voter_live_status').textContent = (voterDetails.voter_live_status_id === 1) ? 'Alive' : (voterDetails.voter_live_status_id === 2 ? 'Dead' : '--');
-                                document.getElementById('marital_status').textContent = voterDetails.voter_marital_status_id || '--';
+                                document.getElementById('marital_status').textContent = voterDetails.marital_status_type || '--';
                                 document.getElementById('current_location').textContent = voterDetails.voter_current_location || '--';
 
                                 // Update the Family button with the voter ID
@@ -666,7 +669,7 @@
             // Add event listener for the export button in Voter Details
             document.getElementById('export-pdf-button').addEventListener('click', function () {
                 if (currentVoterId) {
-                    const pdfUrl = `http://192.168.1.20:8001/api/generate_voter_pdf/${currentVoterId}/`;
+                    const pdfUrl = `http://192.168.200.84:8001/api/generate_voter_pdf/${currentVoterId}/`;
                     fetch(pdfUrl)
                         .then(response => {
                             if (!response.ok) {
@@ -734,7 +737,7 @@
                     return;
                 }
 
-                const pdfUrl = `http://192.168.1.20:8001/api/booth_pdf/${selectedBoothId}/religion/${selectedReligionId}/`;
+                const pdfUrl = `http://192.168.200.84:8001/api/booth_pdf/${selectedBoothId}/religion/${selectedReligionId}/`;
 
                 // Fetch PDF
                 fetch(pdfUrl)
@@ -878,7 +881,7 @@
                 console.log('Payload:', JSON.stringify(payload));
 
                 // Make the PUT request to assign favour to voters
-                fetch('http://192.168.1.20:8001/api/favour/', {
+                fetch('http://192.168.200.84:8001/api/favour/', {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
