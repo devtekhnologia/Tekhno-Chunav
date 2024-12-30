@@ -261,6 +261,10 @@ from .views import booth_and_surname_wise_voter_count, booth_and_surname_wise_vo
 from .views import get_booth_names_by_ps_circle_user_wise, ps_circle_user_vote_confirmation, ps_circle_user_cast_wise, ps_circle_user_religion_wise, ps_circle_user_favour_wise
 from .views import PanchayatSamitiCircleAPIView, zp_circle_user_vote_confirmation, zp_circle_user_cast_wise, BoothListByZPCircleUser, VoterListByZPCircleUser
 
+from .views import total_voters_for_local_db
+
+
+
 
 urlpatterns = [
     path('upload/', upload_file, name='upload_file'),
@@ -634,6 +638,9 @@ urlpatterns = [
     path('zp_circle_user_wise_cast_wise/<int:zp_circle_user_id>/<int:cast_id>/', zp_circle_user_cast_wise, name='zp_circle_user_cast_wise'),
     path('zp_circle_user_wise_booths/<int:zp_circle_user_id>/', BoothListByZPCircleUser.as_view(), name='booth-list-by-zp-circle-user'),
     path('zp_circle_user_wise_favour_voters/<int:zp_circle_user_id>/<int:favour_id>/', VoterListByZPCircleUser.as_view(), name='voter-list-by-zp-circle-user'),
+
+    path('total_voters_for_local_db/', total_voters_for_local_db, name='total_voters_for_local_db'),
+
 
     
 # admin pannel 

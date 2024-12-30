@@ -38,7 +38,7 @@ from django.db import models
 
 class Voterlist(models.Model):
     voter_id = models.AutoField(primary_key=True)
-    voter_serial_number = models.IntegerField(null=True, blank=True)
+    voter_serial_number = models.CharField(max_length=255,null=True, blank=True)
     voter_id_card_number = models.CharField(max_length=255, null=True, blank=True)
     voter_name = models.CharField(max_length=255)
     voter_parent_name = models.CharField(max_length=255, null=True, blank=True)

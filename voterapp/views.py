@@ -104,6 +104,8 @@ import logging
 import pandas as pd
 import requests
 import textwrap
+import os
+from django.http import FileResponse, JsonResponse
 
 
 def upload_file(request):
@@ -263,8 +265,8 @@ def import_excel_data(file):
         state_name = rec[12]
         constituency_name = rec[13]
         voter_name_mar = rec[14]
-        booth_name_mar = rec[15]
-        town_name_mar = rec[16]
+        booth_name_mar = rec[16]
+        town_name_mar = rec[15]
         taluka_name_mar = rec[17]
         zp_name_mar = rec[18]
         state_name_mar = rec[19]
@@ -278,7 +280,8 @@ def import_excel_data(file):
             'serial_no', 'voter_id_card_number', 'voter_name', 'voter_parent_name',
             'voter_house_number', 'voter_age', 'voter_gender', 'town_name', 'booth_name',
             'taluka_name', 'zp_name', 'state_name', 'constituency_name', 'voter_name_mar',
-            'booth_name_mar', 'town_name_mar', 'taluka_name_mar', 'zp_name_mar', 'state_name_mar', 'voter_parent_name_mar', 'voter_gender_mar'
+            'booth_name_mar', 'town_name_mar', 'taluka_name_mar', 'zp_name_mar', 'state_name_mar', 
+            'voter_parent_name_mar', 'voter_gender_mar'
         ]
  
         # Iterate through all variables and replace NaN with None
@@ -1345,7 +1348,6 @@ def get_voters_by_userwise(request, user_booth_user_id):
         })
    
     return JsonResponse({'voters': voters})
- 
  
 
 # get edited data with user wise
@@ -2623,7 +2625,7 @@ def send_sms_message(to, body):
 
 @csrf_exempt
 def generate_voter_pdf(request, voter_id):
-    query = "SELECT voter_id, voter_name, voter_parent_name, voter_age, voter_gender, booth_name, town_name FROM vw_voter_list WHERE voter_id = %s"
+    query = "SELECT voter_serial_number, voter_id_card_number, voter_name, voter_parent_name, voter_age, voter_gender, booth_name, town_name FROM vw_voter_list WHERE voter_id = %s"
     
     with connection.cursor() as cursor:
         cursor.execute(query, [voter_id])
@@ -2632,7 +2634,7 @@ def generate_voter_pdf(request, voter_id):
     if row is None:
         return HttpResponse("Voter not found", status=404)
     
-    voter_id, voter_name, voter_parent_name, voter_age, voter_gender, booth_name, town_name = row
+    voter_serial_number,voter_id, voter_name, voter_parent_name, voter_age, voter_gender, booth_name, town_name = row
     
     buffer = io.BytesIO()
     
@@ -2651,6 +2653,7 @@ def generate_voter_pdf(request, voter_id):
     )
     
     text = (
+        f"<b>Voter Register Number:</b> {voter_serial_number}<br/>"
         f"<b>Voter ID:</b> {voter_id}<br/>"
         f"<b>Name:</b> {voter_name}<br/>"
         f"<b>Parent Name:</b> {voter_parent_name}<br/>"
@@ -2766,21 +2769,6 @@ class GetVoterByCastAndTownView(View):
 
 # get voter list by religion wise in a perticular booth
 
-
-
-# class GetVoterByReligionBoothView(generics.ListAPIView):
-#     serializer_class = VoterlistSerializer
-
-#     def get_queryset(self):
-#         religion_id = self.kwargs['religion_id']
-#         booth_id = self.kwargs['booth_id']
-
-#         return Voterlist.objects.filter(
-#             Q(voter_cast_id__in=Cast.objects.filter(cast_religion_id=religion_id)),
-#             voter_booth_id=booth_id
-#         )
-
-
 class GetVoterByReligionBoothView(generics.ListAPIView):
 
     def get(self, request, *args, **kwargs):
@@ -2838,7 +2826,6 @@ def religion_count_api(request):
     if request.method == 'GET':
         try:
             with connection.cursor() as cursor:
-                # Query to get the religion and the count of voters for each religion
                 cursor.execute("""
                     SELECT
                         r.religion_name,
@@ -2850,10 +2837,8 @@ def religion_count_api(request):
                     ORDER BY r.religion_name
                 """)
                
-                # Fetch all rows from the query result
                 religion_voter_counts = cursor.fetchall()
  
-                # Query to get the count of voters without a caste
                 cursor.execute("""
                     SELECT COUNT(voter_id)
                     FROM tbl_voter
@@ -2931,9 +2916,6 @@ WHERE
     ]
     
     return JsonResponse(result, safe=False)
-
-
-
 
 
 def get_voters_town_religion_cast(request, town_id, cast_id):
@@ -3043,45 +3025,22 @@ def get_voters_booth_religion_cast(request, booth_id, cast_id):
 
 def get_voters_booth_religion_wise(request, booth_id, religion_id):
     try:
-        # Ensure booth_id and religion_id are integers
         booth_id = int(booth_id)
         religion_id = int(religion_id)
        
     except ValueError:
-        # Return an error if either booth_id or religion_id are not integers
         return HttpResponseBadRequest("Both booth_id and religion_id must be integers")
  
-    # SQL query to fetch voters based on booth_id and religion_id
-    # query = """
-    # SELECT
-    #     ROW_NUMBER() OVER (ORDER BY c.cast_name, v.voter_name) AS serial_no,
-    #     v.voter_id,
-    #     v.voter_name,
-    #     v.voter_contact_number,
-    #     v.voter_name_mar,
-    #     c.cast_name,
-    #     v.voter_vote_confirmation_id,
-    #     v.voter_favour_id
-    # FROM tbl_voter v
-    # INNER JOIN tbl_cast c ON v.voter_cast_id = c.cast_id
-    # INNER JOIN tbl_religion r ON c.cast_religion_id = r.religion_id
-    # WHERE v.voter_booth_id = %s
-    # AND r.religion_id = %s
-    # AND v.voter_cast_id IS NOT NULL
-    # ORDER BY c.cast_name, v.voter_name;
-    # """
  
     try:
-        # Execute the query and fetch the results
         with connection.cursor() as cursor:
             # cursor.execute(query, [booth_id, religion_id])
             cursor.callproc('GetVotersBoothReligionWise', [booth_id, religion_id])
             rows = cursor.fetchall()
  
-        # Convert the result to a list of dictionaries
         result = [
             {
-                'voter_id': row[1],  # Correcting index for voter_id
+                'voter_id': row[1],  
                 'voter_name': row[2],
                 'voter_contact_number': row[3],
                 'voter_name_mar': row[4],
@@ -3093,7 +3052,6 @@ def get_voters_booth_religion_wise(request, booth_id, religion_id):
             for row in rows
         ]
  
-        # Return the result as a JSON response
         return JsonResponse(result, safe=False)
  
     except Exception as e:
@@ -3167,7 +3125,7 @@ def get_voters_by_town_user_and_cast(request, user_town_id, cast_id):
             cursor.callproc('sp_GetVoterListByTownUserAndCast', [user_town_id, cast_id])
             rows = cursor.fetchall()
         
-        columns = ['voter_id', 'voter_name', 'voter_contact_number', 'cast_name', 'voter_serial_number', 'voter_id_card_number', 'voter_favour_id']
+        columns = ['voter_id', 'voter_name', 'voter_contact_number', 'cast_name', 'voter_name_mar','voter_serial_number', 'voter_id_card_number', 'voter_favour_id']
 
         results = [dict(zip(columns, row)) for row in rows]
         
@@ -5726,7 +5684,7 @@ class VotedVotersListByBoothUser(View):
  
         if voter_vote_confirmation_id == 2:
             query_voters = """
-                SELECT voter_id, voter_name, voter_name_mar, voter_vote_confirmation_id, voter_favour_id
+                SELECT voter_id, voter_name, voter_name_mar, voter_vote_confirmation_id, voter_favour_id, voter_serial_number, voter_id_card_number
                 FROM tbl_voter
                 WHERE voter_booth_id IN (
                     SELECT user_booth_booth_id
@@ -5748,7 +5706,7 @@ class VotedVotersListByBoothUser(View):
             """
         else:
             query_voters = """
-                SELECT voter_id, voter_name, voter_name_mar, voter_vote_confirmation_id, voter_favour_id
+                SELECT voter_id, voter_name, voter_name_mar, voter_vote_confirmation_id, voter_favour_id, voter_serial_number, voter_id_card_number
                 FROM tbl_voter
                 WHERE voter_booth_id IN (
                     SELECT user_booth_booth_id
@@ -5779,9 +5737,11 @@ class VotedVotersListByBoothUser(View):
             {
                 'voter_id': row[0],
                 'voter_name': row[1],
-                'voter_name_mar': row[2],  # Include voter_name_mar in the response
+                'voter_name_mar': row[2],  
                 'voter_vote_confirmation_id': row[3],
-                'voter_favour_id': row[4]  # Include voter_favour_id in the response
+                'voter_favour_id': row[4],
+                'voter_serial_number': row[5],
+                'voter_id_card_number': row[6]  
             }
             for row in voters
         ]
@@ -6788,7 +6748,7 @@ def get_prabhags(request):
                 'prabhag_user_id': prabhag_user_ids,
                 'prabhag_user_name': ', '.join(prabhag_user_name),
                 'prabhag_user_phone': ', '.join(prabhag_user_contact_number),
-                'town_name': row[5]  # Add town_name to the result
+                'town_name': row[5]  
             })
        
         return JsonResponse(result, safe=False)
@@ -7597,128 +7557,121 @@ class GetPrabhagUserInfoView(APIView):
 
 # # generate current location of voter pdf by town wise
 
+logger = logging.getLogger(__name__)
+    
 def generate_voter_pdf_by_town(request, town_id, city_id):
     try:
+        logger.info(f"Generating PDF for town_id: {town_id}, city_id: {city_id}")
+
+        city_labels = {1: "In City", 2: "Near City", 3: "Out of City"}
+        city_label = city_labels.get(city_id, "Unknown")
+
         with connection.cursor() as cursor:
             cursor.callproc('GetVoterCurrentLocationDetailsByTown', [town_id, city_id])
-            results = cursor.fetchall() 
-            columns = [col[0] for col in cursor.description]
-            voters = [dict(zip(columns, row)) for row in results]
+            results = cursor.fetchall()
 
-        buffer = BytesIO()
-        p = canvas.Canvas(buffer, pagesize=A4)
-        p.setTitle("Voter Current Location Details")
+        if not results:
+            logger.warning("No data found for the given town_id and city_id.")
+            return JsonResponse({'error': 'No voter data found for the given town and city.'}, status=404)
 
-        p.drawString(200, 800, "Voter Current Location Details")
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_font('Helvetica', 'B', 16)
 
-        y_position = 750
-        cell_heights = 20  
+        pdf.cell(0, 10, 'Voter Details Report', 0, 1, 'C')
+        pdf.cell(0, 10, f'Town ID: {town_id}, City: {city_label}', 0, 1, 'C')
+        pdf.ln(10)
 
-        column_widths = [60, 190, 150, 150]  
-        x_positions = [30]  
+        pdf.set_font('Helvetica', 'B', 12)
+        pdf.cell(20, 10, 'S.No', 1)
+        # pdf.cell(10, 10, 'Reg', 1)
+        pdf.cell(30, 10, 'Voter ID', 1)
+        pdf.cell(90, 10, 'Voter Name', 1)
+        pdf.cell(30, 10, 'Contact No', 1)
+        # pdf.cell(30, 10, 'Location', 1)
+        pdf.ln()
 
-        for width in column_widths[:-1]:
-            x_positions.append(x_positions[-1] + width)
+        pdf.set_font('Helvetica', '', 12)
+        for idx, row in enumerate(results, start=1):
+            # voter_serial_number = row[1] if row[1] else ''
+            voter_id_card_number = row[1] if row[1] else ''  
+            voter_name = row[2] if row[2] else ''            
+            voter_contact_number = row[3] if row[3] else ''  
+            # voter_current_location = row[5] if row[5] else ''
 
-        for i, header in enumerate(columns):
-            p.drawString(x_positions[i] + 5, y_position - 15, header)
-            p.rect(x_positions[i], y_position - cell_heights, column_widths[i], cell_heights, stroke=1, fill=0)
-        
-        y_position -= cell_heights
+            pdf.cell(20, 10, str(idx), 1)
+            # pdf.cell(10, 10, str(voter_serial_number), 1)
+            pdf.cell(30, 10, str(voter_id_card_number), 1)
+            pdf.cell(90, 10, voter_name, 1)
+            pdf.cell(30, 10, str(voter_contact_number), 1)
+            # pdf.cell(30, 10, str(voter_current_location), 1)
+            pdf.ln()
 
-        def draw_wrapped_text(canvas, text, x, y, max_width):
-            wrapped_lines = []
-            words = text.split()
-            line = ""
-            for word in words:
-                test_line = f"{line} {word}".strip()
-                if canvas.stringWidth(test_line) <= max_width:
-                    line = test_line
-                else:
-                    wrapped_lines.append(line)
-                    line = word
-            wrapped_lines.append(line)  
-
-            line_y = y
-            for wrapped_line in wrapped_lines:
-                canvas.drawString(x, line_y, wrapped_line)
-                line_y -= 10  
-
-        for voter in voters:
-            max_row_height = cell_heights
-            for i, (key, value) in enumerate(voter.items()):
-                draw_wrapped_text(p, str(value), x_positions[i] + 5, y_position - 15, column_widths[i] - 10)
-                max_row_height = max(max_row_height, 10 * len(str(value).split()))
-
-            for i in range(len(columns)):
-                p.rect(x_positions[i], y_position - max_row_height, column_widths[i], max_row_height, stroke=1, fill=0)
-            
-            y_position -= max_row_height
-
-            if y_position < 50:  
-                p.showPage()
-                y_position = 750
-                for i, header in enumerate(columns):
-                    p.drawString(x_positions[i] + 5, y_position - 15, header)
-                    p.rect(x_positions[i], y_position - cell_heights, column_widths[i], cell_heights, stroke=1, fill=0)
-                y_position -= cell_heights
-
-        p.save()
-
-        buffer.seek(0)
-        response = HttpResponse(buffer, content_type='application/pdf')
-        response['Content-Disposition'] = 'attachment; filename="voter_details_by_booth.pdf"'
+        response = HttpResponse(pdf.output(dest='S').encode('latin1'), content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="voter_details_by_town.pdf"'
         return response
 
     except Exception as e:
+        logger.error(f"Error generating PDF: {str(e)}")
         return JsonResponse({'error': str(e)}, status=500)
-
+    
 
 # # generate current location of voter pdf by booth wise
 
 def generate_voter_pdf_by_booth(request, booth_id, city_id):
     try:
+        # Map city_id to descriptive labels
+        city_labels = {1: "In City", 2: "Near City", 3: "Out of City"}
+        city_label = city_labels.get(city_id, "Unknown")  # Default to 'Unknown' if city_id is invalid
+
+        # Fetch voter details by booth and city using stored procedure
         with connection.cursor() as cursor:
             cursor.callproc('GetVoterCurrentLocationDetailsByBooth', [booth_id, city_id])
             results = cursor.fetchall()
-            columns = [col[0] for col in cursor.description]
- 
+
+        # Return error if no data is found
         if not results:
             return JsonResponse({'error': 'No voter data found for the given booth and city.'}, status=404)
- 
-        table_data = [['Serial Number', 'Voter Name', 'Voter Contact Number']]  
- 
+
+        # Create PDF
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_font('Helvetica', 'B', 16)
+
+        # Title and Header
+        pdf.cell(0, 10, 'Voter Details Report', 0, 1, 'C')
+        pdf.cell(0, 10, f'Booth ID: {booth_id}, City: {city_label}', 0, 1, 'C')  # Use city label here
+        pdf.ln(10)
+
+        # Table Headers
+        pdf.set_font('Helvetica', 'B', 12)
+        pdf.cell(20, 10, 'S.No', 1)
+        pdf.cell(30, 10, 'Voter ID', 1)
+        pdf.cell(80, 10, 'Voter Name', 1)
+        pdf.cell(50, 10, 'Contact No', 1)
+        pdf.ln()
+
+        # Table Data
+        pdf.set_font('Helvetica', '', 12)
         for idx, row in enumerate(results, start=1):
-            voter_name = row[1]  
-            voter_contact_number = row[2]  
-            table_data.append([idx, voter_name, voter_contact_number]) 
- 
-        buffer = BytesIO()
-        doc = SimpleDocTemplate(buffer, pagesize=A4)
- 
-        table = Table(table_data)
-        table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),  
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke), 
-            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),  
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),  
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),  
-            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),  
-            ('GRID', (0, 0), (-1, -1), 1, colors.black),  
-            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),  
-            ('FONTSIZE', (0, 0), (-1, -1), 10),  
-            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),  
-        ]))
- 
-        elements = [table]
-        doc.build(elements)
- 
-        buffer.seek(0)
-        response = HttpResponse(buffer, content_type='application/pdf')
+            voter_id_card_number = row[6] if row[6] else ''  # Voter ID Card Number
+            voter_name = row[1] if row[1] else ''            # Voter Name
+            voter_contact_number = row[2] if row[2] else ''  # Contact Number
+
+            # Add data to table
+            pdf.cell(20, 10, str(idx), 1)
+            pdf.cell(30, 10, str(voter_id_card_number), 1)
+            pdf.cell(80, 10, voter_name, 1)
+            pdf.cell(50, 10, str(voter_contact_number), 1)
+            pdf.ln()
+
+        # Return PDF as response
+        response = HttpResponse(pdf.output(dest='S').encode('latin1'), content_type='application/pdf')
         response['Content-Disposition'] = 'attachment; filename="voter_details_by_booth.pdf"'
         return response
- 
+
     except Exception as e:
+        # Return error if something goes wrong
         return JsonResponse({'error': str(e)}, status=500)
  
 
@@ -7899,16 +7852,12 @@ class GetVoterInfoByUserAndFavour(View):
         except Exception as e:
             return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
         
-# #
-
-
-
+# # generate voters pdf by cast wise
 
 def generate_voters_by_cast_pdf(request, cast_id):
-    # Define the query to fetch voter details along with cast name
     query = '''
         SELECT 
-            v.voter_id,
+            v.voter_id_card_number,
             v.voter_name,
             v.voter_contact_number,
             c.cast_name
@@ -7920,62 +7869,58 @@ def generate_voters_by_cast_pdf(request, cast_id):
             v.voter_cast_id = %s;
     '''
     
-    # Execute the query
     with connection.cursor() as cursor:
         cursor.execute(query, [cast_id])
         rows = cursor.fetchall()
 
-    # Initialize PDF
     pdf = FPDF()
     pdf.add_page()
-    pdf.set_font('Arial', 'B', 12)
+    pdf.set_font('Helvetica', 'B', 12)  
     
-    # Header for the PDF document
-    pdf.cell(0, 10, f'Voters by Cast', 0, 1)
+    pdf.cell(0, 10, f'Voters by Cast', 0, 1, 'C')  
     pdf.ln(10)
 
-    # Table headers
-    pdf.cell(18, 10, 'Voter ID', 1)
+    pdf.cell(28, 10, 'Voter ID', 1)
     pdf.cell(90, 10, 'Voter Name', 1)
     pdf.cell(45, 10, 'Contact Number', 1)
     pdf.cell(30, 10, 'Cast Name', 1)
     pdf.ln()
 
-    # Set font for table content
-    pdf.set_font('Arial', '', 12)
+    pdf.set_font('Helvetica', '', 12)
 
-    # Populate table rows with data from query results
     for row in rows:
         voter_id, voter_name, voter_contact_number, cast_name = row
-        pdf.cell(18, 10, str(voter_id), 1)
+        
+        voter_name = voter_name if voter_name else ''
+        voter_contact_number = str(voter_contact_number) if voter_contact_number else ''
+        cast_name = cast_name if cast_name else ''
+
+        pdf.cell(28, 10, str(voter_id), 1)
         pdf.cell(90, 10, voter_name, 1)
-        pdf.cell(45, 10, str(voter_contact_number), 1)
+        pdf.cell(45, 10, voter_contact_number, 1)
         pdf.cell(30, 10, cast_name, 1)
         pdf.ln()
 
-    # Generate PDF response
-    response = HttpResponse(pdf.output(dest='S').encode('latin1'), content_type='application/pdf')
+    response = HttpResponse(pdf.output(dest='S').encode('ISO-8859-1'), content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="voters_by_cast.pdf"'
     return response
 
 
-
-
+# # generate voters pdf by religion wise
 
 def generate_voters_by_religion_pdf(request, religion_id):
     try:
-        religion_id = int(religion_id)
+        religion_id = int(religion_id)  
     except ValueError:
         return HttpResponseNotFound("Invalid 'religion_id' parameter")
 
-    # Query to fetch voter data by religion
     query = """
     SELECT 
-    v.voter_id,
-    v.voter_name,
-    v.voter_contact_number,
-    c.cast_name,
-    r.religion_name
+        v.voter_id_card_number,
+        v.voter_name,
+        v.voter_contact_number,
+        c.cast_name,
+        r.religion_name
     FROM 
         vw_voter_list v
     JOIN 
@@ -7986,61 +7931,51 @@ def generate_voters_by_religion_pdf(request, religion_id):
         r.religion_id = %s;
     """
     
-    # Execute query and fetch results
     with connection.cursor() as cursor:
         cursor.execute(query, [religion_id])
         rows = cursor.fetchall()
     
-    # Prepare the result data
     result = [
         {
             'voter_id': row[0],
-            'voter_name': row[1],
-            'voter_contact_number': row[2],
-            'voter_cast_name': row[3],
-            'voter_religion_name': row[4]
+            'voter_name': row[1] if row[1] else '',  
+            'voter_contact_number': str(row[2]) if row[2] else '',  
+            'voter_cast_name': row[3] if row[3] else '',
+            'voter_religion_name': row[4] if row[4] else ''
         }
         for row in rows
     ]
     
-    # Create PDF
     pdf = FPDF()
     pdf.add_page()
-    pdf.set_font('Arial', 'B', 12)
+    pdf.set_font('Helvetica', 'B', 12)  
 
-    # Add header information
-    pdf.cell(0, 10, f'Religion ID: {religion_id}', 0, 1)
-    pdf.ln(10)  # Line break
+    pdf.cell(0, 10, f'Religion ID: {religion_id}', 0, 1, 'C')  
+    pdf.ln(10)  
 
-    # Table headers
-    pdf.cell(20, 10, 'Voter ID', 1)
-    pdf.cell(60, 10, 'Voter Name', 1)
-    pdf.cell(40, 10, 'Contact Number', 1)
-    pdf.cell(40, 10, 'Cast Name', 1)
-    pdf.cell(40, 10, 'Religion Name', 1)
+    pdf.cell(30, 10, 'ID', 1)
+    pdf.cell(65, 10, 'Name', 1)
+    pdf.cell(30, 10, 'Contact No', 1)
+    pdf.cell(35, 10, 'Cast', 1)
+    pdf.cell(35, 10, 'Religion', 1)
     pdf.ln()
 
-    # Add voter data to PDF
-    pdf.set_font('Arial', '', 12)
+    pdf.set_font('Helvetica', '', 12)
     for voter in result:
-        pdf.cell(20, 10, str(voter['voter_id']), 1)
-        pdf.cell(60, 10, voter['voter_name'], 1)
-        pdf.cell(40, 10, str(voter['voter_contact_number']), 1)
-        pdf.cell(40, 10, voter['voter_cast_name'], 1)
-        pdf.cell(40, 10, voter['voter_religion_name'], 1)
+        pdf.cell(30, 10, str(voter['voter_id']), 1)
+        pdf.cell(65, 10, voter['voter_name'], 1)
+        pdf.cell(30, 10, voter['voter_contact_number'], 1)
+        pdf.cell(35, 10, voter['voter_cast_name'], 1)
+        pdf.cell(35, 10, voter['voter_religion_name'], 1)
         pdf.ln()
 
-    # Return the generated PDF as a response
-    response = HttpResponse(pdf.output(dest='S').encode('latin1'), content_type='application/pdf')
+    response = HttpResponse(pdf.output(dest='S').encode('ISO-8859-1'), content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="voters_by_religion.pdf"'
     
     return response
 
 
 # # update voter family group discription
-
-
-
 
 @csrf_exempt
 def update_family_group_description(request, family_group_id):
@@ -8502,6 +8437,55 @@ def logout_voter_group_user(request):
  
  
 # add voter to existing voter group (karyakarta group)
+# @csrf_exempt
+# def add_voter_to_existing_group(request):
+#     if request.method == 'POST':
+#         try:
+#             data = json.loads(request.body)
+#             voter_ids = data.get('voter_ids')
+#             voter_group_id = data.get('voter_group_id')
+ 
+#             if not voter_ids or not voter_group_id:
+#                 return JsonResponse({'error': 'voter_ids and voter_group_id are required'}, status=400)
+ 
+#             if not isinstance(voter_ids, list):
+#                 voter_ids = [voter_ids]
+ 
+#             with connection.cursor() as cursor:
+#                 cursor.execute("""
+#                     SELECT COUNT(*)
+#                     FROM tbl_voter_group
+#                     WHERE voter_group_id = %s
+#                 """, [voter_group_id])
+ 
+#                 group_exists = cursor.fetchone()[0]
+ 
+#                 if group_exists == 0:
+#                     return JsonResponse({'error': 'voter_group_user_id does not exist'}, status=404)
+ 
+            
+ 
+#                 for voter_id in voter_ids:
+#                     with connection.cursor() as cursor:
+#                         cursor.execute(
+#                             """INSERT INTO tbl_user_voter_group (user_voter_group_voter_id, user_voter_group_voter_group_id)
+#                             VALUES (%s,%s)
+#                             """, [voter_id, voter_group_id]
+#                         )
+ 
+#             return JsonResponse({
+#                 'message': 'Voters added in group successfully!',
+#                 # 'voter_ids': voter_ids,
+#                 # 'voter_group_user_id': voter_group_user_id
+#             }, status=200)
+ 
+#         except Exception as e:
+#             logging.error(f"Error adding voters to group: {str(e)}")
+#             return JsonResponse({'error': str(e)}, status=500)
+ 
+#     return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+
 @csrf_exempt
 def add_voter_to_existing_group(request):
     if request.method == 'POST':
@@ -8509,46 +8493,58 @@ def add_voter_to_existing_group(request):
             data = json.loads(request.body)
             voter_ids = data.get('voter_ids')
             voter_group_id = data.get('voter_group_id')
- 
+
             if not voter_ids or not voter_group_id:
                 return JsonResponse({'error': 'voter_ids and voter_group_id are required'}, status=400)
- 
+
             if not isinstance(voter_ids, list):
                 voter_ids = [voter_ids]
- 
+
             with connection.cursor() as cursor:
                 cursor.execute("""
                     SELECT COUNT(*)
                     FROM tbl_voter_group
                     WHERE voter_group_id = %s
                 """, [voter_group_id])
- 
                 group_exists = cursor.fetchone()[0]
- 
+
                 if group_exists == 0:
-                    return JsonResponse({'error': 'voter_group_user_id does not exist'}, status=404)
- 
-            
- 
-                for voter_id in voter_ids:
-                    with connection.cursor() as cursor:
-                        cursor.execute(
-                            """INSERT INTO tbl_user_voter_group (user_voter_group_voter_id, user_voter_group_voter_group_id)
-                            VALUES (%s,%s)
-                            """, [voter_id, voter_group_id]
-                        )
- 
-            return JsonResponse({
-                'message': 'Voters added in group successfully!',
-                # 'voter_ids': voter_ids,
-                # 'voter_group_user_id': voter_group_user_id
-            }, status=200)
- 
+                    return JsonResponse({'error': 'voter_group_id does not exist'}, status=404)
+
+            already_added_voters = []
+            newly_added_voters = []
+
+            for voter_id in voter_ids:
+                with connection.cursor() as cursor:
+                    cursor.execute("""
+                        SELECT COUNT(*)
+                        FROM tbl_user_voter_group
+                        WHERE user_voter_group_voter_id = %s AND user_voter_group_voter_group_id = %s
+                    """, [voter_id, voter_group_id])
+                    voter_exists = cursor.fetchone()[0]
+
+                    if voter_exists > 0:
+                        already_added_voters.append(voter_id)
+                    else:
+                        cursor.execute("""
+                            INSERT INTO tbl_user_voter_group (user_voter_group_voter_id, user_voter_group_voter_group_id)
+                            VALUES (%s, %s)
+                        """, [voter_id, voter_group_id])
+                        newly_added_voters.append(voter_id)
+
+            message = 'Voters processed successfully!'
+            if already_added_voters:
+                message += f" Voters {already_added_voters} are already added in this group."
+            if newly_added_voters:
+                message += f" Voters {newly_added_voters} added successfully to the group."
+
+            return JsonResponse({'message': message}, status=200)
+
         except Exception as e:
             logging.error(f"Error adding voters to group: {str(e)}")
             return JsonResponse({'error': str(e)}, status=500)
- 
-    return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+    return JsonResponse({'error': 'Invalid request method'}, status=405) 
   
    
  
@@ -8754,10 +8750,17 @@ def get_voters_by_confirmation(request, voter_group_user_id, confirmation_id):
                 else:
                     confirmation_condition = 'voter_vote_confirmation_id IS NULL OR voter_vote_confirmation_id = 2'
  
+                # cursor.execute(f"""
+                #     SELECT v.voter_id, v.voter_name, v.voter_vote_confirmation_id, v.voter_favour_id
+                #     FROM tbl_voter v
+                #     WHERE v.voter_voter_group_id = %s AND ({confirmation_condition})
+                # """, [voter_group_id])
+ 
                 cursor.execute(f"""
-                    SELECT v.voter_id, v.voter_name, v.voter_name_mar, v.voter_vote_confirmation_id, v.voter_favour_id, v.voter_serial_number, v.voter_id_card_number
+                    SELECT v.voter_id, v.voter_name, v.voter_vote_confirmation_id, v.voter_favour_id, v.voter_serial_number, v.voter_id_card_number
                     FROM tbl_voter v
-                    WHERE v.voter_voter_group_id = %s AND ({confirmation_condition})
+                    JOIN tbl_user_voter_group uvg ON uvg.user_voter_group_voter_id = v.voter_id
+                    WHERE uvg.user_voter_group_voter_group_id = %s AND ({confirmation_condition})
                 """, [voter_group_id])
  
                 voters = cursor.fetchall()
@@ -8766,15 +8769,15 @@ def get_voters_by_confirmation(request, voter_group_user_id, confirmation_id):
                     {
                         'voter_id': voter[0],
                         'voter_name': voter[1],
-                        'voter_name_mar': voter[2],
-                        'voter_confirmation_id': voter[3],
-                        'voter_favour_id': voter[4],
-                        'voter_serial_number': voter[5],
-                        'voter_id_card_number': voter[6]
+                        'voter_confirmation_id': voter[2],
+                        'voter_favour_id': voter[3],
+                        'voter_serial_number': voter[4],
+                        'voter_id_card_number': voter[5]
                     }
                     for voter in voters
                 ]
  
+                # Return the list of voters only
                 return JsonResponse(voters_list, safe=False, status=200)
  
         except Exception as e:
@@ -8782,8 +8785,7 @@ def get_voters_by_confirmation(request, voter_group_user_id, confirmation_id):
             return JsonResponse({'error': str(e)}, status=500)
  
     return JsonResponse({'error': 'Invalid request method'}, status=405)
-
-
+ 
 @csrf_exempt
 def delete_voter_group(request, voter_group_id):
     if request.method == 'DELETE':
@@ -8928,8 +8930,8 @@ def get_voter_count_by_town_area_type(request, town_area_type_id=None):
  
             for row in booths_voter_count:
                 booth_name = row[0]
-                user_names = row[1] if row[1] else "No User"  
-                user_phones = row[2] if row[2] else "No Phone"  
+                user_names = row[1] if row[1] else ""  
+                user_phones = row[2] if row[2] else ""  
                 voter_count = row[3]
                 favor_count = row[4]
                 non_favor_count = row[5]
@@ -9206,30 +9208,220 @@ def get_voters_by_favour_id(request, favour_id):
     return JsonResponse({'error': 'Invalid request method, only GET is allowed.'}, status=405)
 
 
+# @csrf_exempt
+# def generate_pdf_by_favour_id(request, favour_id):
+#     try:
+#         # if favour_id != 1:
+#         #     return JsonResponse({'error': 'Invalid favour_id. This API only supports favour_id = 1.'}, status=400)
+
+#         with connection.cursor() as cursor:
+#             cursor.execute(
+#                 f"""
+#                 SELECT voter_id, voter_name, booth_name
+#                 FROM vw_voter_list
+#                 WHERE favour_id = %s
+#                 """, [favour_id]
+#             )
+#             voters = cursor.fetchall()
+
+#         voter_list = [{'voter_id': row[0], 'voter_name': row[1], 'booth_name': row[2]} for row in voters]
+#         total_voters = len(voter_list)
+
+#         return generate_pdf_by_favour_id(voter_list, total_voters)
+
+#     except Exception as e:
+#         logging.error(f"Error generating PDF by favour_id: {str(e)}")
+#         return JsonResponse({'error': str(e)}, status=500)
+
+
+
+logger = logging.getLogger(__name__)
 @csrf_exempt
+# def generate_pdf_by_favour_id(request, favour_id):
+#     try:
+#         logger.info(f"Generating PDF for favour_id: {favour_id}")
+
+#         # Fetch data from the database
+#         with connection.cursor() as cursor:
+#             cursor.execute(
+#                 f"""
+#                 SELECT voter_id_card_number, voter_name, booth_name
+#                 FROM vw_voter_list
+#                 WHERE favour_id = %s
+#                 """, [favour_id]
+#             )
+#             voters = cursor.fetchall()
+
+#         if not voters:
+#             logger.warning("No data found for the given favour_id.")
+#             return JsonResponse({'error': 'No voter data found for the given favour ID.'}, status=404)
+
+#         # Prepare voter list data
+#         voter_list = [{'voter_id': row[0], 'voter_name': row[1], 'booth_name': row[2]} for row in voters]
+
+#         # Generate PDF
+#         pdf = FPDF()
+#         pdf.add_page()
+#         pdf.set_font('Helvetica', 'B', 16)
+
+#         # Title and header
+#         pdf.cell(0, 10, 'Voter Details Report', 0, 1, 'C')
+#         pdf.cell(0, 10, f'Favour ID: {favour_id}', 0, 1, 'C')
+#         pdf.ln(10)
+
+#         # Table headers
+#         pdf.set_font('Helvetica', 'B', 12)
+#         pdf.cell(15, 10, 'S.No', 1)
+#         pdf.cell(30, 10, 'Voter ID', 1)
+#         pdf.cell(60, 10, 'Voter Name', 1)
+#         pdf.cell(90, 10, 'Booth Name', 1)
+#         pdf.ln()
+
+#         # Table data
+#         pdf.set_font('Helvetica', '', 12)
+#         for idx, row in enumerate(voter_list, start=1):
+#             voter_id_card_number = row['voter_id']
+#             voter_name = row['voter_name']
+#             booth_name = row['booth_name']
+
+#             pdf.cell(15, 10, str(idx), 1)
+#             pdf.cell(30, 10, str(voter_id_card_number), 1)
+#             pdf.cell(60, 10, voter_name, 1)
+#             pdf.cell(90, 10, booth_name, 1)
+#             pdf.ln()
+
+#         # Save PDF to response
+#         response = HttpResponse(pdf.output(dest='S').encode('latin1'), content_type='application/pdf')
+#         response['Content-Disposition'] = f'attachment; filename="voter_list_favour_{favour_id}.pdf"'
+#         return response
+
+#     except Exception as e:
+#         logger.error(f"Error generating PDF by favour_id: {str(e)}")
+#         return JsonResponse({'error': str(e)}, status=500)
+
+
+# logger = logging.getLogger(__name__)
+
 def generate_pdf_by_favour_id(request, favour_id):
     try:
-        if favour_id != 1:
-            return JsonResponse({'error': 'Invalid favour_id. This API only supports favour_id = 1.'}, status=400)
+        logger.info(f"Generating PDF for favour_id: {favour_id}")
 
+        # Fetch data from the database
         with connection.cursor() as cursor:
             cursor.execute(
                 f"""
-                SELECT voter_id, voter_name, booth_name
+                SELECT voter_id_card_number, voter_name, booth_name
                 FROM vw_voter_list
                 WHERE favour_id = %s
                 """, [favour_id]
             )
             voters = cursor.fetchall()
 
-        voter_list = [{'voter_id': row[0], 'voter_name': row[1], 'booth_name': row[2]} for row in voters]
-        total_voters = len(voter_list)
+        if not voters:
+            logger.warning("No data found for the given favour_id.")
+            return JsonResponse({'error': 'No voter data found for the given favour ID.'}, status=404)
 
-        return generate_pdf_by_favour_id(voter_list, total_voters)
+        # Prepare voter list data
+        voter_list = [{'voter_id': row[0], 'voter_name': row[1], 'booth_name': row[2]} for row in voters]
+
+        # Generate PDF
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_font('Helvetica', 'B', 16)
+
+        # Title and header
+        pdf.cell(0, 10, 'Voter Details Report', 0, 1, 'C')
+        pdf.cell(0, 10, f'Favour ID: {favour_id}', 0, 1, 'C')
+        pdf.ln(10)
+
+        # Table headers
+        pdf.set_font('Helvetica', 'B', 12)
+        pdf.cell(15, 10, 'S.No', 1)
+        pdf.cell(30, 10, 'Voter ID', 1)
+        pdf.cell(60, 10, 'Voter Name', 1)
+        pdf.cell(90, 10, 'Booth Name', 1)
+        pdf.ln()
+
+        # Table data
+        pdf.set_font('Helvetica', '', 12)
+        line_height = 5  # Height per line for wrapped text
+        for idx, row in enumerate(voter_list, start=1):
+            voter_id_card_number = row['voter_id']
+            voter_name = row['voter_name']
+            booth_name = row['booth_name']
+
+            # Calculate row height based on the number of lines in each cell
+            voter_name_lines = len(pdf.multi_cell(60, line_height, voter_name, border=0, align='L', split_only=True))
+            booth_name_lines = len(pdf.multi_cell(90, line_height, booth_name, border=0, align='L', split_only=True))
+            max_lines = max(1, voter_name_lines, booth_name_lines)
+            row_height = max_lines * line_height
+
+            # Print cells
+            pdf.cell(15, row_height, str(idx), 1, 0, 'C')  # S.No
+            pdf.cell(30, row_height, str(voter_id_card_number), 1, 0, 'C')  # Voter ID
+
+            # Wrap text using multi_cell for columns with potential long text
+            x, y = pdf.get_x(), pdf.get_y()
+            pdf.multi_cell(60, line_height, voter_name, border=1, align='L')  # Voter Name
+            pdf.set_xy(x + 60, y)  # Move back to the same row
+
+            x, y = pdf.get_x(), pdf.get_y()
+            pdf.multi_cell(90, line_height, booth_name, border=1, align='L')  # Booth Name
+            pdf.set_xy(x + 90, y)  # Move back to the same row
+
+            pdf.ln(row_height)  # Move to the next row
+
+        # Save PDF to response
+        response = HttpResponse(pdf.output(dest='S').encode('latin1'), content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="voter_list_favour_{favour_id}.pdf"'
+        return response
 
     except Exception as e:
-        logging.error(f"Error generating PDF by favour_id: {str(e)}")
+        logger.error(f"Error generating PDF by favour_id: {str(e)}")
         return JsonResponse({'error': str(e)}, status=500)
+    
+    
+    
+    
+    
+     
+
+def generate_pdf(data, output_file):
+    pdf = canvas.Canvas(output_file, pagesize=A4)
+    width, height = A4
+    pdf.setTitle("Voter List Report")
+
+    # Title
+    pdf.setFont("Helvetica-Bold", 16)
+    pdf.drawString(200, height - 40, "Voter List Report")
+
+    # Table headers
+    pdf.setFont("Helvetica-Bold", 12)
+    headers = ["Voter ID", "Voter Name", "Booth Name"]
+    x_offset = 10
+    y_offset = height - 60
+    col_width = 150
+
+    for i, header in enumerate(headers):
+        pdf.drawString(x_offset + i * col_width, y_offset, header)
+
+    # Table rows
+    pdf.setFont("Helvetica", 10)
+    y_offset -= 20
+    for row in data:
+        pdf.drawString(x_offset, y_offset, str(row['voter_id']))
+        pdf.drawString(x_offset + col_width, y_offset, row['voter_name'])
+        pdf.drawString(x_offset + 2 * col_width, y_offset, row['booth_name'])
+        y_offset -= 20
+
+        # Add new page if content exceeds page height
+        if y_offset < 50:
+            pdf.showPage()
+            y_offset = height - 40
+
+    # Save PDF
+    pdf.save()
+
 
 
 
@@ -10149,7 +10341,7 @@ def surname_wise_favour_caste_assign_voters(request):
         if favour_id is None and caste_id is None:
             return JsonResponse({"error": "Either favour_id or caste_id must be provided."}, status=400)
  
-        api_url = 'http://192.168.1.38:8001/api/surname_wise_voter_count/'
+        api_url = 'http://192.168.200.84:8001/api/surname_wise_voter_count/'
  
         api_data = {
             'surname_ids': surname_ids
@@ -10356,7 +10548,7 @@ def booth_and_surname_wise_voter_details(request, booth_id, surname_id):
 @csrf_exempt
 def booth_and_surname_wise_voter_count_pdf(request, booth_id):
     if request.method == 'GET':
-        api_url = f"http://192.168.1.38:8001/api/booth_and_surname_wise_voter_count/{booth_id}/"
+        api_url = f"http://192.168.200.84:8001/api/booth_and_surname_wise_voter_count/{booth_id}/"
         response = requests.get(api_url)  
  
         if response.status_code != 200:
@@ -10716,7 +10908,7 @@ def zp_circle_user_cast_wise(request, zp_circle_user_id, cast_id):
             logging.error(f"Error retrieving voter details: {str(e)}")
             return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
  
-    return JsonResponse({"error": "Invalid request method. Only GET method is allowed."}, status=405)
+    return JsonResponse(status=status.HTTP_200_OK)
 
 
 # # booth names by zp circle user wise
@@ -10770,5 +10962,23 @@ class VoterListByZPCircleUser(APIView):
                            "voter_id_card_number": voter[3], "voter_favour_id": voter[4]} for voter in voters]
             return Response(voter_data, status=status.HTTP_200_OK)
         else:
-            return Response({"message": "No voters found for this ZP Circle User and Voter Favour ID"}, 
-                            status=status.HTTP_404_NOT_FOUND)
+            return Response(status=status.HTTP_200_OK)
+        
+        
+        
+# Total Voter List 2
+@require_http_methods(["GET"])
+@csrf_exempt
+def total_voters_for_local_db(request):
+    try:
+        sql_query = "SELECT  voter_name, voter_serial_number, voter_id_card_number  FROM vw_voter_list ; "
+        
+        with connection.cursor() as cursor:
+            cursor.execute(sql_query)
+            rows = cursor.fetchall()
+        
+        voter_list = [{ 'voter_name': row[0],  'voter_serial_number': row[1], 'voter_id_card_number': row[2]} for row in rows]
+        
+        return JsonResponse(voter_list, safe=False, status=200)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
