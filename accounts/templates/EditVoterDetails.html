@@ -10,7 +10,6 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
-
     <style>
         /* scrollbar */
         body::-webkit-scrollbar {
@@ -108,10 +107,6 @@
                     <li class="breadcrumb-item custom-text-light">
                         <a class="nav-link" href="/dashboard/">Dashboard</a>
                     </li>
-                    <!-- <li class="breadcrumb-item  custom-text-light">Voter</li> -->
-                    <!-- <li class="breadcrumb-item  custom-text-light p-left">
-                        <a class="nav-link p-left" href="/VotersList/">Booth Wise Voter List</a>
-                    </li> -->
                     <li class="breadcrumb-item" aria-current="page">Edit Voter Details</li>
                 </ol>
             </nav>
@@ -150,12 +145,15 @@
                                         <option value="null" selected>Select Gender</option>
                                         <option value="Male">Male</option>
                                         <option value="Female">Female</option>
+                                        <option value="Other">Other</option>
                                     </select>
                                 </div>
                                 <div class="col-md-6">
                                     <label for="voter_age_input" class="form-label h6"><strong>Age</strong></label>
                                     <input type="number" name="voter_age_input" id="voter_age_input"
                                         class="form-control" />
+                                    <div id="age-error-message" class="text-danger mt-2" style="display: none;">Age must
+                                        be at least 18.</div>
                                 </div>
                             </div>
                         </div>
@@ -169,13 +167,16 @@
                                 <option value="null" selected>Select Marital Status</option>
                                 <option value="1">Single</option>
                                 <option value="2">Married</option>
+                                <option value="3">Divorced</option>
                             </select>
                         </div>
                         <div class="col-md-6">
                             <label for="voter_contact_number_input"
                                 class="form-label h6"><strong>Contact</strong></label>
-                            <input type="text" name="voter_contact_number_input" id="voter_contact_number_input"
+                            <input type="number" name="voter_contact_number_input" id="voter_contact_number_input"
                                 class="form-control" />
+                            <div id="contact-error-message" class="text-danger mt-2">Contact number must be exactly 10
+                                digits</div>
                         </div>
                     </div>
                     <div class="row mb-4">
@@ -294,7 +295,7 @@
                 const voterId = pathParts[pathParts.length - 2]; // Get the voter ID from the URL
                 console.log('Voter ID:', voterId);
 
-                fetch(`http://192.168.1.20:8001/api/voters/${voterId}/`)
+                fetch(`http://192.168.200.84:8001/api/voters/${voterId}/`)
                     .then(response => response.json())
                     .then(data => {
                         // Populate form fields with voter data
@@ -310,7 +311,6 @@
                         document.getElementById('voter_cast_name_input').value = data.voter_cast_id;
                         document.getElementById('town_name_input').value = data.town_name;
                         document.getElementById('booth_name_input').value = data.booth_name;
-
                         document.getElementById('marital_status_input').value = data.voter_marital_status_id;
                         document.getElementById('voter_in_city_input').value = data.voter_in_city_id;
                         document.getElementById('current_location_input').value = data.voter_current_location;
@@ -318,7 +318,7 @@
                     })
                     .catch(error => console.error('Error fetching voter data:', error));
                 // Fetch and populate caste options
-                // fetch('http://192.168.1.20:8001/api/cast')
+                // fetch('http://192.168.200.84:8001/api/cast')
                 //     .then(response => response.json())
                 //     .then(casteData => {
                 //         const casteSelect = document.getElementById('voter_cast_name_input');
@@ -334,6 +334,8 @@
 
             // Save the edited voter details
             document.getElementById('save-button').addEventListener('click', function () {
+                console.log('clicked');
+                
                 const pathParts = window.location.pathname.split('/');
                 const voterId = pathParts[pathParts.length - 2];
 
@@ -356,10 +358,10 @@
                     voter_current_location: document.getElementById('current_location_input').value || null,
                     voter_live_status_id: parseInt(document.getElementById('voter_live_status_input').value) || null
                 };
-                // console.log('payload-', updatedData);
+                console.log('payload-', updatedData);
                 // console.log('json-', JSON.stringify(updatedData));
 
-                fetch(`http://192.168.1.20:8001/api/voters/${voterId}/`, {
+                fetch(`http://192.168.200.84:8001/api/voters/${voterId}/`, {
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
@@ -377,10 +379,10 @@
                         showToast(`Voter updated successfully!`, true);
 
                         // Redirect to the previous page and refresh after a short delay
-                        setTimeout(() => {
-                            window.history.back(); // Go back to the previous page
-                            location.reload(); // Refresh the page
-                        }, 2000); // Delay before redirecting
+                        // setTimeout(() => {
+                        //     window.history.back(); // Go back to the previous page
+                        //     location.reload(); // Refresh the page
+                        // }, 2000); // Delay before redirecting
                     })
                     .catch(error => {
                         // console.error('Error updating voter details:', error);
@@ -428,6 +430,80 @@
                     toastElement.remove();
                 }, 1500);
             }
+
+
+            document.addEventListener('DOMContentLoaded', function () {
+                const ageInput = document.getElementById('voter_age_input');
+                const saveButton = document.getElementById('save-button');
+                const ageErrorMessage = document.getElementById('age-error-message'); // Make sure this element exists
+
+                // Function to validate age
+                function validateAge() {
+                    const age = ageInput.value;
+                    if (age === '') {
+                        // Don't check validation if the field is empty
+                        ageErrorMessage.style.display = 'none';
+                        saveButton.disabled = false;
+                        return;
+                    }
+
+                    if (parseInt(age) < 18) {
+                        // If age is less than 18, show error and disable save button
+                        ageErrorMessage.style.display = 'block';
+                        saveButton.disabled = true;
+                    } else {
+                        // If age is 18 or more, hide error and enable save button
+                        ageErrorMessage.style.display = 'none';
+                        saveButton.disabled = false;
+                    }
+                }
+
+                // Event listener for changes in the age input field
+                ageInput.addEventListener('input', validateAge);
+
+                // Initial validation on page load (in case there's a value in the input)
+                validateAge();
+            });
+
+            // Contact number validation
+            document.addEventListener('DOMContentLoaded', function () {
+                const contactNumberInput = document.getElementById('voter_contact_number_input');
+                const saveButton = document.getElementById('save-button');
+                const contactErrorMessage = document.getElementById('contact-error-message'); // Make sure this element exists
+
+                // Function to validate contact number
+                function validateContactNumber() {
+                    const contactNumber = contactNumberInput.value;
+
+                    // Check if the contact number has exactly 10 digits
+                    if (contactNumber === '') {
+                        // Don't check validation if the field is empty
+                        contactErrorMessage.style.display = 'none';
+                        saveButton.disabled = false;
+                        return;
+                    }
+
+                    // Check if the input is a valid number and has exactly 10 digits
+                    const isValidContactNumber = /^[0-9]{10}$/.test(contactNumber);
+
+                    if (isValidContactNumber) {
+                        // If valid, hide error and enable save button
+                        contactErrorMessage.style.display = 'none';
+                        saveButton.disabled = false;
+                    } else {
+                        // If invalid, show error and disable save button
+                        contactErrorMessage.style.display = 'block';
+                        saveButton.disabled = true;
+                    }
+                }
+
+                // Event listener for changes in the contact number input field
+                contactNumberInput.addEventListener('input', validateContactNumber);
+
+                // Initial validation on page load (in case there's a value in the input)
+                validateContactNumber();
+            });
+
 
         </script>
 </body>

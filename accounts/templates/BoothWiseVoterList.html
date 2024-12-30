@@ -401,7 +401,7 @@
 
       // Fetch towns data
       function fetchTowns() {
-        fetch('http://192.168.1.20:8001/api/towns/')
+        fetch('http://192.168.200.84:8001/api/towns/')
           .then(response => response.json())
           .then(data => {
             data.forEach(town => {
@@ -418,7 +418,7 @@
         const selectedTownId = townSelect.value;
         if (!selectedTownId) return;
 
-        fetch(`http://192.168.1.20:8001/api/booths_by_town/${selectedTownId}/`)
+        fetch(`http://192.168.200.84:8001/api/booths_by_town/${selectedTownId}/`)
           .then(response => response.json())
           .then(data => {
             boothSelect.innerHTML = '<option value="" disabled selected>Select Booth</option>';
@@ -437,7 +437,7 @@
         const selectedTownId = townSelect.value;
         if (!selectedBoothId || !selectedTownId) return;
 
-        fetch(`http://192.168.1.20:8001/api/get_voters_by_booth/${selectedBoothId}/`)
+        fetch(`http://192.168.200.84:8001/api/get_voters_by_booth/${selectedBoothId}/`)
           .then(response => response.json())
           .then(data => {
             votersData = data;
@@ -596,7 +596,7 @@
         const newConfirmationStatus = voteStatusId === 1 ? null : 1; // Toggle logic
 
         try {
-          fetch(`http://192.168.1.20:8001/api/voter_confirmation/${voter.voter_id}/`, {
+          fetch(`http://192.168.200.84:8001/api/voter_confirmation/${voter.voter_id}/`, {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json'
@@ -632,7 +632,7 @@
       // Fetch and populate voter details in the modal
       window.showVoterDetails = function (voterId) {
         currentVoterId = voterId; // Save the current voter ID
-        fetch(`http://192.168.1.20:8001/api/voters/${voterId}/`)
+        fetch(`http://192.168.200.84:8001/api/voters/${voterId}/`)
           .then(response => response.json())
           .then(data => {
             document.getElementById('voter_serial_number').textContent = data.voter_serial_number || '--';
@@ -649,7 +649,7 @@
 
             document.getElementById('voter_in_city').textContent = (data.voter_in_city_id === 1) ? 'In City' : (data.voter_in_city_id === 2 ? 'Near City' : (data.voter_in_city_id === 3 ? 'Out of City' : '--'));
             document.getElementById('voter_live_status').textContent = (data.voter_live_status_id === 1) ? 'Alive' : (data.voter_live_status_id === 2 ? 'Dead' : '--');
-            document.getElementById('marital_status').textContent = data.voter_marital_status_id || '--';
+            document.getElementById('marital_status').textContent = data.marital_status_type || '--';
             document.getElementById('current_location').textContent = data.voter_current_location || '--';
             // Update the Edit button with the voter ID
             document.getElementById('edit-button').href = `/editvoter/${data.voter_id}/`;
@@ -711,7 +711,7 @@
           return;
         }
 
-        const pdfUrl = `http://192.168.1.20:8001/api/generate_voter_pdf_by_booth/booth_id/${selectedBoothId}/city_id/${selectedLocationId}/`;
+        const pdfUrl = `http://192.168.200.84:8001/api/generate_voter_pdf_by_booth/booth_id/${selectedBoothId}/city_id/${selectedLocationId}/`;
 
         if (selectedBoothId || selectedLocationId) {
           // Fetch PDF
@@ -774,7 +774,7 @@
       }
 
       function fetchVoters_by_tid_AND_bid(townId, boothId) {
-        fetch(`http://192.168.1.20:8001/api/town/${townId}/booth/${boothId}/`)
+        fetch(`http://192.168.200.84:8001/api/town/${townId}/booth/${boothId}/`)
           .then(response => response.json())
           .then(data => {
             votersData = data; // Store fetched voters data
@@ -784,7 +784,7 @@
       }
 
       function fetchVoters_by_bid(boothId) {
-        fetch(`http://192.168.1.20:8001/api/get_voters_by_booth/${parseInt(boothId)}/`)
+        fetch(`http://192.168.200.84:8001/api/get_voters_by_booth/${parseInt(boothId)}/`)
           .then(response => response.json())
           .then(data => {
             votersData = data; // Store fetched voters data
@@ -802,7 +802,7 @@
           alert('Please select a voter first to export.');
           return;
         }
-        const pdfUrl = `http://192.168.1.20:8001/api/generate_voter_pdf/${currentVoterId}/`;
+        const pdfUrl = `http://192.168.200.84:8001/api/generate_voter_pdf/${currentVoterId}/`;
         fetch(pdfUrl)
           .then(response => {
             if (!response.ok) throw new Error('Network response was not ok');
@@ -855,7 +855,7 @@
       let selectedVoters = []; // This will track the selected voters
 
       // Fetch caste data from the API and populate the caste select options
-      fetch('http://192.168.1.20:8001/api/cast/')
+      fetch('http://192.168.200.84:8001/api/cast/')
         .then(response => response.json())
         .then(data => {
           const casteSelect = document.getElementById('caste-select');
@@ -956,7 +956,7 @@
         console.log('Payload:', JSON.stringify(payload));
 
         // Make the PUT request to assign caste to voters
-        fetch('http://192.168.1.20:8001/api/assign_voter_cast/', {
+        fetch('http://192.168.200.84:8001/api/assign_voter_cast/', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -994,7 +994,7 @@
       let selectedVoters = []; // This will track the selected voters
 
       // Fetch caste data from the API and populate the caste select options
-      // fetch('http://192.168.1.20:8001/api/cast/')
+      // fetch('http://192.168.200.84:8001/api/cast/')
       //   .then(response => response.json())
       //   .then(data => {
       //     const casteSelect = document.getElementById('caste-select');
@@ -1095,7 +1095,7 @@
         console.log('Payload:', JSON.stringify(payload));
 
         // Make the PUT request to assign caste to voters
-        fetch('http://192.168.1.20:8001/api/favour/', {
+        fetch('http://192.168.200.84:8001/api/favour/', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',

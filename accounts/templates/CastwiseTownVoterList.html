@@ -353,12 +353,15 @@
         crossorigin="anonymous"></script>
 
     <script>
-        // Capitalize function for voter names
-        function capitalizeWords(str) {
-            return str.split(' ')
-                .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-                .join(' ');
+        // Function to capitalize the first letter of each word
+      function capitalizeWords(str) {
+        if (typeof str !== 'string' || !str) {
+          return ''; // Return an empty string if the input is not a valid string
         }
+        return str.split(' ')
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+          .join(' ');
+      }
 
         document.addEventListener('DOMContentLoaded', function () {
             const religionSelect = document.getElementById('religionSelect');
@@ -369,7 +372,7 @@
             let votersData = []; // Store the fetched voters data
 
             // Fetch booth data
-            fetch('http://192.168.1.20:8001/api/towns/')
+            fetch('http://192.168.200.84:8001/api/towns/')
                 .then(response => response.json())
                 .then(data => {
                     const townSelect = document.getElementById('townSelect');
@@ -393,7 +396,7 @@
                 .catch(error => console.error('Error fetching booth data:', error));
 
             // Fetch religion data
-            fetch('http://192.168.1.20:8001/api/get_all_religion/')
+            fetch('http://192.168.200.84:8001/api/get_all_religion/')
                 .then(response => response.json())
                 .then(data => {
                     data.forEach(religion => {
@@ -410,7 +413,7 @@
                         // Fetch Caste based on selected religion
                         if (selectedReligionId) {
                             castSelect.disabled = false;
-                            fetch(`http://192.168.1.20:8001/api/cast_by_religion/${selectedReligionId}/`)
+                            fetch(`http://192.168.200.84:8001/api/cast_by_religion/${selectedReligionId}/`)
                                 .then(response => response.json())
                                 .then(data => {
                                     castSelect.innerHTML = '<option selected>Select Caste</option>'; // Reset options
@@ -439,7 +442,7 @@
                     // Fetch voters based on selected booth, religion, and Caste
                     // console.log("selectedtown",selectedTownId);
 
-                    fetch(`http://192.168.1.20:8001/api/town/${selectedTownId}/cast/${selectedCastId}/`)
+                    fetch(`http://192.168.200.84:8001/api/town/${selectedTownId}/cast/${selectedCastId}/`)
                         .then(response => response.json())
                         .then(data => {
                             votersData = data; // Store the data for filtering
@@ -558,7 +561,7 @@
                         const newConfirmationStatus = voter.voter_vote_confirmation_id === null ? 1 : null; // Toggle logic
 
                         try {
-                            const response = await fetch(`http://192.168.1.20:8001/api/voter_confirmation/${voter.voter_id}/`, {
+                            const response = await fetch(`http://192.168.200.84:8001/api/voter_confirmation/${voter.voter_id}/`, {
                                 method: 'PUT',
                                 headers: {
                                     'Content-Type': 'application/json'
@@ -598,7 +601,7 @@
                         currentVoterId = voter.voter_id;
 
                         // Fetch voter details from the API
-                        fetch(`http://192.168.1.20:8001/api/voters/${voter.voter_id}/`)
+                        fetch(`http://192.168.200.84:8001/api/voters/${voter.voter_id}/`)
                             .then(response => {
                                 if (!response.ok) {
                                     throw new Error('Network response was not ok');
@@ -621,7 +624,7 @@
 
                                 document.getElementById('voter_in_city').textContent = (voterDetails.voter_in_city_id === 1) ? 'In City' : (voterDetails.voter_in_city_id === 2 ? 'Near City' : (voterDetails.voter_in_city_id === 3 ? 'Out of City' : '--'));
                                 document.getElementById('voter_live_status').textContent = (voterDetails.voter_live_status_id === 1) ? 'Alive' : (voterDetails.voter_live_status_id === 2 ? 'Dead' : '--');
-                                document.getElementById('marital_status').textContent = voterDetails.voter_marital_status_id || '--';
+                                document.getElementById('marital_status').textContent = voterDetails.marital_status_type || '--';
                                 document.getElementById('current_location').textContent = voterDetails.voter_current_location || '--';
 
                                 // Update the Family button with the voter ID
@@ -722,7 +725,7 @@
                 // Add event listener for the export button in Voter Details
                 document.getElementById('export-pdf-button').addEventListener('click', function () {
                     if (currentVoterId) {
-                        const pdfUrl = `http://192.168.1.20:8001/api/generate_voter_pdf/${currentVoterId}/`;
+                        const pdfUrl = `http://192.168.200.84:8001/api/generate_voter_pdf/${currentVoterId}/`;
                         fetch(pdfUrl)
                             .then(response => {
                                 if (!response.ok) {
@@ -759,7 +762,7 @@
                     const selectedCastId = castSelect.value;
 
                     if (selectedTownId && selectedCastId) {
-                        const pdfUrl = `http://192.168.1.20:8001/api/town_pdf/${selectedTownId}/cast/${selectedCastId}/`;
+                        const pdfUrl = `http://192.168.200.84:8001/api/town_pdf/${selectedTownId}/cast/${selectedCastId}/`;
                         window.open(pdfUrl, '_self');
                     } else {
                         alert('Please select Town, Religion and Caste before exporting.');
@@ -1077,7 +1080,7 @@
                 // console.log('Payload:', JSON.stringify(payload));
 
                 // Make the PUT request to assign favour to voters
-                fetch('http://192.168.1.20:8001/api/favour/', {
+                fetch('http://192.168.200.84:8001/api/favour/', {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
