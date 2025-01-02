@@ -301,7 +301,7 @@
             let votersData = []; // Store fetched voters data
 
             // Fetch towns data
-            fetch('http://192.168.200.84:8001/api/towns/')
+            fetch('http://192.168.200.118:8001/api/towns/')
                 .then(response => response.json())
                 .then(data => {
                     data.forEach(town => {
@@ -316,7 +316,7 @@
                         const selectedTownId = townSelect.value;
                         if (selectedTownId) {
                             religionSelect.disabled = false;
-                            fetch('http://192.168.200.84:8001/api/get_all_religion/')
+                            fetch('http://192.168.200.118:8001/api/get_all_religion/')
                                 .then(response => response.json())
                                 .then(data => {
                                     religionSelect.innerHTML = '<option selected>Select Religion</option>';
@@ -339,7 +339,7 @@
                         const selectedReligionId = religionSelect.value;
 
                         if (selectedTownId && selectedReligionId) {
-                            fetch(`http://192.168.200.84:8001/api/town/${selectedTownId}/religion/${selectedReligionId}/`)
+                            fetch(`http://192.168.200.118:8001/api/town/${selectedTownId}/religion/${selectedReligionId}/`)
                                 .then(response => response.json())
                                 .then(data => {
                                     votersData = data; // Store the original data
@@ -484,7 +484,7 @@
 
 
                         try {
-                            const response = await fetch(`http://192.168.200.84:8001/api/voter_confirmation/${voter.voter_id}/`, {
+                            const response = await fetch(`http://192.168.200.118:8001/api/voter_confirmation/${voter.voter_id}/`, {
                                 method: 'PUT',
                                 headers: {
                                     'Content-Type': 'application/json'
@@ -525,7 +525,7 @@
                     detailsButton.onclick = function () {
                         currentVoterId = voter.voter_id;
                         // Fetch voter details from the API
-                        fetch(`http://192.168.200.84:8001/api/voters/${voter.voter_id}/`)
+                        fetch(`http://192.168.200.118:8001/api/voters/${voter.voter_id}/`)
                             .then(response => {
                                 if (!response.ok) {
                                     throw new Error('Network response was not ok');
@@ -647,7 +647,7 @@
             // Add event listener for the export button in Voter Details
             document.getElementById('export-pdf-button').addEventListener('click', function () {
                 if (currentVoterId) {
-                    const pdfUrl = `http://192.168.200.84:8001/api/generate_voter_pdf/${currentVoterId}/`;
+                    const pdfUrl = `http://192.168.200.118:8001/api/generate_voter_pdf/${currentVoterId}/`;
                     fetch(pdfUrl)
                         .then(response => {
                             if (!response.ok) {
@@ -684,7 +684,7 @@
                 const selectedReligionId = religionSelect.value;
 
                 if (selectedTownId && selectedReligionId) {
-                    const pdfUrl = `http://192.168.200.84:8001/api/town_pdf/${selectedTownId}/religion/${selectedReligionId}/`;
+                    const pdfUrl = `http://192.168.200.118:8001/api/town_pdf/${selectedTownId}/religion/${selectedReligionId}/`;
                     window.open(pdfUrl, '_blank');
                 } else {
                     alert('Please select both town and religion before exporting.');
@@ -840,7 +840,7 @@
                 // console.log('Payload:', JSON.stringify(payload));
 
                 // Make the PUT request to assign favour to voters
-                fetch('http://192.168.200.84:8001/api/favour/', {
+                fetch('http://192.168.200.118:8001/api/favour/', {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',

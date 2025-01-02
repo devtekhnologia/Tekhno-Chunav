@@ -84,11 +84,11 @@
 
             <!-- Search -->
             <div class="d-flex justify-content-end gap-3 me-4 mb-3">
-                <div class="search" style="width: 260px;">
+                <div class="search" style="width: 330px;">
                     <form class="d-flex" method="GET">
                         <div class="input-group">
                             <input type="text" id="search-input" name="search" class="form-control bg-light"
-                                placeholder="Search by Town" value="{{ request.GET.search }}" />
+                                placeholder="Search by Town, User or Sarpanch" value="{{ request.GET.search }}" />
                             <button type="button" id="clear-button" class="btn-close" aria-label="Close"></button>
                             <button class="btn btn-success" type="submit"><i
                                     class="fa-solid fa-magnifying-glass"></i></button>
@@ -96,7 +96,7 @@
                     </form>
                 </div>
 
-                <a href="http://192.168.200.84:8001/api/voter_town_count/" class="btn btn-light border me-4">
+                <a href="http://192.168.200.118:8001/api/voter_town_count/" class="btn btn-light border me-4">
                     <i class="fa-solid fa-arrow-up-from-bracket"></i>&nbsp;Export
                 </a>
             </div>
@@ -398,7 +398,7 @@
 
         // Function to fetch booth details from the API
         function fetchBoothDetails(townId, townName) {
-            fetch(`http://192.168.200.84:8001/api/get_booth_details_by_town_id/${parseInt(townId)}/`)
+            fetch(`http://192.168.200.118:8001/api/get_booth_details_by_town_id/${parseInt(townId)}/`)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Network response was not ok');
@@ -491,7 +491,7 @@
 
         // Function to fetch booth details from the API
         function fetchBoothDetails(townId) {
-            fetch(`http://192.168.200.84:8001/api/get_booth_details_by_town_id/${parseInt(townId)}/`)
+            fetch(`http://192.168.200.118:8001/api/get_booth_details_by_town_id/${parseInt(townId)}/`)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Network response was not ok');

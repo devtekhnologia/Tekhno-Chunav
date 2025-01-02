@@ -386,7 +386,7 @@
     // Favourable, Nonfavourable & doubted Bar chart
     async function fetchData() {
       try {
-        const response = await fetch("http://192.168.200.84:8001/api/voter_favour_counts/");
+        const response = await fetch("http://192.168.200.118:8001/api/voter_favour_counts/");
         const data = await response.json();
 
         const xValues = ["Favourable", "Non-Favourable", "Not-Confirmed", "Pending"];
@@ -421,7 +421,7 @@
     // Cast Pie Chart
     async function fetchReligionCount() {
       try {
-        const response = await fetch("http://192.168.200.84:8001/api/religion_count/");
+        const response = await fetch("http://192.168.200.118:8001/api/religion_count/");
         const data = await response.json();
 
         const casteLabels = ["Hindu", "Muslim", "Christaian", "Others"];
@@ -455,7 +455,7 @@
     // Voted & Nonvoted Bar chart
     async function fetchvotedNonVotedData() {
       try {
-        const response = await fetch("http://192.168.200.84:8001/api/get_voted_and_non_voted_count/");
+        const response = await fetch("http://192.168.200.118:8001/api/get_voted_and_non_voted_count/");
         const data = await response.json();
 
         const xValues = ["Voted", "Non-voted"];
@@ -489,7 +489,7 @@
 
     // Town user count
     function fetchTotalTownUserCount() {
-      fetch('http://192.168.200.84:8001/api/town_user_info/')
+      fetch('http://192.168.200.118:8001/api/town_user_info/')
         .then((res) => res.json())
         .then(data => {
           if (data) {
@@ -506,7 +506,7 @@
 
     // Prabhag user count
     function fetchTotalPrabhagUserCount() {
-      fetch('http://192.168.200.84:8001/api/prabhag_users_info/')
+      fetch('http://192.168.200.118:8001/api/prabhag_users_info/')
         .then((res) => res.json())
         .then(data => {
           if (data) {
@@ -523,7 +523,7 @@
 
     // Booth user count
     function fetchBoothUserCount() {
-      fetch('http://192.168.200.84:8001/api/register_user/')
+      fetch('http://192.168.200.118:8001/api/register_user/')
         .then((res) => res.json())
         .then(data => {
           if (data) {
@@ -541,7 +541,7 @@
 
     // Town user count
     function fetchTownUserCount() {
-      fetch("http://192.168.200.84:8001/api/TownCountView/")
+      fetch("http://192.168.200.118:8001/api/TownCountView/")
         .then((res) => res.json())
         .then(data => {
           if (data && typeof data === 'object' && 'count' in data) {
@@ -558,7 +558,7 @@
 
     // Prabhag user count
     function fetchPrabhagUserCount() {
-      fetch("http://192.168.200.84:8001/api/get_prabhags/")
+      fetch("http://192.168.200.118:8001/api/get_prabhags/")
         .then((res) => res.json())
         .then(data => {
           if (data) {
@@ -576,7 +576,7 @@
 
     // Booth count
     function fetchBoothCount() {
-      fetch("http://192.168.200.84:8001/api/BoothCountView/")
+      fetch("http://192.168.200.118:8001/api/BoothCountView/")
         .then((res) => res.json())
         .then(data => {
           if (data && typeof data === 'object' && 'count' in data) {
@@ -594,7 +594,7 @@
 
     // Voter count
     function fetchVotersCount() {
-      fetch("http://192.168.200.84:8001/api/voter_count")
+      fetch("http://192.168.200.118:8001/api/voter_count")
         .then((res) => res.json()).then(data => {
           document.getElementById('voters-count').innerHTML = data.count;
           // console.log(data.count);
@@ -607,7 +607,7 @@
 
     // Favorable, Againts & Doubted
     function fetchVoterData() {
-      fetch(`http://192.168.200.84:8001/api/voters/`)
+      fetch(`http://192.168.200.118:8001/api/voters/`)
         .then(response => response.json())
         .then(data => {
           if (data && Array.isArray(data.voters)) {
@@ -631,7 +631,7 @@
 
     // Fetch Voted and Non-Voted counts
     function fetchVotedAndNonVotedCounts() {
-      fetch('http://192.168.200.84:8001/api/get_voted_and_non_voted_count/')
+      fetch('http://192.168.200.118:8001/api/get_voted_and_non_voted_count/')
         .then((res) => {
           if (!res.ok) {
             throw new Error('Network response was not ok');
@@ -681,7 +681,7 @@
       };
 
       // Fetch the data from the API
-      fetch('http://192.168.200.84:8001/api/favour_counts/')
+      fetch('http://192.168.200.118:8001/api/favour_counts/')
         .then(response => response.json())
         .then(data => {
           let combinedCount = 0; // Variable to store combined count for 0 and null

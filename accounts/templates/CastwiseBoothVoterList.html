@@ -323,7 +323,7 @@
             let votersData = []; // Store the fetched voters data
 
             // Fetch town data
-            fetch('http://192.168.200.84:8001/api/towns/')
+            fetch('http://192.168.200.118:8001/api/towns/')
                 .then(response => response.json())
                 .then(data => {
                     data.forEach(town => {
@@ -347,7 +347,7 @@
                 .catch(error => console.error('Error fetching town data:', error));
 
             function fetchBoothData(townId) {
-                fetch(`http://192.168.200.84:8001/api/booths_by_town/${townId}/`)
+                fetch(`http://192.168.200.118:8001/api/booths_by_town/${townId}/`)
                     .then(response => response.json())
                     .then(data => {
                         boothSelect.innerHTML = '<option selected>Select Booth</option>'; // Reset booth select
@@ -371,7 +371,7 @@
             }
 
             // Fetch religion data
-            fetch('http://192.168.200.84:8001/api/get_all_religion/')
+            fetch('http://192.168.200.118:8001/api/get_all_religion/')
                 .then(response => response.json())
                 .then(data => {
                     data.forEach(religion => {
@@ -386,7 +386,7 @@
 
                         if (selectedReligionId) {
                             castSelect.disabled = false;
-                            fetch(`http://192.168.200.84:8001/api/cast_by_religion/${selectedReligionId}/`)
+                            fetch(`http://192.168.200.118:8001/api/cast_by_religion/${selectedReligionId}/`)
                                 .then(response => response.json())
                                 .then(data => {
                                     castSelect.innerHTML = '<option selected>Select Caste</option>'; // Reset options
@@ -412,7 +412,7 @@
                 const selectedCastId = this.value;
 
                 if (selectedBoothId && selectedReligionId && selectedCastId) {
-                    fetch(`http://192.168.200.84:8001/api/booth/${selectedBoothId}/cast/${selectedCastId}/`)
+                    fetch(`http://192.168.200.118:8001/api/booth/${selectedBoothId}/cast/${selectedCastId}/`)
                         .then(response => response.json())
                         .then(data => {
                             votersData = data; // Store the data for filtering
@@ -520,7 +520,7 @@
                         const newConfirmationStatus = voter.voter_vote_confirmation_id === null ? 1 : null; // Toggle logic
 
                         try {
-                            const response = await fetch(`http://192.168.200.84:8001/api/voter_confirmation/${voter.voter_id}/`, {
+                            const response = await fetch(`http://192.168.200.118:8001/api/voter_confirmation/${voter.voter_id}/`, {
                                 method: 'PUT',
                                 headers: {
                                     'Content-Type': 'application/json'
@@ -556,7 +556,7 @@
                         currentVoterId = voter.voter_id;
 
                         // Fetch voter details from the API
-                        fetch(`http://192.168.200.84:8001/api/voters/${voter.voter_id}/`)
+                        fetch(`http://192.168.200.118:8001/api/voters/${voter.voter_id}/`)
                             .then(response => {
                                 if (!response.ok) {
                                     throw new Error('Network response was not ok');
@@ -678,7 +678,7 @@
                 // Add event listener for the export button in Voter Details Modal
                 document.getElementById('export-pdf-button').addEventListener('click', function () {
                     if (currentVoterId) {
-                        const pdfUrl = `http://192.168.200.84:8001/api/generate_voter_pdf/${currentVoterId}/`;
+                        const pdfUrl = `http://192.168.200.118:8001/api/generate_voter_pdf/${currentVoterId}/`;
                         fetch(pdfUrl)
                             .then(response => {
                                 if (!response.ok) {
@@ -714,7 +714,7 @@
                         return;
                     }
 
-                    const pdfUrl = `http://192.168.200.84:8001/api/booth_pdf/${selectedBoothId}/cast/${selectedCastId}/`;
+                    const pdfUrl = `http://192.168.200.118:8001/api/booth_pdf/${selectedBoothId}/cast/${selectedCastId}/`;
 
                     // Fetch PDF
                     fetch(pdfUrl)
@@ -880,7 +880,7 @@
                 console.log('Payload:', JSON.stringify(payload));
 
                 // Make the PUT request to assign favour to voters
-                fetch('http://192.168.200.84:8001/api/favour/', {
+                fetch('http://192.168.200.118:8001/api/favour/', {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',

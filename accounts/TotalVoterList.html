@@ -234,17 +234,6 @@
                           style="background-color: rgb(218, 217, 217);" 
                         {% endif %}>
                     </td>
-                    <!-- <td class="
-                      {% if voter.voter_favour_id == 1 %}bg-success
-                      {% elif voter.voter_favour_id == 2 %}bg-danger
-                      {% elif voter.voter_favour_id == 3 %}bg-warning
-                      {% elif voter.voter_favour_id == 4 %}bg-primary
-                      {% elif voter.voter_favour_id == 5 %}light-primary
-                      {% elif voter.voter_favour_id == 6 %}pink
-                      {% elif voter.voter_favour_id == 7 %}purple
-                      {% else %}bg-custom-table-light
-                      {% endif %}">
-                    </td> -->
                   </tr>
                   {% endfor %}
                   {% else %}
@@ -899,8 +888,6 @@
     });
 
 
-
-
     // Assign multiple Castes
     document.addEventListener('DOMContentLoaded', function () {
       // Fetch caste data from the API and populate the caste select options
@@ -990,7 +977,6 @@
         return document.querySelector('[name=csrfmiddlewaretoken]').value;
       };
     });
-
 
 
 
