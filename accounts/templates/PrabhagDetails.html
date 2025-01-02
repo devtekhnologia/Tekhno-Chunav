@@ -85,11 +85,11 @@
 
             <!-- Search -->
             <div class="d-flex justify-content-end gap-3 me-4 mb-3">
-                <div class="search" style="width: 260px;">
+                <div class="search" style="width: 300px;">
                     <form class="d-flex" method="GET">
                         <div class="input-group">
                             <input type="text" id="search-input" name="search" class="form-control bg-light"
-                                placeholder="Search by Town" value="{{ request.GET.search }}" />
+                                placeholder="Search by Town, Ward or User" value="{{ request.GET.search }}" />
                             <button type="button" id="clear-button" class="btn-close" aria-label="Close"></button>
                             <button class="btn btn-success" type="submit"><i
                                     class="fa-solid fa-magnifying-glass"></i></button>
@@ -97,7 +97,7 @@
                     </form>
                 </div>
 
-                <!-- <a href="http://192.168.200.84:8001/api/voter_town_count/" class="btn btn-light border me-4">
+                <!-- <a href="http://192.168.200.118:8001/api/voter_town_count/" class="btn btn-light border me-4">
                     <i class="fa-solid fa-arrow-up-from-bracket"></i>&nbsp;Export
                 </a> -->
             </div>
@@ -109,10 +109,10 @@
                             <table class="table mb-0 table-striped rounded">
                                 <thead class="text-muted text-uppercase">
                                     <tr>
-                                        <th class="text-center fw-bolder" style="width: 5%;">Sr. No.</th>
-                                        <th class="fw-bolder" style="width: 10%;">Town Name</th>
-                                        <th class="fw-bolder" style="width: 30%;">Ward Name</th>
-                                        <th class="fw-bolder" style="width: 20%;">Assigned Users</th>
+                                        <th class="text-center fw-bolder" style="width: 10%;">Sr. No.</th>
+                                        <th class="fw-bolder" style="width: 20%;">Town Name</th>
+                                        <th class="fw-bolder" style="width: 20%;">Ward Name</th>
+                                        <th class="fw-bolder" style="width: 25%;">Assigned Users</th>
                                         <th class="fw-bolder" style="width: 10%;">Booth Count</th>
                                         <th class="fw-bolder" style="width: 10%;">Actions</th>
                                     </tr>
@@ -364,7 +364,7 @@
         function fetchBoothDetails(prabhagId, prabhagName) {
             console.log("pid",prabhagId);
             
-            fetch(`http://192.168.200.84:8001/api/get_booth_info_by_prabhag_id/${parseInt(prabhagId)}/`)
+            fetch(`http://192.168.200.118:8001/api/get_booth_info_by_prabhag_id/${parseInt(prabhagId)}/`)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Network response was not ok');
@@ -430,7 +430,7 @@
         // Delete Prabhag
         function deletePrabhag(prabhagId) {
             showMessage('Confirmation', 'Are you sure you want to delete this prabhag?', function () {
-                fetch(`http://192.168.200.84:8001/api/delete_prabhag/${prabhagId}/`, {
+                fetch(`http://192.168.200.118:8001/api/delete_prabhag/${prabhagId}/`, {
                     method: 'DELETE',
                     headers: {
                         'X-CSRFToken': getCsrfToken(),

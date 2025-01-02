@@ -452,20 +452,19 @@
             window.location.href = url.toString(); // Reload the page with the updated URL
         });
 
-        // Add event listener to the Add Voters button
-        document.getElementById("add-voters-button").addEventListener("click", function () {
-            // Redirect to the totalvoterlist page with the groupId parameter
-            const groupId = getStoredGroupId();
-            // console.log("gid----------",getStoredGroupId);
-            // console.log("guid----------",getStoredGroupUserId);
-            
-            window.location.href = `/totalvoterlist/${groupId}/`;
-        });
+        // // Add event listener to the Add Voters button
+        // document.getElementById("add-voters-button").addEventListener("click", function () {
+        //     // Redirect to the totalvoterlist page with the groupId parameter
+        //     const groupId = getStoredGroupId();
+        //     // Show the modal
+        //     window.location.href = `/totalvoterlist/${groupId}/`;
+        // });
+        
 
         // Function to fetch and display voter details for a given group user ID
         async function loadVoterDetails(event, groupUserId) {
             // console.log("gid-",groupUserId);
-            
+
             // Define the API URL dynamically based on the group user ID
             const apiUrl = `http://192.168.200.118:8001/api/voters_by_group_user/${groupUserId}/`;
 
@@ -641,7 +640,7 @@
                                     voterDetailsModal.show();
                                 });
                         };
-                        
+
                         // Action for the Delete Button
                         deleteButton.onclick = function () {
                             if (confirm("Are you sure you want to delete this voter?")) {
@@ -653,7 +652,7 @@
                                 })
                                     .then(response => response.json()) // Parse JSON response
                                     .then(data => {
-                                        
+
                                         if (data.message === "Voter removed from group successfully!") {
                                             // Remove the voter row from the table after successful deletion
                                             row.remove();
@@ -729,40 +728,40 @@
             // console.log("Got Group User ID:", getStoredGroupUserId());
 
             // Fetch and populate the voter list
-            loadVotersForSelection(getStoredGroupUserId());
+            // loadVotersForSelection(getStoredGroupUserId());
         });
 
-        async function loadVotersForSelection(groupUserId) {
-            const apiUrl = 'http://192.168.200.118:8001/api/total_voters/';
-            const voterSelect = document.getElementById('voterSelect');
+        // async function loadVotersForSelection(groupUserId) {
+        //     const apiUrl = 'http://192.168.200.118:8001/api/total_voters/';
+        //     const voterSelect = document.getElementById('voterSelect');
 
-            // Show loading message in the select dropdown until data is loaded
-            voterSelect.innerHTML = '<option>Loading...</option>';
+        //     // Show loading message in the select dropdown until data is loaded
+        //     voterSelect.innerHTML = '<option>Loading...</option>';
 
-            try {
-                const response = await fetch(apiUrl);
-                if (!response.ok) {
-                    throw new Error(`Failed to load voters. Status: ${response.status}`);
-                }
+        //     try {
+        //         const response = await fetch(apiUrl);
+        //         if (!response.ok) {
+        //             throw new Error(`Failed to load voters. Status: ${response.status}`);
+        //         }
 
-                const voters = await response.json();
+        //         const voters = await response.json();
 
-                // Clear the select element before adding new options
-                voterSelect.innerHTML = '';
+        //         // Clear the select element before adding new options
+        //         voterSelect.innerHTML = '';
 
-                // Populate the select dropdown with voter options
-                voters.forEach(voter => {
-                    const option = document.createElement('option');
-                    option.value = voter.voter_id;
-                    option.textContent = `${voter.voter_name} (${voter.voter_name_mar || ''})`;
-                    voterSelect.appendChild(option);
-                });
+        //         // Populate the select dropdown with voter options
+        //         voters.forEach(voter => {
+        //             const option = document.createElement('option');
+        //             option.value = voter.voter_id;
+        //             option.textContent = `${voter.voter_name} (${voter.voter_name_mar || ''})`;
+        //             voterSelect.appendChild(option);
+        //         });
 
-            } catch (error) {
-                console.error("Error fetching voters:", error);
-                voterSelect.innerHTML = '<option>Error loading voters</option>';
-            }
-        }
+        //     } catch (error) {
+        //         console.error("Error fetching voters:", error);
+        //         voterSelect.innerHTML = '<option>Error loading voters</option>';
+        //     }
+        // }
 
 
         // Delete Group

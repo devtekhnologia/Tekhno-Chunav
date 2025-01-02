@@ -14,8 +14,8 @@ from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_http_methods
 import logging
 
-BASE_URL = "http://192.168.200.84:8001/"
-LOCAL_URL = "http://192.168.200.84:8001/"
+BASE_URL = "http://192.168.200.118:8001/"
+LOCAL_URL = "http://127.0.0.1:8000/"
 
 
 API_LOGIN_ENDPOINT = f"{BASE_URL}api/politician_login/"
@@ -30,6 +30,7 @@ API_TOTAL_VOTERS = f"{BASE_URL}api/total_voters/"
 # Capitalize Name
 def format_name(name):
     return ' '.join(part.capitalize() for part in name.split())
+
 
 # Register view
 def register(request):
@@ -54,6 +55,8 @@ def register(request):
     else:
         form = RegistrationForm()
     return render(request, 'register.html', {'form': form})
+
+
 # Login view
 def login_view(request):
     if request.method == 'POST':
@@ -92,6 +95,7 @@ def login_view(request):
         form = LoginForm()
  
     return render(request, 'login.html', {'form': form})
+
 
 # # Login view
 # def login_view(request):
@@ -336,7 +340,8 @@ def TownDetails(request):
     if search_query:
         data = [item for item in data
                  if (item.get('town_name') and search_query.lower() in item['town_name'].lower()) or
-                    (item.get('town_user_names') and search_query.lower() in item['town_user_names'].lower())
+                    (item.get('town_user_names') and search_query.lower() in item['town_user_names'].lower()) or
+                    (item.get('sarpanch_name') and search_query.lower() in item['sarpanch_name'].lower())
                 ]
 
     # Sort users by 'user_name' in alphabetical order
@@ -377,8 +382,18 @@ def PrabhagDetails(request):
         data = []
 
     # Filter data by search query
+    # if search_query:
+    #     data = [item for item in data if search_query.lower() in item['prabhag_name'].lower()]
+    # Filter data by search query
     if search_query:
-        data = [item for item in data if search_query.lower() in item['prabhag_name'].lower()]
+        # Filter by 'prabhag_name', 'town_name', or 'prabhag_user_name'
+        data = [
+            item for item in data if (
+                search_query.lower() in item['prabhag_name'].lower() or
+                search_query.lower() in item['town_name'].lower() or
+                any(search_query.lower() in user.lower() for user in item['prabhag_user_name'].split(','))
+            )
+        ]
 
     # Sort users by 'user_name' in alphabetical order
     # data.sort(key=lambda x: x.get('prabhag_name', '').lower())
@@ -869,7 +884,7 @@ def TownUserList(request):
 def SurnameWiseVoterList(request):
     search_query = request.GET.get('search', '')  # Get search query if provided
     sort_order = request.GET.get('sort', '')  # Get the sort query (a-z)
-    url = "http://192.168.200.84:8001/api/surname_wise_voter_count/"
+    url = "http://192.168.200.118:8001/api/surname_wise_voter_count/"
     
     response = requests.get(url)
     response.raise_for_status()

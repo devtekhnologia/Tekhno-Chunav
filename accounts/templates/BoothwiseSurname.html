@@ -410,7 +410,7 @@
 
       // Fetch towns data
       function fetchTowns() {
-        fetch('http://192.168.200.84:8001/api/towns/')
+        fetch('http://192.168.200.118:8001/api/towns/')
           .then(response => response.json())
           .then(data => {
             data.forEach(town => {
@@ -427,7 +427,7 @@
         const selectedTownId = townSelect.value;
         if (!selectedTownId) return;
 
-        fetch(`http://192.168.200.84:8001/api/booths_by_town/${selectedTownId}/`)
+        fetch(`http://192.168.200.118:8001/api/booths_by_town/${selectedTownId}/`)
           .then(response => response.json())
           .then(data => {
             boothSelect.innerHTML = '<option value="" disabled selected>Select Booth</option>';
@@ -449,7 +449,7 @@
         const selectedTownId = townSelect.value;
         if (!selectedBoothId || !selectedTownId) return;
 
-        fetch(`http://192.168.200.84:8001/api/booth_and_surname_wise_voter_count/${selectedBoothId}/`)
+        fetch(`http://192.168.200.118:8001/api/booth_and_surname_wise_voter_count/${selectedBoothId}/`)
           .then(response => response.json())
           .then(data => {
             votersData = data;
@@ -534,7 +534,7 @@
         document.getElementById('voter-details-table').style.display = 'none';
 
         // Fetch Voter details for the surname
-        fetch(`http://192.168.200.84:8001/api/booth_and_surname_wise_voter_details/${selectedBoothId}/${parseInt(surname_id)}/`)
+        fetch(`http://192.168.200.118:8001/api/booth_and_surname_wise_voter_details/${selectedBoothId}/${parseInt(surname_id)}/`)
           .then(response => {
             if (!response.ok) {
               throw new Error('Network response was not ok');
@@ -613,7 +613,7 @@
         // console.log('Viewing voter details for voter ID:', voterId);
 
         // Fetch voter details from the API
-        fetch(`http://192.168.200.84:8001/api/voters/${voterId}/`)
+        fetch(`http://192.168.200.118:8001/api/voters/${voterId}/`)
           .then(response => {
             if (!response.ok) {
               throw new Error('Network response was not ok');
@@ -706,7 +706,7 @@
       // Add event listener for the export button in Voter Details
       document.getElementById('export-pdf-button').addEventListener('click', function () {
         if (currentVoterId) {
-          const pdfUrl = `http://192.168.200.84:8001/api/booth_and_surname_wise_voter_count_pdf/${selectedBoothId}/`;
+          const pdfUrl = `http://192.168.200.118:8001/api/booth_and_surname_wise_voter_count_pdf/${selectedBoothId}/`;
           fetch(pdfUrl)
             .then(response => {
               if (!response.ok) {
@@ -737,7 +737,7 @@
       //   console.log('Document loaded.');
 
       // Fetch caste data from the API
-      fetch('http://192.168.200.84:8001/api/cast/')
+      fetch('http://192.168.200.118:8001/api/cast/')
         .then(response => {
           // console.log('API response received:', response);
           if (!response.ok) throw new Error('Network response was not ok');
@@ -788,7 +788,7 @@
           surname_ids: selectedSurnames
         };
         // Send data to the first API
-        fetch(`http://192.168.200.84:8001/api/booth_and_surname_wise_voter_count/${selectedBoothId}/`, {
+        fetch(`http://192.168.200.118:8001/api/booth_and_surname_wise_voter_count/${selectedBoothId}/`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -815,7 +815,7 @@
                 };
 
                 // Send data to the second API (surname_wise_favour_caste_assign_voters)
-                fetch('http://192.168.200.84:8001/api/surname_wise_favour_caste_assign_voters/', {
+                fetch('http://192.168.200.118:8001/api/surname_wise_favour_caste_assign_voters/', {
                   method: 'POST',
                   headers: {
                     'Content-Type': 'application/json',
@@ -898,7 +898,7 @@
       };
 
       // Send data to the first API
-      fetch(`http://192.168.200.84:8001/api/booth_and_surname_wise_voter_count/${selectedBoothId}/`, {
+      fetch(`http://192.168.200.118:8001/api/booth_and_surname_wise_voter_count/${selectedBoothId}/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -940,7 +940,7 @@
           "voter_favour_id": parseInt(selectedFavourId) // Ensure favour ID is an integer
         };
         // Make the PUT request to assign favour to voters
-        fetch('http://192.168.200.84:8001/api/favour/', {
+        fetch('http://192.168.200.118:8001/api/favour/', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',

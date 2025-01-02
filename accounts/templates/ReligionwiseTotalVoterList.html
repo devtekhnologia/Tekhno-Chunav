@@ -331,7 +331,7 @@
             let currentVoterId = null; // Declare the variable to hold the current voter ID
 
             // Fetch religion data
-            fetch("http://192.168.200.84:8001/api/religion/")
+            fetch("http://192.168.200.118:8001/api/religion/")
                 .then((response) => response.json())
                 .then((data) => {
                     const religionSelect = document.getElementById("religionSelect");
@@ -347,7 +347,7 @@
                         const selectedReligionId = religionSelect.value;
                         if (selectedReligionId) {
                             fetch(
-                                `http://192.168.200.84:8001/api/voters_by_religion/${selectedReligionId}/`
+                                `http://192.168.200.118:8001/api/voters_by_religion/${selectedReligionId}/`
                             )
                                 .then((response) => {
                                     if (!response.ok) {
@@ -514,7 +514,7 @@
                         // console.log("ffff", voter.voter_id);
 
                         try {
-                            const response = await fetch(`http://192.168.200.84:8001/api/voter_confirmation/${voter.voter_id}/`, {
+                            const response = await fetch(`http://192.168.200.118:8001/api/voter_confirmation/${voter.voter_id}/`, {
                                 method: 'PUT',
                                 headers: {
                                     'Content-Type': 'application/json'
@@ -552,7 +552,7 @@
                     detailsButton.onclick = function () {
                         currentVoterId = voter.voter_id;
                         // Fetch voter details from the API
-                        fetch(`http://192.168.200.84:8001/api/voters/${voter.voter_id}/`)
+                        fetch(`http://192.168.200.118:8001/api/voters/${voter.voter_id}/`)
                             .then((response) => {
                                 if (!response.ok) {
                                     throw new Error("Network response was not ok");
@@ -730,7 +730,7 @@
                 .getElementById("export-pdf-button")
                 .addEventListener("click", function () {
                     if (currentVoterId) {
-                        const pdfUrl = `http://192.168.200.84:8001/api/generate_voter_pdf/${currentVoterId}/`;
+                        const pdfUrl = `http://192.168.200.118:8001/api/generate_voter_pdf/${currentVoterId}/`;
                         fetch(pdfUrl)
                             .then((response) => {
                                 if (!response.ok) {
@@ -768,7 +768,7 @@
                     return;
                 }
 
-                const pdfUrl = `http://192.168.200.84:8001/api/religion_pdf/${selectedReligionId}/`;
+                const pdfUrl = `http://192.168.200.118:8001/api/religion_pdf/${selectedReligionId}/`;
 
                 // Fetch PDF
                 fetch(pdfUrl)
@@ -932,7 +932,7 @@
                 // console.log('Payload:', JSON.stringify(payload));
 
                 // Make the PUT request to assign favour to voters
-                fetch('http://192.168.200.84:8001/api/favour/', {
+                fetch('http://192.168.200.118:8001/api/favour/', {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
