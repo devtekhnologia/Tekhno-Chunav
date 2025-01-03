@@ -300,7 +300,7 @@
                   <label class="form-label"><strong>Selected Voters</strong></label>
                   <ul id="selectedVotersList" class="list-group"></ul>
                 </div>
-                <button type="submit" class="btn btn-primary">Create Group</button>
+                <button type="submit" class="btn btn-primary" id="createGroupButton">Create Group</button>
               </form>
             </div>
           </div>
@@ -514,7 +514,7 @@
           voterId = this.getAttribute('data-voter-id');
 
           // Fetch voter details from the API
-          fetch(`http://192.168.200.118:8001/api/voters/${voterId}/`)
+          fetch(`http://192.168.200.151:8001/api/voters/${voterId}/`)
             .then(response => response.json())
             .then(data => {
               // Helper function to capitalize each word
@@ -610,7 +610,7 @@
       document.getElementById('export-pdf-button').addEventListener('click', function () {
 
         if (voterId) {
-          fetch(`http://192.168.200.118:8001/api/generate_voter_pdf/${voterId}`, {
+          fetch(`http://192.168.200.151:8001/api/generate_voter_pdf/${voterId}`, {
             method: 'GET',
             headers: {
               'Content-Type': 'application/pdf'
@@ -648,7 +648,7 @@
           };
 
           // Make a POST request to the WhatsApp API
-          fetch('http://192.168.200.118:8001/api/send_whatsapp_message/', {
+          fetch('http://192.168.200.151:8001/api/send_whatsapp_message/', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -676,7 +676,7 @@
     const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
     const getCsrfToken = () => csrfToken;
 
-    fetch('http://192.168.200.118:8001/api/total_voters/') // Replace with your actual API endpoint
+    fetch('http://192.168.200.151:8001/api/total_voters/') // Replace with your actual API endpoint
       .then(response => response.json())
       .then(data => {
         const favourId = data[0].voter_favour_id;
@@ -730,6 +730,7 @@
  
         // Show modal if there are selected voters, otherwise show alert
         if (selectedVoterIds.length > 0) {
+          vgUserForm.reset();
           const vgUserModal = new bootstrap.Modal(document.getElementById("vgUserModal"));
           vgUserModal.show();
         } else {
@@ -746,20 +747,110 @@
       });
  
       // Handle form submission
+      // vgUserForm.addEventListener("submit", function (e) {
+      //   e.preventDefault();
+        
+      //   // Disable the form and button to prevent multiple submissions
+      //   vgUserForm.disabled = true; // Disable the entire form
+
+      //   // Check if all required fields are filled
+      //   const vgUserName = document.getElementById("vgUserName").value.trim();
+      //   const vgUserContact = document.getElementById("vgUserContact").value.trim();
+      //   const vgGroupName = document.getElementById("vgGroupName").value.trim();
+      //   const vgUserPassword = document.getElementById("vgUserPassword").value.trim();
+ 
+      //   if (!vgUserName || !vgUserContact || !vgGroupName || !vgUserPassword || selectedVoterIds.length === 0) {
+      //     alert("Please fill in all fields and select at least one voter.");
+      //     return;
+      //   }
+ 
+      //   // Prepare the data for the API request
+      //   const data = {
+      //     voter_group_user_name: vgUserName,
+      //     voter_group_user_contact_number: parseInt(vgUserContact, 10),
+      //     voter_group_name: vgGroupName,
+      //     voter_group_user_password: vgUserPassword,
+      //     voter_ids: selectedVoterIds,
+      //   };
+      //   // console.log('payload-', data);
+ 
+      //   // Make API request
+      //   fetch('http://192.168.200.151:8001/api/create_voter_group_user/', {
+      //     method: 'POST',
+      //     headers: {
+      //       'Content-Type': 'application/json',
+      //     },
+      //     body: JSON.stringify(data),
+      //   })
+      //     .then(response => {
+      //       if (response.status === 201) {
+      //         return response.json();
+      //       } else {
+      //         throw new Error('Failed to create voter group user.');
+      //       }
+      //     })
+      //     .then(data => {
+      //       // Display success message
+      //       alert(data.message);
+ 
+      //       // Close the modal
+      //       bootstrap.Modal.getInstance(document.getElementById('vgUserModal')).hide();
+ 
+      //       // Clear form inputs and voter list
+      //       vgUserForm.reset();
+      //       selectedVoterIds = []; // Reset the voter IDs
+      //       selectedVotersList.innerHTML = "";
+ 
+      //       // Uncheck all selected checkboxes
+      //       document.querySelectorAll('.booth-checkbox:checked').forEach(checkbox => {
+      //         checkbox.checked = false;
+      //       });
+ 
+      //       // Optionally reload the page or dynamically update the table
+      //       location.reload();
+      //     })
+      //     .catch(error => {
+      //       console.error('Error:', error);
+      //       // alert('An error occurred. Please try again.');
+      //       alert(error);
+      //     })
+      //     .finally(() => {
+      //     // Re-enable the form and button and hide the loading indicator
+      //     vgUserForm.disabled = false; // Re-enable the entire form
+      //   });
+      // });
+
+
+      // Handle form submission
       vgUserForm.addEventListener("submit", function (e) {
         e.preventDefault();
- 
+        
+        // Disable the form and button to prevent multiple submissions
+        vgUserForm.disabled = true; // Disable the entire form
+        createGroupButton.disabled = true; // Optionally disable the submit button
+
         // Check if all required fields are filled
         const vgUserName = document.getElementById("vgUserName").value.trim();
         const vgUserContact = document.getElementById("vgUserContact").value.trim();
         const vgGroupName = document.getElementById("vgGroupName").value.trim();
         const vgUserPassword = document.getElementById("vgUserPassword").value.trim();
- 
+
         if (!vgUserName || !vgUserContact || !vgGroupName || !vgUserPassword || selectedVoterIds.length === 0) {
           alert("Please fill in all fields and select at least one voter.");
+          // Re-enable the form and button when validation fails
+          vgUserForm.disabled = false;
+          createGroupButton.disabled = false;
           return;
         }
- 
+
+        if (vgUserContact.length !== 10) {
+          alert("Please enter a valid 10-digit contact number.");
+          // Re-enable the form and button when validation fails
+          vgUserForm.disabled = false;
+          createGroupButton.disabled = false;
+          return;
+        }
+
         // Prepare the data for the API request
         const data = {
           voter_group_user_name: vgUserName,
@@ -769,9 +860,9 @@
           voter_ids: selectedVoterIds,
         };
         // console.log('payload-', data);
- 
+
         // Make API request
-        fetch('http://192.168.200.118:8001/api/create_voter_group_user/', {
+        fetch('http://192.168.200.151:8001/api/create_voter_group_user/', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -788,26 +879,32 @@
           .then(data => {
             // Display success message
             alert(data.message);
- 
+
             // Close the modal
             bootstrap.Modal.getInstance(document.getElementById('vgUserModal')).hide();
- 
+
             // Clear form inputs and voter list
             vgUserForm.reset();
             selectedVoterIds = []; // Reset the voter IDs
             selectedVotersList.innerHTML = "";
- 
+
             // Uncheck all selected checkboxes
             document.querySelectorAll('.booth-checkbox:checked').forEach(checkbox => {
               checkbox.checked = false;
             });
- 
+
             // Optionally reload the page or dynamically update the table
             location.reload();
           })
           .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred. Please try again.');
+            // alert('An error occurred. Please try again.');
+            alert(error);
+          })
+          .finally(() => {
+            // Re-enable the form and button and hide the loading indicator
+            vgUserForm.disabled = false; // Re-enable the entire form
+            createGroupButton.disabled = false; // Re-enable the button
           });
       });
     });
@@ -856,7 +953,7 @@
         }
 
         console.log('Selected Voter IDs:', selectedVoterIds);
-        const apiUrl = 'http://192.168.200.118:8001/api/add_voter_to_existing_group/';
+        const apiUrl = 'http://192.168.200.151:8001/api/add_voter_to_existing_group/';
 
         const requestBody = {
           voter_ids: selectedVoterIds,
@@ -904,7 +1001,7 @@
     // Assign multiple Castes
     document.addEventListener('DOMContentLoaded', function () {
       // Fetch caste data from the API and populate the caste select options
-      fetch('http://192.168.200.118:8001/api/cast/')
+      fetch('http://192.168.200.151:8001/api/cast/')
         .then(response => response.json())
         .then(data => {
           const casteSelect = document.getElementById('caste-select-container');
@@ -962,7 +1059,7 @@
         // console.log('payload-', payload);
 
         // Make the PUT request to assign caste to voters
-        fetch('http://192.168.200.118:8001/api/assign_voter_cast/', {
+        fetch('http://192.168.200.151:8001/api/assign_voter_cast/', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -1031,7 +1128,7 @@
 
 
         // Make the PUT request to assign caste to voters
-        fetch('http://192.168.200.118:8001/api/favour/', {
+        fetch('http://192.168.200.151:8001/api/favour/', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',

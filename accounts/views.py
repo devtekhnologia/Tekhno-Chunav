@@ -14,7 +14,7 @@ from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_http_methods
 import logging
 
-BASE_URL = "http://192.168.200.118:8001/"
+BASE_URL = "http://192.168.200.151:8001/"
 LOCAL_URL = "http://127.0.0.1:8000/"
 
 
@@ -79,6 +79,7 @@ def login_view(request):
                     user.set_password(None)
                     user.save()
  
+                request.session.flush()
                 request.session['auth_token'] = token
                 request.session['politician_id'] = decoded_data['politician_id']
                 auth_login(request, user)
@@ -86,15 +87,56 @@ def login_view(request):
                 return redirect('dashboard')
             else:
                 # Add a non-field error when login fails
+                request.session.flush()
+                request.session['user_add_politician_number'] = form.cleaned_data['mobile_number']
+                request.session['user_add_politician_password'] = form.cleaned_data['password']
                 form.add_error(None, 'Invalid mobile number or password. Please try again.')
  
         else:
             # If the form is not valid, errors will be automatically rendered
             messages.error(request, 'Please correct the errors above.')
     else:
+        request.session.flush()
         form = LoginForm()
  
-    return render(request, 'login.html', {'form': form})
+    return render(request, 'login.html', {'form': form}, )
+# def login_view(request):
+#     if request.method == 'POST':
+#         form = LoginForm(request.POST)
+#         if form.is_valid():
+#             data1 = {
+#                 'politician_name': form.cleaned_data['mobile_number'],
+#                 'politician_password': form.cleaned_data['password'],
+#             }
+#             response = requests.post(f"{BASE_URL}api/politician_login/", data=data1)
+#             if response.status_code == 200:
+#                 response_data = response.json()
+#                 token = response_data.get('token')
+#                 decoded_data = jwt.decode(token, options={"verify_signature": False})
+#                 politician_id = response_data.get('politician_id')
+#                 mobile_number = form.cleaned_data['mobile_number']
+ 
+#                 user, created = User.objects.get_or_create(username=mobile_number)
+#                 if created:
+#                     user.set_password(None)
+#                     user.save()
+ 
+#                 request.session['auth_token'] = token
+#                 request.session['politician_id'] = decoded_data['politician_id']
+#                 auth_login(request, user)
+ 
+#                 return redirect('dashboard')
+#             else:
+#                 # Add a non-field error when login fails
+#                 form.add_error(None, 'Invalid mobile number or password. Please try again.')
+ 
+#         else:
+#             # If the form is not valid, errors will be automatically rendered
+#             messages.error(request, 'Please correct the errors above.')
+#     else:
+#         form = LoginForm()
+ 
+#     return render(request, 'login.html', {'form': form})
 
 
 # # Login view
@@ -187,7 +229,7 @@ def logout_view(request):
 def dashboard(request):
     politician_id = request.session.get('politician_id')
     # print('PID--',politician_id)
-    return render(request, 'dashboard.html', {'p_id': politician_id})
+    return render(request, 'dashboard - NP.html', {'p_id': politician_id})
 
 # Navbar
 @login_required(login_url='login')
@@ -253,7 +295,8 @@ def BoothDetails(request):
             booth for booth in booth_data
             if search_query.lower() in booth['booth_name'].lower() or
                search_query.lower() in booth['town_name'].lower() or
-               search_query.lower() in booth['user_name'].lower()
+               search_query.lower() in booth['user_name'].lower() or
+               search_query.lower() in booth['booth_name_mar'].lower()
         ]
 
     # Sort the booth_data alphabetically by Town Name
@@ -277,7 +320,7 @@ def BoothDetails(request):
         'page_obj': page_obj,
         'search_query': search_query  # Ensure this is passed
     }
-    return render(request, 'BoothDetails.html', context)
+    return render(request, 'BoothDetails - NP.html', context)
 
 
 # PrabhagWiseBoothList
@@ -884,7 +927,7 @@ def TownUserList(request):
 def SurnameWiseVoterList(request):
     search_query = request.GET.get('search', '')  # Get search query if provided
     sort_order = request.GET.get('sort', '')  # Get the sort query (a-z)
-    url = "http://192.168.200.118:8001/api/surname_wise_voter_count/"
+    url = "http://192.168.200.151:8001/api/surname_wise_voter_count/"
     
     response = requests.get(url)
     response.raise_for_status()
@@ -1315,7 +1358,7 @@ def TotalVoterList(request):
     if search_query:
         voters_list = [
             voter for voter in voters_list
-            if isinstance(voter.get('voter_name'), str) and search_query in voter.get('voter_name', '').lower()
+            if (isinstance(voter.get('voter_name'), str) and search_query in voter.get('voter_name', '').lower()) or (isinstance(voter.get('voter_name_mar'), str) and search_query in voter.get('voter_name_mar', ''))
         ]
 
     # Pagination

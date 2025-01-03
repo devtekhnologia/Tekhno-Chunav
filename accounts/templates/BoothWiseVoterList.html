@@ -156,11 +156,10 @@
           </div>
         </div>
 
-        <!-- Filter -->
-        <div class="d-flex justify-content-end gap-3 me-4 mb-1">
+        <div class="d-flex justify-content-end gap-3">
           <!-- Voter caste assign -->
           <div class="mb-3" style="display: none;" id="caste-select-container">
-            <div class="input-group mb-3" style="width: 230px;">
+            <div class="input-group" style="width: 230px;">
               <select id="caste-select" class="form-select bg-light" aria-label="Small select example">
                 <option selected>Select Caste</option>
               </select>
@@ -169,7 +168,7 @@
           </div>
 
           <div class="mb-3" style="display: none;" id="favour-select-container">
-            <div class="input-group mb-3" style="width: 230px;">
+            <div class="input-group" style="width: 230px;">
               <select id="favour-select" class="form-select bg-light" aria-label="Small select example">
                 <option selected>Select Favour</option>
                 <option class="text-success" value="1">Green</option>
@@ -184,15 +183,18 @@
             </div>
           </div>
 
-          <div class=" mb-3" id="location-favor-filters">
-            <div class="input-group" style="width: 380px;">
-              <select id="locationtypeSelect" class="form-select bg-light" aria-label="Small select example">
+          <div class="d-flex justify-content-end gap-3 mb-3" id="location-favor-filters" style="width: 550px;">
+            <div class="input-group" style="width: 260px;">
+              <select id="locationFilterSelect" class="form-select bg-light" aria-label="Small select example">
                 <option value="null" selected>Select Location</option>
                 <option value="1">In City</option>
                 <option value="2">Near City</option>
                 <option value="3">Out of City</option>
               </select>
-              <select id="town-type-select" class="form-select bg-light" aria-label="Small select example">
+              <a class="btn btn-light border" id="exportLocationFilterButton">Export</a>
+            </div>
+            <div class="input-group" style="width: 280px;">
+              <select id="favourFilterSelect" class="form-select bg-light" aria-label="Small select example">
                 <option selected>Select Favour Type</option>
                 <option class="text-success" value="1">Green</option>
                 <option class="text-danger" value="2">Red</option>
@@ -202,6 +204,7 @@
                 <option style="color: palevioletred;" value="6">Pink</option>
                 <option style="color: purple;" value="7">Purple</option>
               </select>
+              <a class="btn btn-light border" id="exportFavourFilterButton">Export</a>
             </div>
           </div>
 
@@ -216,10 +219,12 @@
             </div>
           </div>
 
-          <a href="#" class="btn btn-light border me-4 mb-3" id="exportButton">
-            <!-- <i class="fa-solid fa-arrow-up-from-bracket"></i>&nbsp; -->
-            Export
-          </a>
+          <div class="mb-3">
+            <a class="btn btn-light border me-4" id="exportButton">
+              <!-- <i class="fa-solid fa-arrow-up-from-bracket"></i>&nbsp; -->
+              Export
+            </a>
+          </div>
         </div>
 
         <div class="col-12 mb-3 mb-lg-5">
@@ -249,6 +254,7 @@
               </table>
             </div>
           </div>
+          <div class="text-center" id="message-container"></div>
         </div>
         <div id="loading">
           <div class="spinner"></div>
@@ -340,7 +346,7 @@
           </table>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-light m-1" id="export-pdf-button">
+            <button type="button" class="btn btn-light m-1" id="voterDetailsExportButton">
               <i class="fa-solid fa-arrow-up-from-bracket"></i>&nbsp;Export
             </button>
           </div>
@@ -401,7 +407,7 @@
 
       // Fetch towns data
       function fetchTowns() {
-        fetch('http://192.168.200.118:8001/api/towns/')
+        fetch('http://192.168.200.151:8001/api/towns/')
           .then(response => response.json())
           .then(data => {
             data.forEach(town => {
@@ -418,7 +424,7 @@
         const selectedTownId = townSelect.value;
         if (!selectedTownId) return;
 
-        fetch(`http://192.168.200.118:8001/api/booths_by_town/${selectedTownId}/`)
+        fetch(`http://192.168.200.151:8001/api/booths_by_town/${selectedTownId}/`)
           .then(response => response.json())
           .then(data => {
             boothSelect.innerHTML = '<option value="" disabled selected>Select Booth</option>';
@@ -434,10 +440,11 @@
       // Fetch voters based on selected booth
       function fetchVotersByBooth() {
         const selectedBoothId = boothSelect.value;
+        
         const selectedTownId = townSelect.value;
         if (!selectedBoothId || !selectedTownId) return;
 
-        fetch(`http://192.168.200.118:8001/api/get_voters_by_booth/${selectedBoothId}/`)
+        fetch(`http://192.168.200.151:8001/api/get_voters_by_booth/${selectedBoothId}/`)
           .then(response => response.json())
           .then(data => {
             votersData = data;
@@ -596,7 +603,7 @@
         const newConfirmationStatus = voteStatusId === 1 ? null : 1; // Toggle logic
 
         try {
-          fetch(`http://192.168.200.118:8001/api/voter_confirmation/${voter.voter_id}/`, {
+          fetch(`http://192.168.200.151:8001/api/voter_confirmation/${voter.voter_id}/`, {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json'
@@ -632,7 +639,7 @@
       // Fetch and populate voter details in the modal
       window.showVoterDetails = function (voterId) {
         currentVoterId = voterId; // Save the current voter ID
-        fetch(`http://192.168.200.118:8001/api/voters/${voterId}/`)
+        fetch(`http://192.168.200.151:8001/api/voters/${voterId}/`)
           .then(response => response.json())
           .then(data => {
             document.getElementById('voter_serial_number').textContent = data.voter_serial_number || '--';
@@ -696,24 +703,20 @@
         return { townId, boothId };
       }
 
-      // Export button functionality in Page
+      // Normal Export button functionality in Page
       exportButton.addEventListener('click', function (event) {
         event.preventDefault(); // Prevent default anchor behavior
 
         const selectedBoothId = boothSelect.value;
-        const selectedLocationId = locationtypeSelect.value;
-        // console.log('B--', selectedBoothId, 'L--', selectedLocationId);
 
-
-
-        if (!selectedBoothId || !selectedLocationId) {
-          alert('Please select both Booth and Location before exporting pdf.');
+        if (!selectedBoothId) {
+          alert('Please select Booth before exporting pdf.');
           return;
         }
 
-        const pdfUrl = `http://192.168.200.118:8001/api/generate_voter_pdf_by_booth/booth_id/${selectedBoothId}/city_id/${selectedLocationId}/`;
+        const pdfUrl = `http://192.168.200.151:8001/api/booth_wise_voters_pdf/${selectedBoothId}/`;
 
-        if (selectedBoothId || selectedLocationId) {
+        if (selectedBoothId) {
           // Fetch PDF
           fetch(pdfUrl)
             .then(response => {
@@ -732,6 +735,49 @@
               a.remove();
             })
             .catch(error => {
+              alert('Make sure you have selected Booth before exporting pdf.');
+            });
+        } else {
+          alert('Please select Booth before exporting pdf.');
+        }
+      });
+
+      // LocationFilter-Export button functionality in Page
+      exportLocationFilterButton.addEventListener('click', function (event) {
+        event.preventDefault(); // Prevent default anchor behavior
+
+        const selectedBoothId = boothSelect.value;
+        const selectedLocationId = locationFilterSelect.value;
+        console.log('B',favourFilterSelect.value);
+        favourFilterSelect.disa
+        console.log('A',favourFilterSelect.value);
+
+        if (!selectedBoothId || !selectedLocationId) {
+          alert('Please select both Booth and Location before exporting pdf.');
+          return;
+        }
+
+        const pdfUrl = `http://192.168.200.151:8001/api/generate_voter_pdf_by_booth/booth_id/${selectedBoothId}/city_id/${selectedLocationId}/`;
+
+        if (selectedBoothId || selectedLocationId) {
+          // Fetch PDF
+          fetch(pdfUrl)
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('Network response was not ok');
+              }
+              return response.blob();
+            })
+            .then(blob => {
+              const url = window.URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = `BoothWiseVoterList_LocationSort.pdf`;
+              document.body.appendChild(a);
+              a.click();
+              a.remove();
+            })
+            .catch(error => {
               alert('Make sure you have selected both Booth and Location before exporting pdf.');
             });
         } else {
@@ -739,8 +785,51 @@
         }
       });
 
+      // FavourFilter-Export button functionality in Page
+      exportFavourFilterButton.addEventListener('click', function (event) {
+        event.preventDefault(); // Prevent default anchor behavior
+
+        const selectedBoothId = boothSelect.value;
+        const selectedFavourId = favourFilterSelect.value;
+        console.log('B',locationFilterSelect.value);
+        locationFilterSelect.value = '';
+        console.log('A',locationFilterSelect.value);
+
+        if (!selectedBoothId || !selectedFavourId) {
+          alert('Please select both Booth and Location before exporting pdf.');
+          return;
+        }
+
+        const pdfUrl = `http://192.168.200.151:8001/api/booth_wise_favour_voters_pdf/${selectedBoothId}/${selectedFavourId}/`;
+
+        if (selectedBoothId || selectedFavourId) {
+          // Fetch PDF
+          fetch(pdfUrl)
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('Network response was not ok');
+              }
+              return response.blob();
+            })
+            .then(blob => {
+              const url = window.URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = `BoothWiseVoterList_FavourSort.pdf`;
+              document.body.appendChild(a);
+              a.click();
+              a.remove();
+            })
+            .catch(error => {
+              alert('Make sure you have selected both Booth and Favour before exporting pdf.');
+            });
+        } else {
+          alert('Please select both Booth and Favour before exporting pdf.');
+        }
+      });
+
       // Favor type filter
-      document.getElementById('town-type-select').addEventListener('change', function () {
+      document.getElementById('favourFilterSelect').addEventListener('change', function () {
         const selectedFavourId = parseInt(this.value);
         if (!isNaN(selectedFavourId)) {
           const filteredVoters = votersData.filter(voter => voter.voter_favour_id === selectedFavourId);
@@ -751,7 +840,7 @@
       });
 
       // Location type filter
-      document.getElementById('locationtypeSelect').addEventListener('change', function () {
+      document.getElementById('locationFilterSelect').addEventListener('change', function () {
         const selectedLocationId = parseInt(this.value);
         if (!isNaN(selectedLocationId)) {
           const filteredVoters = votersData.filter(voter => voter.voter_in_city_id === selectedLocationId);
@@ -769,12 +858,12 @@
         } else if (townId) {
           fetchVoters_by_bid(townId); // Fetch voters for the booth_id from URL
         } else {
-          console.log('No town_id or booth_id found in URL path, user can select from dropdowns');
+          // console.log('No town_id or booth_id found in URL path, user can select from dropdowns');
         }
       }
 
       function fetchVoters_by_tid_AND_bid(townId, boothId) {
-        fetch(`http://192.168.200.118:8001/api/town/${townId}/booth/${boothId}/`)
+        fetch(`http://192.168.200.151:8001/api/town/${townId}/booth/${boothId}/`)
           .then(response => response.json())
           .then(data => {
             votersData = data; // Store fetched voters data
@@ -784,7 +873,7 @@
       }
 
       function fetchVoters_by_bid(boothId) {
-        fetch(`http://192.168.200.118:8001/api/get_voters_by_booth/${parseInt(boothId)}/`)
+        fetch(`http://192.168.200.151:8001/api/get_voters_by_booth/${parseInt(boothId)}/`)
           .then(response => response.json())
           .then(data => {
             votersData = data; // Store fetched voters data
@@ -797,12 +886,12 @@
 
 
       // Add event listener for the export button
-      document.getElementById('export-pdf-button').addEventListener('click', () => {
+      document.getElementById('voterDetailsExportButton').addEventListener('click', () => {
         if (!currentVoterId) {
           alert('Please select a voter first to export.');
           return;
         }
-        const pdfUrl = `http://192.168.200.118:8001/api/generate_voter_pdf/${currentVoterId}/`;
+        const pdfUrl = `http://192.168.200.151:8001/api/generate_voter_pdf/${currentVoterId}/`;
         fetch(pdfUrl)
           .then(response => {
             if (!response.ok) throw new Error('Network response was not ok');
@@ -820,23 +909,34 @@
           .catch(error => console.error('Error exporting PDF:', error));
       });
 
-      // Search functionality
-      // document.getElementById('search-input').addEventListener('input', function () {
-      //   const searchTerm = this.value.toLowerCase();
-      //   const filteredVoters = votersData.filter(voter =>
-      //     voter.voter_name.toLowerCase().includes(searchTerm)
-      //   );
-      //   renderVoters(filteredVoters);
-      // });
-      
-      // Search functionality
       document.getElementById('search-input').addEventListener('input', function () {
         const searchTerm = this.value.toLowerCase();
-        const filteredVoters = votersData.filter(voter =>
+         const filteredVoters = votersData.filter(voter =>
           voter.voter_name.toLowerCase().includes(searchTerm) ||
           voter.voter_id_card_number.toLowerCase().includes(searchTerm)
         );
-        renderVoters(filteredVoters);
+ 
+        const messageContainer = document.getElementById('message-container');
+ 
+        if (searchTerm === '') {
+          messageContainer.textContent = "";
+          renderVoters(votersData);
+          return;
+        }
+ 
+        if (filteredVoters.length === 0) {
+          if (messageContainer) {
+            messageContainer.textContent = "No records found";
+            messageContainer.style.color = "red";
+          }
+          renderVoters([]);
+ 
+        } else {
+          renderVoters(filteredVoters);
+          if (messageContainer) {
+            messageContainer.textContent = "";
+          }
+        }
       });
 
       // Clear search input
@@ -844,6 +944,11 @@
         document.getElementById('search-input').value = '';
         renderVoters(votersData); // Render original voters data
       });
+      // Clear search input on asa ward change
+      document.getElementById('boothSelect').addEventListener('change', () => {
+                document.getElementById('search-input').value = '';
+                renderVoters(votersData); // Render original voters data
+            });
     });
 
 
@@ -855,7 +960,7 @@
       let selectedVoters = []; // This will track the selected voters
 
       // Fetch caste data from the API and populate the caste select options
-      fetch('http://192.168.200.118:8001/api/cast/')
+      fetch('http://192.168.200.151:8001/api/cast/')
         .then(response => response.json())
         .then(data => {
           const casteSelect = document.getElementById('caste-select');
@@ -876,7 +981,7 @@
       // Select all checkboxes when the table heading checkbox is clicked
       tableHeadingCheckbox.addEventListener('change', function () {
         const checkboxes = tableBody.querySelectorAll('input[type="checkbox"]');
-        console.log('checkboxes--', checkboxes);
+        // console.log('checkboxes--', checkboxes);
 
         checkboxes.forEach(checkbox => {
           checkbox.checked = tableHeadingCheckbox.checked; // Sync checkbox state with header checkbox
@@ -920,7 +1025,7 @@
           } else {
             selectedVoters = selectedVoters.filter(id => id !== voterId);
           }
-          console.log('selectedVoters:', selectedVoters);
+          // console.log('selectedVoters:', selectedVoters);
 
           // Show or hide caste select based on the number of selected voters
           if (selectedVoters.length > 0) {
@@ -953,10 +1058,10 @@
           "voter_ids": selectedVoters.map(voterId => parseInt(voterId)), // Ensure voter IDs are integers
           "voter_cast_id": parseInt(selectedCasteId) // Ensure caste ID is an integer
         };
-        console.log('Payload:', JSON.stringify(payload));
+        // console.log('Payload:', JSON.stringify(payload));
 
         // Make the PUT request to assign caste to voters
-        fetch('http://192.168.200.118:8001/api/assign_voter_cast/', {
+        fetch('http://192.168.200.151:8001/api/assign_voter_cast/', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -968,7 +1073,7 @@
           .then(data => {
             if (data.message) {
               alert(`Successfully updated ${data.message.split(' ')[2]} records.`);
-              location.reload(); // Reload the page to refresh the table and reset selections
+              location.reload(); // Reload the page to refresh the table and reset selections 
             } else {
               alert('Failed to assign caste. Please try again.');
             }
@@ -993,29 +1098,13 @@
     document.addEventListener('DOMContentLoaded', function () {
       let selectedVoters = []; // This will track the selected voters
 
-      // Fetch caste data from the API and populate the caste select options
-      // fetch('http://192.168.200.118:8001/api/cast/')
-      //   .then(response => response.json())
-      //   .then(data => {
-      //     const casteSelect = document.getElementById('caste-select');
-
-      //     // Add each caste option to the select dropdown
-      //     data.forEach(caste => {
-      //       const option = document.createElement('option');
-      //       option.value = caste.cast_id;
-      //       option.textContent = caste.cast_name;
-      //       casteSelect.appendChild(option);
-      //     });
-      //   })
-      //   .catch(error => console.error('Error fetching caste data:', error));
-
       const tableBody = document.getElementById('votersTableBody');
       const tableHeadingCheckbox = document.getElementById('townCheck'); // Corrected ID
 
       // Select all checkboxes when the table heading checkbox is clicked
       tableHeadingCheckbox.addEventListener('change', function () {
         const checkboxes = tableBody.querySelectorAll('input[type="checkbox"]');
-        console.log('checkboxes--', checkboxes);
+        // console.log('checkboxes--', checkboxes);
 
         checkboxes.forEach(checkbox => {
           checkbox.checked = tableHeadingCheckbox.checked; // Sync checkbox state with header checkbox
@@ -1059,7 +1148,7 @@
           } else {
             selectedVoters = selectedVoters.filter(id => id !== voterId);
           }
-          console.log('selectedVoters:', selectedVoters);
+          // console.log('selectedVoters:', selectedVoters);
 
           // Show or hide caste select based on the number of selected voters
           if (selectedVoters.length > 0) {
@@ -1092,10 +1181,10 @@
           "voter_ids": selectedVoters.map(voterId => parseInt(voterId)), // Ensure voter IDs are integers
           "voter_favour_id": parseInt(selectedFavourId) // Ensure caste ID is an integer
         };
-        console.log('Payload:', JSON.stringify(payload));
+        // console.log('Payload:', JSON.stringify(payload));
 
         // Make the PUT request to assign caste to voters
-        fetch('http://192.168.200.118:8001/api/favour/', {
+        fetch('http://192.168.200.151:8001/api/favour/', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',

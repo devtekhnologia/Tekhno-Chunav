@@ -302,14 +302,14 @@
       // Update Export Button Link
       function updateExportLink(areaType) {
         const exportBtn = document.getElementById('export-btn');
-        exportBtn.setAttribute('href', `http://192.168.200.118:8001/api/get_voter_count_pdf/${areaType}/`);
+        exportBtn.setAttribute('href', `http://192.168.200.151:8001/api/get_voter_count_pdf/${areaType}/`);
       }
 
       // Function to fetch and display booth data
       function fetchBoothData(areaType = '') {
         const apiUrl = areaType
-          ? `http://192.168.200.118:8001/api/get_voter_count_by_town_area_type/${areaType}/`
-          : `http://192.168.200.118:8001/api/get_voter_count_by_town_area_type/`;
+          ? `http://192.168.200.151:8001/api/get_voter_count_by_town_area_type/${areaType}/`
+          : `http://192.168.200.151:8001/api/get_voter_count_by_town_area_type/`;
 
         fetch(apiUrl)
           .then(response => response.json())

@@ -241,40 +241,8 @@
     integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
     crossorigin="anonymous"></script>
   <script>
-    // Initialize the Tooltip
-    // document.addEventListener('DOMContentLoaded', function () {
-    //   var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    //   tooltipTriggerList.forEach(function (tooltipTriggerEl) {
-    //     new bootstrap.Tooltip(tooltipTriggerEl);
-    //   });
-
-    //   const createPrabhagButton = document.getElementById('create-prabhag-button');
-
-    //   // Attach the event listener to the parent element (or another appropriate container)
-    //   document.getElementById('booth-table').addEventListener('change', function (event) {
-    //     if (event.target.classList.contains('booth-checkbox')) {  // Check if the clicked target is a checkbox
-    //       const selectedBooths = document.querySelectorAll('.booth-checkbox:checked');  // Get all selected checkboxes
-    //       createPrabhagButton.style.display = selectedBooths.length > 0 ? 'inline-block' : 'none';  // Show or hide the button
-    //     }
-    //   });
-
-    //   // Event listener for 'Create Prabhag' confirm button in second modal
-    //   document.getElementById('create-prabhag-confirm-button').addEventListener('click', function () {
-    //     const prabhagName = document.getElementById('prabhag-name-input').value;
-    //     if (!prabhagName) {
-    //       alert("Please enter a Prabhag name.");
-    //       return;
-    //     }
-
-    //     const selectedBoothCheckboxes = document.querySelectorAll('.booth-checkbox:checked');
-    //     const boothIds = Array.from(selectedBoothCheckboxes).map(checkbox => parseInt(checkbox.value, 10));
-
-    //     // Call the update function with boothIds and prabhagName
-    //     createPrabhag(boothIds, prabhagName);
-    //   });
-    // });
-
     document.addEventListener('DOMContentLoaded', function () {
+
       const createPrabhagButton = document.getElementById('create-prabhag-button');
       const boothTableBody = document.getElementById('user-table-body');  // Targeting the tbody instead of non-existent booth-table
       const searchInput = document.getElementById('search-input');
@@ -285,11 +253,39 @@
       boothTableBody.addEventListener('change', function (event) {
         if (event.target.classList.contains('booth-checkbox')) {  // Check if the clicked target is a checkbox
           const selectedBooths = document.querySelectorAll('.booth-checkbox:checked');  // Get all selected checkboxes
-          createPrabhagButton.style.display = selectedBooths.length > 0 ? 'inline-block' : 'none';  // Show or hide the button
+          // createPrabhagButton.style.display = selectedBooths.length > 0 ? 'inline-block' : 'none';  // Show or hide the button
         }
       });
 
+      createPrabhagButton.addEventListener('click', function () {
+        document.getElementById('prabhag-name-input').value = '';
+        // Get the checked booth checkboxes
+        const selectedBoothCheckboxes = document.querySelectorAll('.booth-checkbox:checked');
 
+        // Convert to an array of booth IDs
+        const boothIds = Array.from(selectedBoothCheckboxes).map(checkbox => parseInt(checkbox.value, 10));
+
+        // Check if no booths are selected
+        if (boothIds.length === 0) {
+          // Get the modal element and check if an instance already exists
+          const prabhagModalElement = document.getElementById('prabhagModal');
+
+          // If the modal instance exists, dispose of it
+          const existingModalInstance = bootstrap.Modal.getInstance(prabhagModalElement);
+          if (existingModalInstance) {
+            existingModalInstance.dispose(); // Dispose the existing modal
+          }
+
+          alert("Please select at least one booth to create a Prabhag.");
+          return;  // Stop execution here, preventing the modal from showing
+        }
+
+        // If booths are selected, show the Prabhag modal
+        const prabhagModal = new bootstrap.Modal(document.getElementById('prabhagModal'));
+        prabhagModal.show();
+      });
+
+      // Event listener for 'Create Prabhag' confirm button in second modal
       createPrabhagSMButton.addEventListener('click', function () {
         const prabhagName = document.getElementById('prabhag-name-input').value;
         if (!prabhagName) {
@@ -324,7 +320,7 @@
         prabhag_name: prabhagName
       };
 
-      fetch('http://192.168.200.118:8001/api/create_prabhag/', {
+      fetch('http://192.168.200.151:8001/api/create_prabhag/', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
@@ -340,9 +336,12 @@
         .then(data => {
           if (data.status === "success" && data.message === "Prabhag created successfully") {
             alert(data.message);
+            // alert("hello world");
             // Close both modals
             bootstrap.Modal.getInstance(document.getElementById('prabhagModal')).hide();
-            bootstrap.Modal.getInstance(document.getElementById('boothDetailsModal')).hide();
+            location.reload();
+            // bootstrap.Modal.getInstance(document.getElementById('boothDetailsModal')).hide();
+            // return;
             // Optionally refresh the page or update the booth list if needed
           } else {
             alert('Creation failed. Please try again.');

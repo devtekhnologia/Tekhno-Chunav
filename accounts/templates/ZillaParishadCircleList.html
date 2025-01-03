@@ -412,7 +412,7 @@
 
         // Fetch zp details based on PSC id
         function fetchPSDetails(zpId) {
-            fetch(`http://192.168.200.118:8001/api/get_panchayat_samiti_circle_by_zp_circle/${parseInt(zpId)}/`)
+            fetch(`http://192.168.200.151:8001/api/get_panchayat_samiti_circle_by_zp_circle/${parseInt(zpId)}/`)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Network response was not ok');
@@ -459,7 +459,7 @@
 
         // Fetch zp details based on PSC id
         function fetchzpDetails(PSCId, PSCName) {
-            fetch(`http://192.168.200.118:8001/api/get_town_info_by_psc/${parseInt(PSCId)}/`)
+            fetch(`http://192.168.200.151:8001/api/get_town_info_by_psc/${parseInt(PSCId)}/`)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Network response was not ok');
@@ -522,7 +522,7 @@
         function fetchBoothDetails(townId, townName) {
             console.log("tid-", townId);
 
-            fetch(`http://192.168.200.118:8001/api/get_booth_details_by_town_id/${parseInt(townId)}/`)
+            fetch(`http://192.168.200.151:8001/api/get_booth_details_by_town_id/${parseInt(townId)}/`)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Network response was not ok');

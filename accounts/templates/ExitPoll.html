@@ -125,7 +125,7 @@
                 // Voted & Non-voted Bar chart
                 async function fetchvotedNonVotedData() {
                     try {
-                        const response = await fetch("http://192.168.200.118:8001/api/get_voted_and_non_voted_count/");
+                        const response = await fetch("http://192.168.200.151:8001/api/get_voted_and_non_voted_count/");
                         const data = await response.json();
 
                         const totalCount = data.voted_count + data.non_voted_count; // Calculate total count
@@ -181,7 +181,7 @@
                 // Favourable, Non-Favourable, Not-Confirmed & Pending Bar chart
                 async function fetchData() {
                     try {
-                        const response = await fetch("http://192.168.200.118:8001/api/voter_favour_counts/");
+                        const response = await fetch("http://192.168.200.151:8001/api/voter_favour_counts/");
                         const data = await response.json();
 
                         const totalVotes = data.Favourable + data.Non_Favourable + data.Not_Confirmed + data.Pending; // Calculate total votes
@@ -228,7 +228,7 @@
                 // Doughnut Chart for Favourable Voter Counts
                 async function fetchFavourableVoterData() {
                     try {
-                        const response = await fetch("http://192.168.200.118:8001/api/voted_vote_confirmation_count_for_all/");
+                        const response = await fetch("http://192.168.200.151:8001/api/voted_vote_confirmation_count_for_all/");
                         const data = await response.json();
 
                         // Extract the relevant counts
@@ -268,7 +268,7 @@
                 // Doughnut Chart for Not Favourable Voter Counts
                 async function fetchNotFavourableVoterData() {
                     try {
-                        const response = await fetch("http://192.168.200.118:8001/api/voted_vote_confirmation_count_for_all/");
+                        const response = await fetch("http://192.168.200.151:8001/api/voted_vote_confirmation_count_for_all/");
                         const data = await response.json();
 
                         // Extract the relevant counts

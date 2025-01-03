@@ -92,7 +92,7 @@
                     <div class="mb-3">
                         <label for="mobile_number" class="form-label"><strong>Mobile Number</strong></label>
                         <input type="text" class="form-control bg-light" name="mobile_number" id="mobile_number"
-                            placeholder="Enter mobile number here ..." required>
+                        placeholder="Enter mobile number here ..." value="{{ request.session.user_add_politician_number|default:'' }}" required>
                         {% if form.mobile_number.errors %}
                         <div class="text-danger">
                             {{ form.mobile_number.errors }}
@@ -103,7 +103,7 @@
                         <label for="password" class="form-label"><strong>Password</strong></label>
                         <div class="input-group">
                             <input type="password" class="form-control bg-light" name="password" id="password"
-                                placeholder="Enter password here ..." required>
+                            placeholder="Enter password here ..." value = "{{ request.session.user_add_politician_password|default:'' }}" required>
                             <button class="btn bg-light border-top border-end border-bottom"
                                 style="width: 12%; background-color: #fff;" type="button" id="togglePassword">
                                 <i class="fas fa-eye-slash"></i>

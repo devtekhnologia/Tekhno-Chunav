@@ -181,7 +181,7 @@
       });
 
       // Fetch and populate town list
-      fetch('http://192.168.200.118:8001/api/towns_by_town_area_type/1/')
+      fetch('http://192.168.200.151:8001/api/towns_by_town_area_type/1/')
         .then(response => response.json())
         .then(data => {
           const townSelect = document.getElementById('townSelect');
@@ -208,7 +208,7 @@
       const selectedTownId = this.value;
       if (selectedTownId) {
         // Fetch prabhags for the selected town
-        fetch(`http://192.168.200.118:8001/api/get_prabhag_by_town/${selectedTownId}/`)
+        fetch(`http://192.168.200.151:8001/api/get_prabhag_by_town/${selectedTownId}/`)
           .then(response => response.json())
           .then(data => {
             const prabhagSelect = document.getElementById('prabhagSelect');
@@ -285,7 +285,7 @@
       });
 
       // Dynamically load towns into the multi-select dropdown
-      fetch('http://192.168.200.118:8001/api/get_prabhags/')
+      fetch('http://192.168.200.151:8001/api/get_prabhags/')
         .then(response => response.json())
         .then(data => {
             const select = document.getElementById('prabhagSelect');
